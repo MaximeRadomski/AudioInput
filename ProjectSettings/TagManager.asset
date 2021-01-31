@@ -38,6 +38,30 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: Background
+    uniqueID: 2194734935
+    locked: 0
+  - name: Back
+    uniqueID: 319152213
+    locked: 0
+  - name: Mid
+    uniqueID: 346460819
+    locked: 0
+  - name: Top
+    uniqueID: 1838348617
+    locked: 0
+  - name: Texts
+    uniqueID: 2839824541
+    locked: 0
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Popup
+    uniqueID: 3824114677
+    locked: 0
+  - name: PopupTop
+    uniqueID: 3755353627
+    locked: 0
+  - name: Hover
+    uniqueID: 3871840521
     locked: 0
