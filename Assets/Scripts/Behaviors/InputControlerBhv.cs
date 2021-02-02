@@ -27,6 +27,26 @@ public class InputControlerBhv : MonoBehaviour
 
     void Update()
     {
+        // IF BACK BUTTON //
+        if (Input.GetKeyUp(KeyCode.Escape))
+        {
+            if (Constants.InputLayer > 0)
+            {
+                var gameObjectToDestroy = GameObject.Find(Constants.InputTopLayerNames[Constants.InputTopLayerNames.Count - 1]);
+                gameObjectToDestroy.GetComponent<PopupBhv>().ExitPopup();
+            }
+            return;
+        }
+        // IF ENTER BUTTON //
+        else if (Input.GetKeyUp(KeyCode.KeypadEnter) || Input.GetKeyUp(KeyCode.Return))
+        {
+            if (Constants.InputLayer > 0)
+            {
+                var gameObjectToDestroy = GameObject.Find(Constants.InputTopLayerNames[Constants.InputTopLayerNames.Count - 1]);
+                gameObjectToDestroy.GetComponent<PopupBhv>().ValidatePopup();
+            }
+            return;
+        }
         var currentFrameInputLayer = Constants.InputLayer;
         _beginPhase = _doPhase = _endPhase = false;
         // IF MOUSE //

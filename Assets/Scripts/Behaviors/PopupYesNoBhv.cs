@@ -47,4 +47,9 @@ public class PopupYesNoBhv : PopupBhv
         _resultAction?.Invoke(false);
         Destroy(gameObject);
     }
+
+    public override void ValidatePopup()
+    {
+        PositiveDelegate();
+    }
 }

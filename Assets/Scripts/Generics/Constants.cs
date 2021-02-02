@@ -8,6 +8,29 @@ public static class Constants
 
     public const string AbjectAudioInputs = "AbjectAudioInputs";
 
+    //  PLAYER PREFS  //
+    // PANEL 00
+    public const string PpLastSavedDevice = "LastSavedDevice";
+    public const string PpLastSavedDeviceDefault = null;
+    public const string PpCurrentChannel = "CurrentChannel";
+    public const int PpCurrentChannelDefault = 0;
+    public const string PpHzOffset = "HzOffset";
+    public const float PpHzOffsetDefault = 1.0f;
+    public const string PpRequiredFrames = "RequiredFrames";
+    public const int PpRequiredFramesDefault = 4;
+    public const string PpPeaksPriority = "PeaksPriority";
+    public const int PpPeaksPriorityDefault = 0;
+    public const string PpLevelDynamicRange = "LevelDynamicRange";
+    public const int PpLevelDynamicRangeDefault = 30;
+    public const string PpLevelGain = "LevelGain";
+    public const int PpLevelGainDefault = 0;
+    public const string PpSpectrumDynamicRange = "SpectrumDynamicRange";
+    public const int PpSpectrumDynamicRangeDefault = 30;
+    public const string PpSpectrumGain = "SpectrumGain";
+    public const int PpSpectrumGainDefault = 0;
+
+
+
     public static Color ColorBlackTransparent = new Color(0.0f, 0.0f, 0.0f, 0.0f);
     public static Color ColorPlain = new Color(1.0f, 1.0f, 1.0f, 1.0f);
     public static Color ColorPlainTransparent = new Color(1.0f, 1.0f, 1.0f, 0.0f);
