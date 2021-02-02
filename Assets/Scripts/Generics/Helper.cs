@@ -60,4 +60,17 @@ public static class Helper
     {
         return Camera.allCameras.FirstOrDefault(c => c.name.ToLower().Contains("main"));
     }
+
+    public static int RoundToClosestTable(int value, int table)
+    {
+        value += 100;
+        var superior = value % table == 0 ? 0 : table - value % table;
+        var inferior = value % table;
+        if (superior == 0)
+            return value - 100;
+        else if (superior < inferior)
+            return value + superior - 100;
+        else
+            return value - inferior - 100;
+    }
 }

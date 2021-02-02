@@ -109,19 +109,19 @@ public class AbjectAudioInputs : MonoBehaviour
     void Update()
     {
         AnalyzeSound();
-        _dbData.text = DynRangeDB.ToString("F1");
-        _hzData.text = DynRangeDB > 0 ? _pitchValue.ToString("F2") : "0.0";
+        _dbData.text = DynRangeDB.ToString("0");
+        _hzData.text = DynRangeDB > 0 ? _pitchValue.ToString("F2") : "0.00";
         _peaksData.text = DynRangeDB > 0 ? _peaksCount.ToString() : "0";
-        if (DynRangeDB > 0)
-            PlayCorrespondingInputs();
+        //if (DynRangeDB > 0)
+            //PlayCorrespondingInputs();
         _levelDrawer.Draw(_audioLevelTracker);
         _spectrumDrawer.Draw(_spectrum);
     }
 
     void PlayCorrespondingInputs()
     {
-        //var test = new InputSimulator();
-        //test.Keyboard.KeyPress(VirtualKeyCode.SPACE);
+        var test = new InputSimulator();
+        test.Keyboard.KeyPress(VirtualKeyCode.SPACE);
     }
 
     void OnGUI()

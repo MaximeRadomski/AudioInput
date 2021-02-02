@@ -8,34 +8,28 @@ public class PopupEnumBhv : PopupBhv
     private Vector3 _listStartPosition;
     private int _currentId;
 
-    public void Init<EnumType>(string title, string content, int currentId, System.Func<int, object> resultAction) where EnumType : System.Enum
+    public void Init<EnumType>(string title, int currentId, System.Func<int, object> resultAction) where EnumType : System.Enum
     {
         _currentId = currentId;
         _resultAction = resultAction;
 
         transform.Find("Title").GetComponent<TMPro.TextMeshPro>().text = title;
-        transform.Find("Content").GetComponent<TMPro.TextMeshPro>().text = content;
 
         var buttonNegative = transform.Find("ButtonNegative");
         buttonNegative.GetComponent<ButtonBhv>().EndActionDelegate = NegativeDelegate;
 
         _listStartPosition = transform.Find("ListStartPosition").position;
         var spaceBetween = 12 * Constants.Pixel;
-
-        if (typeof(EnumType) == typeof(System.Enum))
+        var values = (EnumType[])System.Enum.GetValues(typeof(EnumType));
+        for (int i = 0; i < values.Length; ++i)
         {
-            var values = (EnumType[])System.Enum.GetValues(typeof(EnumType));
-            for (int i = 0; i < values.Length; ++i)
-            {
-                var tmpButtonObject = Resources.Load<GameObject>("Prefabs/EnumButton");
-                var tmpButtonInstance = Instantiate(tmpButtonObject, _listStartPosition + new Vector3(0.0f, -spaceBetween * i, 0.0f), tmpButtonObject.transform.rotation);
-                tmpButtonInstance.name = $"EnumChoice{i}";
-                string tmpName = values[i].ToString();
-                tmpButtonInstance.transform.GetChild(0).GetComponent<TMPro.TextMeshPro>().text = tmpName.ToLower();
-                tmpButtonInstance.GetComponent<ButtonBhv>().EndActionDelegate = SelectEnum;
-                tmpButtonInstance.transform.SetParent(transform);
-                ++i;
-            }
+            var tmpButtonObject = Resources.Load<GameObject>("Prefabs/EnumButton");
+            var tmpButtonInstance = Instantiate(tmpButtonObject, _listStartPosition + new Vector3(0.0f, -spaceBetween * i, 0.0f), tmpButtonObject.transform.rotation);
+            tmpButtonInstance.name = $"EnumChoice{i}";
+            string tmpName = values[i].ToString();
+            tmpButtonInstance.transform.GetChild(0).GetComponent<TMPro.TextMeshPro>().text = tmpName.ToLower();
+            tmpButtonInstance.GetComponent<ButtonBhv>().EndActionDelegate = SelectEnum;
+            tmpButtonInstance.transform.SetParent(transform);
         }
     }
 

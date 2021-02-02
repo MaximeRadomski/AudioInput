@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class HoverBhv : InputBhv
 {
+    [TextArea]
     public string Content;
     private GameObject _hoverWindow;
 

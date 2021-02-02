@@ -88,6 +88,15 @@ public class Panel00Bhv : PanelBhv
         Helper.GetFieldButton("LevelGain").EndActionDelegate = SetLevelGainPopup;
         Helper.GetFieldButton("SpectrumDynamicRange").EndActionDelegate = SetSpectrumDynamicRangePopup;
         Helper.GetFieldButton("SpectrumGain").EndActionDelegate = SetSpectrumGainPopup;
+
+        GameObject.Find("LevelDynamicRange-").GetComponent<ButtonBhv>().EndActionDelegate = () => { SetLevelDynamicRange(Helper.RoundToClosestTable(_levelDynamicRange - 5, 5)); };
+        GameObject.Find("LevelDynamicRange+").GetComponent<ButtonBhv>().EndActionDelegate = () => { SetLevelDynamicRange(Helper.RoundToClosestTable(_levelDynamicRange + 5, 5)); };
+        GameObject.Find("LevelGain-").GetComponent<ButtonBhv>().EndActionDelegate = () => { SetLevelGain(Helper.RoundToClosestTable(_levelGain - 5, 5)); };
+        GameObject.Find("LevelGain+").GetComponent<ButtonBhv>().EndActionDelegate = () => { SetLevelGain(Helper.RoundToClosestTable(_levelGain + 5, 5)); };
+        GameObject.Find("SpectrumDynamicRange-").GetComponent<ButtonBhv>().EndActionDelegate = () => { SetSpectrumDynamicRange(Helper.RoundToClosestTable(_spectrumDynamicRange - 10, 10)); };
+        GameObject.Find("SpectrumDynamicRange+").GetComponent<ButtonBhv>().EndActionDelegate = () => { SetSpectrumDynamicRange(Helper.RoundToClosestTable(_spectrumDynamicRange + 10, 10)); };
+        GameObject.Find("SpectrumGain-").GetComponent<ButtonBhv>().EndActionDelegate = () => { SetSpectrumGain(Helper.RoundToClosestTable(_spectrumGain - 10, 10)); };
+        GameObject.Find("SpectrumGain+").GetComponent<ButtonBhv>().EndActionDelegate = () => { SetSpectrumGain(Helper.RoundToClosestTable(_spectrumGain + 10, 10)); };
     }
 
     private void LoadData()
@@ -159,8 +168,10 @@ public class Panel00Bhv : PanelBhv
     private object SetChannel(float result)
     {
         var intResult = (int)result;
-        if (intResult < 0 || intResult >= _currentDevice.ChannelCount)
-            return false;
+        if (intResult < 0)
+            intResult = 0;
+        else if (intResult >= _currentDevice.ChannelCount)
+            intResult = _currentDevice.ChannelCount - 1;
         _currentChannel = intResult;
         _audioLevelTracker.channel = _currentChannel;
         _spectrumAnalyzer.channel = _currentChannel;
@@ -172,40 +183,85 @@ public class Panel00Bhv : PanelBhv
     private object SetHzOffset(float offset)
     {
         if (offset < 0)
-            return false;
+            offset = 0;
         _hzOffset = offset;
         PlayerPrefHelper.SetHzOffset(offset);
         _hzOffsetData.text = offset.ToString("F2");
         return true;
     }
 
-    private object SetRequiredFrames(int value)
+    private object SetRequiredFrames(float value)
     {
+        if (value < 1)
+            value = 1;
+        var intValue = (int)value;
+        _requiredFrames = intValue;
+        PlayerPrefHelper.SetRequiredFrames(intValue);
+        _requiredFramesData.text = intValue.ToString();
         return true;
     }
 
     private object SetPeaksPriority(int id)
     {
+        _peaksPriority = (PeaksPriority)id;
+        PlayerPrefHelper.SetPeaksPriority(_peaksPriority);
+        _peaksPriorityData.text = _peaksPriority.ToString().ToLower();
         return true;
     }
 
-    private object SetLevelDynamicRange(int value)
+    private object SetLevelDynamicRange(float value)
     {
+        var intValue = (int)value;
+        if (intValue < 1)
+            intValue = 1;
+        else if (intValue > 40)
+            intValue = 40;
+        _levelDynamicRange = intValue;
+        _audioLevelTracker.dynamicRange = intValue;
+        PlayerPrefHelper.SetLevelDynamicRange(intValue);
+        _levelDynamicRangeData.text = intValue.ToString();
         return true;
     }
 
-    private object SetLevelGain(int value)
+    private object SetLevelGain(float value)
     {
+        var intValue = (int)value;
+        if (intValue < -10)
+            intValue = -10;
+        else if (intValue > 40)
+            intValue = 40;
+        _levelGain = intValue;
+        _audioLevelTracker.gain = intValue;
+        PlayerPrefHelper.SetLevelGain(intValue);
+        _levelGainData.text = intValue.ToString();
         return true;
     }
 
-    private object SetSpectrumDynamicRange(int value)
+    private object SetSpectrumDynamicRange(float value)
     {
+        var intValue = (int)value;
+        if (intValue < 1)
+            intValue = 1;
+        else if (intValue > 120)
+            intValue = 120;
+        _spectrumDynamicRange = intValue;
+        _spectrumAnalyzer.dynamicRange = intValue;
+        PlayerPrefHelper.SetSpectrumDynamicRange(intValue);
+        _spectrumDynamicRangeData.text = intValue.ToString();
         return true;
     }
 
-    private object SetSpectrumGain(int value)
+    private object SetSpectrumGain(float value)
     {
+        var intValue = (int)value;
+        if (intValue < -10)
+            intValue = -10;
+        else if (intValue > 120)
+            intValue = 120;
+        _spectrumGain = intValue;
+        _spectrumAnalyzer.gain = intValue;
+        PlayerPrefHelper.SetSpectrumGain(intValue);
+        _spectrumGainData.text = intValue.ToString();
         return true;
     }
 
@@ -219,42 +275,47 @@ public class Panel00Bhv : PanelBhv
         var content = $"From 0 to {_currentDevice.ChannelCount - 1}\n(current device range)";
         if (_currentDevice.ChannelCount == 1)
             content = "Your selected device has only one channel";
-        _instantiator.NewPopupNumber(transform.position, "Channel", content, true, 2, SetChannel);
+        _instantiator.NewPopupNumber(transform.position, "Channel", content, _currentChannel, 2, SetChannel);
     }
 
     private void SetHzOffsetPopup()
     {
         var content = $"0.01 = very strict\n5.00 = very loose";
-        _instantiator.NewPopupNumber(transform.position, "Valid Hz Offset", content, false, 4, SetHzOffset);
+        _instantiator.NewPopupNumber(transform.position, "Valid Hz Offset", content, _hzOffset, 2, SetHzOffset);
     }
 
     private void SetRequiredFramesPopup()
     {
-
+        var content = $"1 = minimum, no required frames";
+        _instantiator.NewPopupNumber(transform.position, "required frames", content, _requiredFrames, 2, SetRequiredFrames);
     }
 
     private void SetPeaksPriorityPopup()
     {
-
+        _instantiator.NewPopupEnum<PeaksPriority>(transform.position, "peaks priority", _peaksPriority.GetHashCode(), SetPeaksPriority);
     }
 
     private void SetLevelDynamicRangePopup()
     {
-
+        var content = $"from 1 to 40";
+        _instantiator.NewPopupNumber(transform.position, "Level Dynamic Range", content, _levelDynamicRange, 2, SetLevelDynamicRange);
     }
 
     private void SetLevelGainPopup()
     {
-
+        var content = $"from -10 to 40";
+        _instantiator.NewPopupNumber(transform.position, "Level Gain", content, _levelGain, 2, SetLevelGain);
     }
 
     private void SetSpectrumDynamicRangePopup()
     {
-
+        var content = $"from 1 to 120";
+        _instantiator.NewPopupNumber(transform.position, "Spectrum Dynamic Range", content, _spectrumDynamicRange, 3, SetSpectrumDynamicRange);
     }
 
     private void SetSpectrumGainPopup()
     {
-
+        var content = $"from -10 to 120";
+        _instantiator.NewPopupNumber(transform.position, "Spectrum Gain", content, _spectrumGain, 3, SetSpectrumGain);
     }
 }
