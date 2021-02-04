@@ -2,6 +2,7 @@ using Lasp;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using WindowsInput.Native;
 
 public class Instantiator : MonoBehaviour
 {
@@ -33,6 +34,15 @@ public class Instantiator : MonoBehaviour
         return tmpPopupInstance;
     }
 
+    public GameObject NewPopupInput(Vector3 position, VirtualKeyCode current, System.Func<VirtualKeyCode, object> resultAction)
+    {
+        var tmpPopupObject = Resources.Load<GameObject>("Prefabs/PopupInput");
+        var tmpPopupInstance = Instantiate(tmpPopupObject, position, tmpPopupObject.transform.rotation);
+        Constants.IncreaseInputLayer(tmpPopupInstance.name);
+        tmpPopupInstance.GetComponent<PopupInputBhv>().Init(current, resultAction);
+        return tmpPopupInstance;
+    }
+
     public GameObject NewPopupEnum<EnumType>(Vector3 position, string title, int currentId, System.Func<int, object> resultAction) where EnumType : System.Enum
     {
         var tmpPopupObject = Resources.Load<GameObject>("Prefabs/PopupEnum");
@@ -40,5 +50,15 @@ public class Instantiator : MonoBehaviour
         Constants.IncreaseInputLayer(tmpPopupInstance.name);
         tmpPopupInstance.GetComponent<PopupEnumBhv>().Init<EnumType>(title, currentId, resultAction);
         return tmpPopupInstance;
+    }
+
+    public GameObject NewAudioInput(Transform listSource, Vector3 offset, AudioInput audioInput, int id, Panel01Bhv panelBhv)
+    {
+        var tmpAudioInputObject = Resources.Load<GameObject>("Prefabs/AudioInput");
+        var tmpAudioInputInstance = Instantiate(tmpAudioInputObject, listSource.position + offset, tmpAudioInputObject.transform.rotation);
+        tmpAudioInputInstance.name = $"AudioInputs[{id}]";
+        tmpAudioInputInstance.transform.SetParent(listSource);
+        tmpAudioInputInstance.GetComponent<AudioInputBhv>().Init(audioInput, panelBhv, id);
+        return tmpAudioInputInstance;
     }
 }

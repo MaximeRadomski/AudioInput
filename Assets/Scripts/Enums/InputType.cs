@@ -1,10 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using UnityEngine;
 
 public enum InputType
 {
-    OneTap,
+    [Description("Single Tap")]
+    SingleTap,
+    [Description("Custom Tap")]
+    CustomTap,
+    [Description("Holded")]
     Holded,
-    CustomHolded
+    [Description("Time Holded")]
+    TimeHolded
 }

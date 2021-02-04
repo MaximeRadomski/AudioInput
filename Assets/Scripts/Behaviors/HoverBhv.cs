@@ -31,16 +31,16 @@ public class HoverBhv : InputBhv
 
     public override void DoAction(Vector2 touchPosition)
     {
-        var x = 11;
-        var y = -6;
+        var x = 11.3f;
+        var y = -4;
         if (touchPosition.x > 0)
-            x = -x;
+            x = -x + 0.3f;
         if (touchPosition.y < 0)
             y = -y;
         if (_hoverWindow != null)
         {
             _hoverWindow.transform.position = new Vector3(touchPosition.x + x, touchPosition.y + y, 0.0f);
-            _hoverWindow.transform.Find("Content").GetComponent<TMPro.TextMeshPro>().text = Content;
+            _hoverWindow.transform.Find("Content").GetComponent<TMPro.TextMeshPro>().text = Content.ToLower();
         }
 
     }

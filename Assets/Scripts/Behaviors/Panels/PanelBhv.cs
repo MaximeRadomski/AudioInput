@@ -4,11 +4,11 @@ using UnityEngine;
 
 public abstract class PanelBhv : MonoBehaviour
 {
-    protected Instantiator _instantiator;
+    public Instantiator Instantiator;
     protected bool _hasInit;
 
     public virtual void Init()
     {
-        _instantiator = GameObject.Find(Constants.AbjectAudioInputs).GetComponent<Instantiator>();
+        Instantiator = GameObject.Find(Constants.AbjectAudioInputs).GetComponent<Instantiator>();
     }
 }

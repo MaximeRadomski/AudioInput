@@ -1,8 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using UnityEngine;
+using WindowsInput.Native;
 
 public static class Helper
 {
@@ -72,5 +75,56 @@ public static class Helper
             return value + superior - 100;
         else
             return value - inferior - 100;
+    }
+
+    public static string GetDescription(this Enum value)
+    {
+        if (value == null)
+        {
+            throw new ArgumentNullException(nameof(value));
+        }
+
+        var description = value.ToString();
+        var fieldInfo = value.GetType().GetRuntimeField(description);
+
+        if (fieldInfo == null)
+            return string.Empty;
+        var attributes = (DescriptionAttribute[])fieldInfo.GetCustomAttributes(typeof(DescriptionAttribute), false);
+
+        if (attributes.Length > 0)
+        {
+            description = attributes[0].Description;
+        }
+
+        return description;
+    }
+
+    public static AudioInputBo ToAudioInputBo(this AudioInput audioInput)
+    {
+        var bo = new AudioInputBo();
+        bo.Enabled = audioInput.Enabled;
+        bo.Hz = audioInput.Hz;
+        bo.Peaks = audioInput.Peaks;
+        bo.KeyId = audioInput.Key.GetHashCode();
+        bo.InputTypeId = audioInput.InputType.GetHashCode();
+        bo.Param = audioInput.Param;
+        return bo;
+    }
+
+    public static AudioInput ToAudioInput(this AudioInputBo bo)
+    {
+        var audioInput = new AudioInput();
+        audioInput.Enabled = bo.Enabled;
+        audioInput.Hz = bo.Hz;
+        audioInput.Peaks = bo.Peaks;
+        audioInput.Key = (VirtualKeyCode)bo.KeyId;
+        audioInput.InputType = (InputType)bo.InputTypeId;
+        audioInput.Param = bo.Param;
+        return audioInput;
+    }
+
+    public static bool FloatEqualsPrecision(float float1, float float2, float precision)
+    {
+        return float1 >= float2 - precision && float1 <= float2 + precision;
     }
 }

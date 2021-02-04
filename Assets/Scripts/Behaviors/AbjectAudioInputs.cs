@@ -8,6 +8,8 @@ using System.Linq;
 
 public class AbjectAudioInputs : MonoBehaviour
 {
+    public bool On = false;
+
     public float DynRangeDB { get; set; }
     public Sprite TabBigOn;
     public Sprite TabBigOff;
@@ -21,6 +23,7 @@ public class AbjectAudioInputs : MonoBehaviour
 
     private SpectrumAnalyzer _spectrumAnalyzer;
     private AudioLevelTracker _audioLevelTracker;
+    private InputSimulator _inputSimulator;
 
     private List<Peak> _peaks = new List<Peak>();
     private int _peaksCount;
@@ -32,8 +35,11 @@ public class AbjectAudioInputs : MonoBehaviour
     private TMPro.TextMeshPro _peaksData;
     private LevelDrawerBhv _levelDrawer;
     private SpectrumDrawerBhv _spectrumDrawer;
+    private CheckBoxBhv _onOff;
 
     private List<PanelBhv> _panels;
+    private Panel00Bhv _panel00;
+    private Panel01Bhv _panel01;
     private Vector3 _resetPanelPosition = new Vector3(-45.0f, -25.0f, 0.0f);
 
     void Start()
@@ -49,18 +55,22 @@ public class AbjectAudioInputs : MonoBehaviour
         _samplerate = AudioSettings.outputSampleRate;
         _spectrumAnalyzer = this.GetComponent<SpectrumAnalyzer>();
         _audioLevelTracker = this.GetComponent<AudioLevelTracker>();
+        _inputSimulator = new InputSimulator();
 
         _dbData = Helper.GetFieldData("Db");
         _hzData = Helper.GetFieldData("Hz");
         _peaksData = Helper.GetFieldData("Peaks");
         _levelDrawer = GameObject.Find("LevelDrawer").GetComponent<LevelDrawerBhv>();
         _spectrumDrawer = GameObject.Find("SpectrumDrawer").GetComponent<SpectrumDrawerBhv>();
+        _onOff = GameObject.Find("OnOff").GetComponent<CheckBoxBhv>();
 
         _panels = new List<PanelBhv>();
         _panels.Add(GameObject.Find("Panel00").GetComponent<PanelBhv>());
         _panels.Add(GameObject.Find("Panel01").GetComponent<PanelBhv>());
         _panels.Add(GameObject.Find("Panel02").GetComponent<PanelBhv>());
         _panels.Add(GameObject.Find("Panel03").GetComponent<PanelBhv>());
+        _panel00 = GameObject.Find("Panel00").GetComponent<Panel00Bhv>();
+        _panel01 = GameObject.Find("Panel01").GetComponent<Panel01Bhv>();
     }
 
     private void SetButtons()
@@ -69,10 +79,13 @@ public class AbjectAudioInputs : MonoBehaviour
         GameObject.Find("Tab01").GetComponent<ButtonBhv>().EndActionDelegate = () => { SetPanel(1); };
         GameObject.Find("Tab02").GetComponent<ButtonBhv>().EndActionDelegate = () => { SetPanel(2); };
         GameObject.Find("Tab03").GetComponent<ButtonBhv>().EndActionDelegate = () => { SetPanel(3); };
+        _onOff.GetComponent<ButtonBhv>().EndActionDelegate = OnOff;
     }
 
     private void LoadData()
     {
+        _panel00.Init();
+        _panel01.Init();
         SetPanel(0);
     }
 
@@ -112,26 +125,104 @@ public class AbjectAudioInputs : MonoBehaviour
         _dbData.text = DynRangeDB.ToString("0");
         _hzData.text = DynRangeDB > 0 ? _pitchValue.ToString("F2") : "0.00";
         _peaksData.text = DynRangeDB > 0 ? _peaksCount.ToString() : "0";
-        //if (DynRangeDB > 0)
-            //PlayCorrespondingInputs();
+        if (On && DynRangeDB > _panel00.LevelReset)
+            AnalyseAudioInputs();
+        else if (On && DynRangeDB <= _panel00.LevelReset && _lastFrameLevel <= _panel00.LevelReset)
+            LevelReset();
         _levelDrawer.Draw(_audioLevelTracker);
         _spectrumDrawer.Draw(_spectrum);
+        _lastFrameLevel = DynRangeDB;
     }
 
-    void PlayCorrespondingInputs()
+    private void LevelReset()
     {
-        var test = new InputSimulator();
-        test.Keyboard.KeyPress(VirtualKeyCode.SPACE);
+        _hasToWaitResetAfterSingleTap = false;
+        if (_holdedInputs != null && _holdedInputs.Count > 0)
+        {
+            foreach (var audioInput in _holdedInputs)
+            {
+                _inputSimulator.Keyboard.KeyUp(audioInput.Key);
+            }
+            _holdedInputs.Clear();
+        }
     }
 
-    void OnGUI()
+    private float _lastFrameLevel = 0.0f;
+    private float _lastFrameFrequency = 0.00f;
+    private int _nbConsecutiveFrames = 1;
+    private int _nbConsecutiveFramesDefault = 1;
+    private bool _hasToWaitResetAfterSingleTap = false;
+
+    private List<AudioInput> _holdedInputs;
+
+    void AnalyseAudioInputs()
     {
-        //Event e = Event.current;
-        //if (e.isKey && e.rawType == EventType.KeyUp)
-        //{
-        //    KeyCode test = KeyCode.B;
-        //    _inputText.text = $"Detected key code: {e.keyCode}";
-        //}
+        if (Helper.FloatEqualsPrecision(_pitchValue, _lastFrameFrequency, _panel00.HzOffset))
+        {
+            if (_nbConsecutiveFrames >= _panel00.RequiredFrames)
+            {
+                PrepareAudioInputsFromFrequency(_pitchValue);
+            }
+            ++_nbConsecutiveFrames;
+        }
+        else
+            _nbConsecutiveFrames = _nbConsecutiveFramesDefault;
+        _lastFrameFrequency = _pitchValue;
+    }
+
+    private void PrepareAudioInputsFromFrequency(float frequency)
+    {
+        var validFrequencies = new List<AudioInput>();
+        for (int i = 0; i < _panel01.AudioInputs.Count; ++i)
+        {
+            if (_panel01.AudioInputs[i].Enabled &&  Helper.FloatEqualsPrecision(_pitchValue, _panel01.AudioInputs[i].Hz, _panel00.HzOffset))
+            {
+                validFrequencies.Add(_panel01.AudioInputs[i]);
+            }
+        }
+        if (validFrequencies.Count == 1)
+            SendAudioInput(validFrequencies[0]);
+        else if (validFrequencies.Count > 1)
+        {
+            var lowestPeakDifference = 1080;
+            var lowestId = -1;
+            for (int i = 0; i < validFrequencies.Count; ++i)
+            {
+                var difference = Mathf.Abs(validFrequencies[i].Peaks - _peaksCount);
+                if (difference < lowestPeakDifference)
+                {
+                    lowestPeakDifference = difference;
+                    lowestId = i;
+                }
+                else if (difference == lowestPeakDifference
+                    && ((_panel00.PeaksPriority == PeaksPriority.Higher && validFrequencies[i].Peaks > validFrequencies[lowestId].Peaks)
+                    || (_panel00.PeaksPriority == PeaksPriority.Lower && validFrequencies[i].Peaks < validFrequencies[lowestId].Peaks)))
+                {
+                    lowestPeakDifference = difference;
+                    lowestId = i;
+                }
+            }
+            if (lowestId != -1)
+                SendAudioInput(validFrequencies[lowestId]);
+        }
+
+    }
+
+    private void SendAudioInput(AudioInput audioInput)
+    {
+        if (audioInput.InputType == InputType.SingleTap && !_hasToWaitResetAfterSingleTap)
+        {
+            _inputSimulator.Keyboard.KeyPress(audioInput.Key);
+            _hasToWaitResetAfterSingleTap = true;
+        }
+        else if (audioInput.InputType == InputType.Holded)
+        {
+            _inputSimulator.Keyboard.KeyDown(audioInput.Key);
+            if (_holdedInputs == null)
+                _holdedInputs = new List<AudioInput>();
+            if (_holdedInputs.Find(a => a.Key == audioInput.Key) == null)
+                _holdedInputs.Add(audioInput);
+        }
     }
 
     void AnalyzeSound()
@@ -173,5 +264,14 @@ public class AbjectAudioInputs : MonoBehaviour
         _pitchValue = freqN * (_samplerate / 2f) / _binSize;
         _pitchValue /= 100.0f;
         _peaks.Clear();
+    }
+
+    private void OnOff()
+    {
+        On = !On;
+        if (On)
+            _onOff.Check();
+        else
+            _onOff.Uncheck();
     }
 }

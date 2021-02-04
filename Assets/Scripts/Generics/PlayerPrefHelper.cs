@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class PlayerPrefHelper : MonoBehaviour
 {
+    //Panel00
     public static void SetLastSavedDeviceDefault(string name) { PlayerPrefs.SetString(Constants.PpLastSavedDevice, name); }
     public static string GetLastSavedDeviceDefault() { return PlayerPrefs.GetString(Constants.PpLastSavedDevice, Constants.PpLastSavedDeviceDefault); }
 
@@ -19,6 +20,12 @@ public class PlayerPrefHelper : MonoBehaviour
     public static void SetPeaksPriority(PeaksPriority peaksPriority) { PlayerPrefs.SetInt(Constants.PpPeaksPriority, peaksPriority.GetHashCode()); }
     public static PeaksPriority GetPeaksPriority() { return (PeaksPriority)PlayerPrefs.GetInt(Constants.PpPeaksPriority, Constants.PpPeaksPriorityDefault); }
 
+    public static void SetLevelReset(int levelReset) { PlayerPrefs.SetInt(Constants.PpLevelReset, levelReset); }
+    public static int GetLevelReset() { return PlayerPrefs.GetInt(Constants.PpLevelReset, Constants.PpLevelResetDefault); }
+
+    public static void SetCustomTapDelay(float customTapDelay) { PlayerPrefs.SetFloat(Constants.PpCustomTapDelay, customTapDelay); }
+    public static float GetCustomTapDelay() { return PlayerPrefs.GetFloat(Constants.PpCustomTapDelay, Constants.PpCustomTapDelayDefault); }
+
     public static void SetLevelDynamicRange(int levelDynamicRange) { PlayerPrefs.SetInt(Constants.PpLevelDynamicRange, levelDynamicRange); }
     public static int GetLevelDynamicRange() { return PlayerPrefs.GetInt(Constants.PpLevelDynamicRange, Constants.PpLevelDynamicRangeDefault); }
 
@@ -30,4 +37,40 @@ public class PlayerPrefHelper : MonoBehaviour
 
     public static void SetSpectrumGain(int spectrumGain) { PlayerPrefs.SetInt(Constants.PpSpectrumGain, spectrumGain); }
     public static int GetSpectrumGain() { return PlayerPrefs.GetInt(Constants.PpSpectrumGain, Constants.PpSpectrumGainDefault); }
+
+    //Panel01
+    public static void SetAudioInputs(List<AudioInput> audioInputs)
+    {
+        for (int i = 0; i < Constants.MaxAudioInputs; ++i)
+        {
+            if (i >= audioInputs.Count)
+            {
+                PlayerPrefs.SetString($"{Constants.PpAudioInputs}[{i}]", Constants.PpAudioInputsDefault);
+                continue;
+            }
+            var bo = audioInputs[i].ToAudioInputBo();
+            PlayerPrefs.SetString($"{Constants.PpAudioInputs}[{i}]", JsonUtility.ToJson(bo));
+        }
+    }
+
+    public static void SetAudioInput(AudioInput audioInput, int id)
+    {
+        var bo = audioInput.ToAudioInputBo();
+        PlayerPrefs.SetString($"{Constants.PpAudioInputs}[{id}]", JsonUtility.ToJson(bo));
+    }
+
+    public static List<AudioInput> GetAudioInputs()
+    {
+        var audioInputs = new List<AudioInput>();
+        for (int i = 0; i < Constants.MaxAudioInputs; ++i)
+        {
+            var key = $"{Constants.PpAudioInputs}[{i}]";
+            if (!PlayerPrefs.HasKey(key))
+                continue;
+            var bo = JsonUtility.FromJson<AudioInputBo>(PlayerPrefs.GetString(key, Constants.PpAudioInputsDefault));
+            if (bo != null)
+                audioInputs.Add(bo.ToAudioInput());
+        }        
+        return audioInputs;
+    }
 }

@@ -28,7 +28,7 @@ public class InputControlerBhv : MonoBehaviour
     void Update()
     {
         // IF BACK BUTTON //
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.Escape) && !Constants.EscapeOrEnterLocked)
         {
             if (Constants.InputLayer > 0)
             {
@@ -38,7 +38,7 @@ public class InputControlerBhv : MonoBehaviour
             return;
         }
         // IF ENTER BUTTON //
-        else if (Input.GetKeyDown(KeyCode.KeypadEnter) || Input.GetKeyDown(KeyCode.Return))
+        else if ((Input.GetKeyDown(KeyCode.KeypadEnter) || Input.GetKeyDown(KeyCode.Return)) && !Constants.EscapeOrEnterLocked)
         {
             if (Constants.InputLayer > 0)
             {

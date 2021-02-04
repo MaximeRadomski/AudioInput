@@ -8,6 +8,11 @@ using UnityEngine.SceneManagement;
 public class Panel00Bhv : PanelBhv
 {
     public IEnumerable<DeviceDescriptor> Devices;
+    public float HzOffset;
+    public int RequiredFrames;
+    public PeaksPriority PeaksPriority;
+    public int LevelReset;
+    public float CustomTapDelay;
 
     private SpectrumAnalyzer _spectrumAnalyzer;
     private AudioLevelTracker _audioLevelTracker;
@@ -15,9 +20,6 @@ public class Panel00Bhv : PanelBhv
 
     private DeviceDescriptor _currentDevice;
     private int _currentChannel;
-    private float _hzOffset;
-    private int _requiredFrames;
-    private PeaksPriority _peaksPriority;
     private int _levelDynamicRange;
     private int _levelGain;
     private int _spectrumDynamicRange;
@@ -29,6 +31,8 @@ public class Panel00Bhv : PanelBhv
     private TMPro.TextMeshPro _hzOffsetData;
     private TMPro.TextMeshPro _requiredFramesData;
     private TMPro.TextMeshPro _peaksPriorityData;
+    private TMPro.TextMeshPro _levelResetData;
+    private TMPro.TextMeshPro _customTapDelayData;
     private TMPro.TextMeshPro _levelDynamicRangeData;
     private TMPro.TextMeshPro _levelGainData;
     private TMPro.TextMeshPro _spectrumDynamicRangeData;
@@ -52,9 +56,11 @@ public class Panel00Bhv : PanelBhv
         //PlayerPrefs
         _lastSavedDeviceName = PlayerPrefHelper.GetLastSavedDeviceDefault();
         _currentChannel = PlayerPrefHelper.GetCurrentChannel();
-        _hzOffset = PlayerPrefHelper.GetHzOffset();
-        _requiredFrames = PlayerPrefHelper.GetRequiredFrames();
-        _peaksPriority = PlayerPrefHelper.GetPeaksPriority();
+        HzOffset = PlayerPrefHelper.GetHzOffset();
+        RequiredFrames = PlayerPrefHelper.GetRequiredFrames();
+        PeaksPriority = PlayerPrefHelper.GetPeaksPriority();
+        LevelReset = PlayerPrefHelper.GetLevelReset();
+        CustomTapDelay = PlayerPrefHelper.GetCustomTapDelay();
         _levelDynamicRange = PlayerPrefHelper.GetLevelDynamicRange();
         _levelGain = PlayerPrefHelper.GetLevelGain();
         _spectrumDynamicRange = PlayerPrefHelper.GetSpectrumDynamicRange();
@@ -66,14 +72,14 @@ public class Panel00Bhv : PanelBhv
         _hzOffsetData = Helper.GetFieldData("HzOffset");
         _requiredFramesData = Helper.GetFieldData("RequiredFrames");
         _peaksPriorityData = Helper.GetFieldData("PeaksPriority");
+        _levelResetData = Helper.GetFieldData("LevelReset");
+        _customTapDelayData = Helper.GetFieldData("CustomTapDelay");
         _levelDynamicRangeData = Helper.GetFieldData("LevelDynamicRange");
         _levelGainData = Helper.GetFieldData("LevelGain");
         _spectrumDynamicRangeData = Helper.GetFieldData("SpectrumDynamicRange");
         _spectrumGainData = Helper.GetFieldData("SpectrumGain");
 
-        Devices = AudioSystem.InputDevices;
-
-        
+        Devices = AudioSystem.InputDevices;        
         _hasInit = true;
     }
 
@@ -84,6 +90,8 @@ public class Panel00Bhv : PanelBhv
         Helper.GetFieldButton("HzOffset").EndActionDelegate = SetHzOffsetPopup;
         Helper.GetFieldButton("RequiredFrames").EndActionDelegate = SetRequiredFramesPopup;
         Helper.GetFieldButton("PeaksPriority").EndActionDelegate = SetPeaksPriorityPopup;
+        Helper.GetFieldButton("LevelReset").EndActionDelegate = SetLevelResetPopup;
+        Helper.GetFieldButton("CustomTapDelay").EndActionDelegate = SetCustomTapDelayPopup;
         Helper.GetFieldButton("LevelDynamicRange").EndActionDelegate = SetLevelDynamicRangePopup;
         Helper.GetFieldButton("LevelGain").EndActionDelegate = SetLevelGainPopup;
         Helper.GetFieldButton("SpectrumDynamicRange").EndActionDelegate = SetSpectrumDynamicRangePopup;
@@ -131,9 +139,11 @@ public class Panel00Bhv : PanelBhv
             }
         }
 
-        SetHzOffset(_hzOffset);
-        SetRequiredFrames(_requiredFrames);
-        SetPeaksPriority(_peaksPriority.GetHashCode());
+        SetHzOffset(HzOffset);
+        SetRequiredFrames(RequiredFrames);
+        SetPeaksPriority(PeaksPriority.GetHashCode());
+        SetLevelReset(LevelReset);
+        SetCustomTapDelay(CustomTapDelay);
         SetLevelDynamicRange(_levelDynamicRange);
         SetLevelGain(_levelGain);
         SetSpectrumDynamicRange(_spectrumDynamicRange);
@@ -184,7 +194,7 @@ public class Panel00Bhv : PanelBhv
     {
         if (offset < 0)
             offset = 0;
-        _hzOffset = offset;
+        HzOffset = offset;
         PlayerPrefHelper.SetHzOffset(offset);
         _hzOffsetData.text = offset.ToString("F2");
         return true;
@@ -195,7 +205,7 @@ public class Panel00Bhv : PanelBhv
         if (value < 1)
             value = 1;
         var intValue = (int)value;
-        _requiredFrames = intValue;
+        RequiredFrames = intValue;
         PlayerPrefHelper.SetRequiredFrames(intValue);
         _requiredFramesData.text = intValue.ToString();
         return true;
@@ -203,9 +213,32 @@ public class Panel00Bhv : PanelBhv
 
     private object SetPeaksPriority(int id)
     {
-        _peaksPriority = (PeaksPriority)id;
-        PlayerPrefHelper.SetPeaksPriority(_peaksPriority);
-        _peaksPriorityData.text = _peaksPriority.ToString().ToLower();
+        PeaksPriority = (PeaksPriority)id;
+        PlayerPrefHelper.SetPeaksPriority(PeaksPriority);
+        _peaksPriorityData.text = PeaksPriority.ToString().ToLower();
+        return true;
+    }
+
+    private object SetLevelReset(float value)
+    {
+        var intValue = (int)value;
+        if (intValue < 0)
+            intValue = 0;
+        else if (intValue > 100)
+            intValue = 100;
+        LevelReset = intValue;
+        PlayerPrefHelper.SetLevelReset(intValue);
+        _levelResetData.text = intValue.ToString();
+        return true;
+    }
+
+    private object SetCustomTapDelay(float value)
+    {
+        if (value < 0.01f)
+            value = 0.01f;
+        CustomTapDelay = value;
+        PlayerPrefHelper.SetCustomTapDelay(value);
+        _customTapDelayData.text = value.ToString("F2");
         return true;
     }
 
@@ -267,7 +300,7 @@ public class Panel00Bhv : PanelBhv
 
     private void SetDeviceIdPopup()
     {
-        _instantiator.NewPopupDeviceId(transform.position, _currentDevice, SetDeviceId);
+        Instantiator.NewPopupDeviceId(transform.position, _currentDevice, SetDeviceId);
     }
 
     private void SetChannelPopup()
@@ -275,47 +308,59 @@ public class Panel00Bhv : PanelBhv
         var content = $"From 0 to {_currentDevice.ChannelCount - 1}\n(current device range)";
         if (_currentDevice.ChannelCount == 1)
             content = "Your selected device has only one channel";
-        _instantiator.NewPopupNumber(transform.position, "Channel", content, _currentChannel, 2, SetChannel);
+        Instantiator.NewPopupNumber(transform.position, "Channel", content, _currentChannel, 2, SetChannel);
     }
 
     private void SetHzOffsetPopup()
     {
         var content = $"0.01 = very strict\n5.00 = very loose";
-        _instantiator.NewPopupNumber(transform.position, "Valid Hz Offset", content, _hzOffset, 2, SetHzOffset);
+        Instantiator.NewPopupNumber(transform.position, "Valid Hz Offset", content, HzOffset, 2, SetHzOffset);
     }
 
     private void SetRequiredFramesPopup()
     {
         var content = $"1 = minimum, no required frames";
-        _instantiator.NewPopupNumber(transform.position, "required frames", content, _requiredFrames, 2, SetRequiredFrames);
+        Instantiator.NewPopupNumber(transform.position, "required frames", content, RequiredFrames, 2, SetRequiredFrames);
     }
 
     private void SetPeaksPriorityPopup()
     {
-        _instantiator.NewPopupEnum<PeaksPriority>(transform.position, "peaks priority", _peaksPriority.GetHashCode(), SetPeaksPriority);
+        Instantiator.NewPopupEnum<PeaksPriority>(transform.position, "peaks priority", PeaksPriority.GetHashCode(), SetPeaksPriority);
+    }
+
+    private void SetLevelResetPopup()
+    {
+        var content = $"from 0 to 100";
+        Instantiator.NewPopupNumber(transform.position, "level reset", content, LevelReset, 3, SetLevelReset);
+    }
+
+    private void SetCustomTapDelayPopup()
+    {
+        var content = $"1.0 = 1 second";
+        Instantiator.NewPopupNumber(transform.position, "Custom Tap Delay", content, CustomTapDelay, 2, SetCustomTapDelay);
     }
 
     private void SetLevelDynamicRangePopup()
     {
         var content = $"from 1 to 40";
-        _instantiator.NewPopupNumber(transform.position, "Level Dynamic Range", content, _levelDynamicRange, 2, SetLevelDynamicRange);
+        Instantiator.NewPopupNumber(transform.position, "Level Dynamic Range", content, _levelDynamicRange, 2, SetLevelDynamicRange);
     }
 
     private void SetLevelGainPopup()
     {
         var content = $"from -10 to 40";
-        _instantiator.NewPopupNumber(transform.position, "Level Gain", content, _levelGain, 2, SetLevelGain);
+        Instantiator.NewPopupNumber(transform.position, "Level Gain", content, _levelGain, 2, SetLevelGain);
     }
 
     private void SetSpectrumDynamicRangePopup()
     {
         var content = $"from 1 to 120";
-        _instantiator.NewPopupNumber(transform.position, "Spectrum Dynamic Range", content, _spectrumDynamicRange, 3, SetSpectrumDynamicRange);
+        Instantiator.NewPopupNumber(transform.position, "Spectrum Dynamic Range", content, _spectrumDynamicRange, 3, SetSpectrumDynamicRange);
     }
 
     private void SetSpectrumGainPopup()
     {
         var content = $"from -10 to 120";
-        _instantiator.NewPopupNumber(transform.position, "Spectrum Gain", content, _spectrumGain, 3, SetSpectrumGain);
+        Instantiator.NewPopupNumber(transform.position, "Spectrum Gain", content, _spectrumGain, 3, SetSpectrumGain);
     }
 }

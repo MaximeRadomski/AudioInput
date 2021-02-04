@@ -26,7 +26,7 @@ public class PopupEnumBhv : PopupBhv
             var tmpButtonObject = Resources.Load<GameObject>("Prefabs/EnumButton");
             var tmpButtonInstance = Instantiate(tmpButtonObject, _listStartPosition + new Vector3(0.0f, -spaceBetween * i, 0.0f), tmpButtonObject.transform.rotation);
             tmpButtonInstance.name = $"EnumChoice{i}";
-            string tmpName = values[i].ToString();
+            string tmpName = values[i].GetDescription();
             tmpButtonInstance.transform.GetChild(0).GetComponent<TMPro.TextMeshPro>().text = tmpName.ToLower();
             tmpButtonInstance.GetComponent<ButtonBhv>().EndActionDelegate = SelectEnum;
             tmpButtonInstance.transform.SetParent(transform);

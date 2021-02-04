@@ -5,21 +5,28 @@ using UnityEngine;
 public static class Constants
 {
     public const float Pixel = 0.14285f;
+    public const int MaxAudioInputs = 256;
 
     public const string AbjectAudioInputs = "AbjectAudioInputs";
 
+    public const string TagAudioInputs = "AudioInputs";
+
     //  PLAYER PREFS  //
-    // PANEL 00
+    // Panel00
     public const string PpLastSavedDevice = "LastSavedDevice";
     public const string PpLastSavedDeviceDefault = null;
     public const string PpCurrentChannel = "CurrentChannel";
     public const int PpCurrentChannelDefault = 0;
     public const string PpHzOffset = "HzOffset";
-    public const float PpHzOffsetDefault = 1.0f;
+    public const float PpHzOffsetDefault = 0.5f;
     public const string PpRequiredFrames = "RequiredFrames";
-    public const int PpRequiredFramesDefault = 4;
+    public const int PpRequiredFramesDefault = 2;
     public const string PpPeaksPriority = "PeaksPriority";
     public const int PpPeaksPriorityDefault = 0;
+    public const string PpLevelReset = "LevelReset";
+    public const int PpLevelResetDefault = 0;
+    public const string PpCustomTapDelay = "CustomTapDelay";
+    public const float PpCustomTapDelayDefault = 0.5f;
     public const string PpLevelDynamicRange = "LevelDynamicRange";
     public const int PpLevelDynamicRangeDefault = 30;
     public const string PpLevelGain = "LevelGain";
@@ -28,7 +35,9 @@ public static class Constants
     public const int PpSpectrumDynamicRangeDefault = 30;
     public const string PpSpectrumGain = "SpectrumGain";
     public const int PpSpectrumGainDefault = 0;
-
+    //Panel01
+    public const string PpAudioInputs = "AudioInputs";
+    public const string PpAudioInputsDefault = null;
 
 
     public static Color ColorBlackTransparent = new Color(0.0f, 0.0f, 0.0f, 0.0f);
@@ -43,6 +52,7 @@ public static class Constants
     public static string ClickHistory = null;
     public static string LastEndActionClickedName = null;
     public static List<string> InputTopLayerNames = null;
+    public static bool EscapeOrEnterLocked = false;
 
     public static void SetLastEndActionClickedName(string name)
     {
