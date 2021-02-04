@@ -4,15 +4,18 @@ using UnityEngine;
 
 public class Panel02Bhv : PanelBhv
 {
-    // Start is called before the first frame update
+
     void Start()
     {
-        
+        Init();
+        SetButtons();
     }
 
-    // Update is called once per frame
-    void Update()
+    private void SetButtons()
     {
-        
+        transform.Find("DarkSoulsButton").GetComponent<ButtonBhv>().EndActionDelegate = () => { Application.OpenURL("https://youtu.be/haevbe2UXQA"); };
+        transform.Find("DoomEternalButton").GetComponent<ButtonBhv>().EndActionDelegate = () => { Application.OpenURL("https://youtu.be/VRMzU4o57-c"); };
+        transform.Find("TwitterButton").GetComponent<ButtonBhv>().EndActionDelegate = () => { Application.OpenURL("https://twitter.com/Abject_Sama"); };
+        transform.Find("OnlyFanButton").GetComponent<ButtonBhv>().EndActionDelegate = () => { Application.OpenURL("https://youtu.be/dQw4w9WgXcQ"); };
     }
 }

@@ -38,6 +38,11 @@ public static class Constants
     //Panel01
     public const string PpAudioInputs = "AudioInputs";
     public const string PpAudioInputsDefault = null;
+    //Panel03
+    public const string PpResolution = "Resolution";
+    public const int PpResolutionDefault = 1;
+    public const string PpLanguage = "Language";
+    public const int PpLanguageDefault = 0;
 
 
     public static Color ColorBlackTransparent = new Color(0.0f, 0.0f, 0.0f, 0.0f);

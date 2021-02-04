@@ -98,6 +98,8 @@ public class Panel01Bhv : PanelBhv
 
     private void NewAudioInput()
     {
+        if (AudioInputs.Count >= Constants.MaxAudioInputs)
+            return;
         AudioInputs.Add(new AudioInput());
         var id = AudioInputs.Count - 1;
         PlayerPrefHelper.SetAudioInput(AudioInputs[id], id);

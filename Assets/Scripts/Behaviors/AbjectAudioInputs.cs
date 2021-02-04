@@ -5,6 +5,7 @@ using Lasp;
 using WindowsInput;
 using WindowsInput.Native;
 using System.Linq;
+using System.Collections;
 
 public class AbjectAudioInputs : MonoBehaviour
 {
@@ -40,7 +41,9 @@ public class AbjectAudioInputs : MonoBehaviour
     private List<PanelBhv> _panels;
     private Panel00Bhv _panel00;
     private Panel01Bhv _panel01;
-    private Vector3 _resetPanelPosition = new Vector3(-45.0f, -25.0f, 0.0f);
+    private Panel02Bhv _panel02;
+    private Panel03Bhv _panel03;
+    private Vector3 _resetPanelPosition = new Vector3(-450.0f, -250.0f, 0.0f);
 
     void Start()
     {
@@ -71,6 +74,8 @@ public class AbjectAudioInputs : MonoBehaviour
         _panels.Add(GameObject.Find("Panel03").GetComponent<PanelBhv>());
         _panel00 = GameObject.Find("Panel00").GetComponent<Panel00Bhv>();
         _panel01 = GameObject.Find("Panel01").GetComponent<Panel01Bhv>();
+        _panel02 = GameObject.Find("Panel02").GetComponent<Panel02Bhv>();
+        _panel03 = GameObject.Find("Panel03").GetComponent<Panel03Bhv>();
     }
 
     private void SetButtons()
@@ -86,6 +91,8 @@ public class AbjectAudioInputs : MonoBehaviour
     {
         _panel00.Init();
         _panel01.Init();
+        _panel02.Init();
+        _panel03.Init();
         SetPanel(0);
     }
 
@@ -129,6 +136,8 @@ public class AbjectAudioInputs : MonoBehaviour
             AnalyseAudioInputs();
         else if (On && DynRangeDB <= _panel00.LevelReset && _lastFrameLevel <= _panel00.LevelReset)
             LevelReset();
+        else if (!On)
+            _panel00.UpdateIcon(false);
         _levelDrawer.Draw(_audioLevelTracker);
         _spectrumDrawer.Draw(_spectrum);
         _lastFrameLevel = DynRangeDB;
@@ -136,7 +145,7 @@ public class AbjectAudioInputs : MonoBehaviour
 
     private void LevelReset()
     {
-        _hasToWaitResetAfterSingleTap = false;
+        _hasToWaitResetBeforeNewInput = false;
         if (_holdedInputs != null && _holdedInputs.Count > 0)
         {
             foreach (var audioInput in _holdedInputs)
@@ -145,13 +154,14 @@ public class AbjectAudioInputs : MonoBehaviour
             }
             _holdedInputs.Clear();
         }
+        _panel00.UpdateIcon(false);
     }
 
     private float _lastFrameLevel = 0.0f;
     private float _lastFrameFrequency = 0.00f;
     private int _nbConsecutiveFrames = 1;
     private int _nbConsecutiveFramesDefault = 1;
-    private bool _hasToWaitResetAfterSingleTap = false;
+    private bool _hasToWaitResetBeforeNewInput = false;
 
     private List<AudioInput> _holdedInputs;
 
@@ -175,7 +185,7 @@ public class AbjectAudioInputs : MonoBehaviour
         var validFrequencies = new List<AudioInput>();
         for (int i = 0; i < _panel01.AudioInputs.Count; ++i)
         {
-            if (_panel01.AudioInputs[i].Enabled &&  Helper.FloatEqualsPrecision(_pitchValue, _panel01.AudioInputs[i].Hz, _panel00.HzOffset))
+            if (_panel01.AudioInputs[i].Enabled && _panel01.AudioInputs[i].Key != VirtualKeyCode.NONAME && Helper.FloatEqualsPrecision(_pitchValue, _panel01.AudioInputs[i].Hz, _panel00.HzOffset))
             {
                 validFrequencies.Add(_panel01.AudioInputs[i]);
             }
@@ -210,19 +220,53 @@ public class AbjectAudioInputs : MonoBehaviour
 
     private void SendAudioInput(AudioInput audioInput)
     {
-        if (audioInput.InputType == InputType.SingleTap && !_hasToWaitResetAfterSingleTap)
+        if (audioInput.InputType == InputType.SingleTap && !_hasToWaitResetBeforeNewInput)
         {
             _inputSimulator.Keyboard.KeyPress(audioInput.Key);
-            _hasToWaitResetAfterSingleTap = true;
+            _panel00.UpdateIcon(true);
+            _hasToWaitResetBeforeNewInput = true;
         }
         else if (audioInput.InputType == InputType.Holded)
         {
             _inputSimulator.Keyboard.KeyDown(audioInput.Key);
+            _panel00.UpdateIcon(true);
             if (_holdedInputs == null)
                 _holdedInputs = new List<AudioInput>();
             if (_holdedInputs.Find(a => a.Key == audioInput.Key) == null)
                 _holdedInputs.Add(audioInput);
         }
+        else if (audioInput.InputType == InputType.CustomTap && !_hasToWaitResetBeforeNewInput)
+        {
+            StartCoroutine(CustomTapSend(audioInput.Key, audioInput.Param));
+            _hasToWaitResetBeforeNewInput = true;
+        }
+        else if (audioInput.InputType == InputType.TimeHolded && !_hasToWaitResetBeforeNewInput)
+        {
+            _inputSimulator.Keyboard.KeyDown(audioInput.Key);
+            _panel00.UpdateIcon(true);
+            StartCoroutine(TimeHolded(audioInput.Key, audioInput.Param));
+            _hasToWaitResetBeforeNewInput = true;
+        }
+        else
+            _panel00.UpdateIcon(false);
+    }
+
+    private IEnumerator CustomTapSend(VirtualKeyCode key, int count)
+    {
+         _inputSimulator.Keyboard.KeyPress(key);
+        _panel00.UpdateIcon(true);
+        --count;
+        if (count > 0)
+        {
+            yield return new WaitForSeconds(_panel00.CustomTapDelay);
+            StartCoroutine(CustomTapSend(key, count));
+        }
+    }
+
+    private IEnumerator TimeHolded(VirtualKeyCode key, int timeHolded)
+    {
+        yield return new WaitForSeconds(timeHolded);
+        _inputSimulator.Keyboard.KeyUp(key);
     }
 
     void AnalyzeSound()

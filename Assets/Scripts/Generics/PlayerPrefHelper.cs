@@ -73,4 +73,12 @@ public class PlayerPrefHelper : MonoBehaviour
         }        
         return audioInputs;
     }
+
+    //Panel03
+
+    public static void SetResolution(Resolution resolution) { PlayerPrefs.SetInt(Constants.PpResolution, resolution.GetHashCode()); }
+    public static Resolution GetResolution() { return (Resolution)PlayerPrefs.GetInt(Constants.PpResolution, Constants.PpResolutionDefault); }
+
+    public static void SetLanguage(Language language) { PlayerPrefs.SetInt(Constants.PpLanguage, language.GetHashCode()); }
+    public static Language GetLanguage() { return (Language)PlayerPrefs.GetInt(Constants.PpLanguage, Constants.PpLanguageDefault); }
 }

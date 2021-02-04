@@ -7,6 +7,9 @@ using UnityEngine.SceneManagement;
 
 public class Panel00Bhv : PanelBhv
 {
+    public Sprite IconDown;
+    public Sprite IconUp;
+
     public IEnumerable<DeviceDescriptor> Devices;
     public float HzOffset;
     public int RequiredFrames;
@@ -17,6 +20,7 @@ public class Panel00Bhv : PanelBhv
     private SpectrumAnalyzer _spectrumAnalyzer;
     private AudioLevelTracker _audioLevelTracker;
     private string _lastSavedDeviceName;
+    private SpriteRenderer _icon;
 
     private DeviceDescriptor _currentDevice;
     private int _currentChannel;
@@ -52,6 +56,7 @@ public class Panel00Bhv : PanelBhv
         base.Init();
         _spectrumAnalyzer = GameObject.Find(Constants.AbjectAudioInputs).GetComponent<SpectrumAnalyzer>();
         _audioLevelTracker = GameObject.Find(Constants.AbjectAudioInputs).GetComponent<AudioLevelTracker>();
+        _icon = GameObject.Find("MainIcon").GetComponent<SpriteRenderer>();
 
         //PlayerPrefs
         _lastSavedDeviceName = PlayerPrefHelper.GetLastSavedDeviceDefault();
@@ -188,6 +193,19 @@ public class Panel00Bhv : PanelBhv
         PlayerPrefHelper.SetCurrentChannel(intResult);
         _channelData.text = _currentChannel.ToString();
         return true;
+    }
+
+    public void ResetDefaultCalibration()
+    {
+        SetHzOffset(Constants.PpHzOffsetDefault);
+        SetRequiredFrames(Constants.PpRequiredFramesDefault);
+        SetPeaksPriority(Constants.PpPeaksPriorityDefault);
+        SetLevelReset(Constants.PpLevelResetDefault);
+        SetCustomTapDelay(Constants.PpCustomTapDelayDefault);
+        SetLevelDynamicRange(Constants.PpLevelDynamicRangeDefault);
+        SetLevelGain(Constants.PpLevelGainDefault);
+        SetSpectrumDynamicRange(Constants.PpSpectrumDynamicRangeDefault);
+        SetSpectrumGain(Constants.PpSpectrumGainDefault);
     }
 
     private object SetHzOffset(float offset)
@@ -362,5 +380,31 @@ public class Panel00Bhv : PanelBhv
     {
         var content = $"from -10 to 120";
         Instantiator.NewPopupNumber(transform.position, "Spectrum Gain", content, _spectrumGain, 3, SetSpectrumGain);
+    }
+
+    private bool isDown = false;
+    private int minFramesDown = 4;
+    private int framesDown = 0;
+
+    public void UpdateIcon(bool down)
+    {
+        if (framesDown < minFramesDown)
+        {
+            ++framesDown;
+            down = true;
+        }
+
+        if (down)
+        {
+            if (!isDown)
+                framesDown = 0;
+            isDown = true;
+            _icon.sprite = IconDown;
+        }
+        else
+        {
+            isDown = false;
+            _icon.sprite = IconUp;
+        }
     }
 }

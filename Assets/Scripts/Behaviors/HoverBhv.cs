@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class HoverBhv : InputBhv
 {
+    public Sprite Sprite;
     [TextArea]
     public string Content;
     private GameObject _hoverWindow;
@@ -40,7 +41,16 @@ public class HoverBhv : InputBhv
         if (_hoverWindow != null)
         {
             _hoverWindow.transform.position = new Vector3(touchPosition.x + x, touchPosition.y + y, 0.0f);
-            _hoverWindow.transform.Find("Content").GetComponent<TMPro.TextMeshPro>().text = Content.ToLower();
+            if (Sprite != null)
+            {
+                _hoverWindow.GetComponent<SpriteRenderer>().sprite = Sprite;
+                _hoverWindow.transform.Find("Content").GetComponent<TMPro.TextMeshPro>().text = string.Empty;
+            }
+            else
+            {
+                _hoverWindow.GetComponent<SpriteRenderer>().sprite = null;
+                _hoverWindow.transform.Find("Content").GetComponent<TMPro.TextMeshPro>().text = Content.ToLower();
+            }
         }
 
     }
