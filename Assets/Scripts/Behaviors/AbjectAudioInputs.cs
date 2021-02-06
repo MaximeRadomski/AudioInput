@@ -21,6 +21,7 @@ public class AbjectAudioInputs : MonoBehaviour
     private float _highestPeak;
     private int _binSize = 2048;
     private float _threshold = 0.01f;
+    private int _idTimeHolding = -1;
 
     private SpectrumAnalyzer _spectrumAnalyzer;
     private AudioLevelTracker _audioLevelTracker;
@@ -132,15 +133,15 @@ public class AbjectAudioInputs : MonoBehaviour
         _dbData.text = DynRangeDB.ToString("0");
         _hzData.text = DynRangeDB > 0 ? _pitchValue.ToString("F2") : "0.00";
         _peaksData.text = DynRangeDB > 0 ? _peaksCount.ToString() : "0";
-        if (On && DynRangeDB > _panel00.LevelReset)
+        if (DynRangeDB > _panel00.LevelReset)
             AnalyseAudioInputs();
-        else if (On && DynRangeDB <= _panel00.LevelReset && _lastFrameLevel <= _panel00.LevelReset)
+        else if (DynRangeDB <= _panel00.LevelReset && _lastFrameLevel <= _panel00.LevelReset)
             LevelReset();
-        else if (!On)
-            _panel00.UpdateIcon(false);
         _levelDrawer.Draw(_audioLevelTracker);
         _spectrumDrawer.Draw(_spectrum);
         _lastFrameLevel = DynRangeDB;
+        if (_idTimeHolding != -1)
+            UpdatePanelVisual(true, "_", InputType.TimeHolded, _idTimeHolding);
     }
 
     private void LevelReset()
@@ -154,7 +155,7 @@ public class AbjectAudioInputs : MonoBehaviour
             }
             _holdedInputs.Clear();
         }
-        _panel00.UpdateIcon(false);
+        UpdatePanelVisual(false);
     }
 
     private float _lastFrameLevel = 0.0f;
@@ -222,51 +223,75 @@ public class AbjectAudioInputs : MonoBehaviour
     {
         if (audioInput.InputType == InputType.SingleTap && !_hasToWaitResetBeforeNewInput)
         {
-            _inputSimulator.Keyboard.KeyPress(audioInput.Key);
-            _panel00.UpdateIcon(true);
+            if (On)
+                _inputSimulator.Keyboard.KeyPress(audioInput.Key);
+            UpdatePanelVisual(true, audioInput.Key.ToString(), InputType.SingleTap, audioInput.IdInScene);
             _hasToWaitResetBeforeNewInput = true;
         }
         else if (audioInput.InputType == InputType.Holded)
         {
-            _inputSimulator.Keyboard.KeyDown(audioInput.Key);
-            _panel00.UpdateIcon(true);
             if (_holdedInputs == null)
                 _holdedInputs = new List<AudioInput>();
             if (_holdedInputs.Find(a => a.Key == audioInput.Key) == null)
+            {
+                if (On)
+                    _inputSimulator.Keyboard.KeyDown(audioInput.Key);
+                UpdatePanelVisual(true, audioInput.Key.ToString(), InputType.Holded, audioInput.IdInScene);
                 _holdedInputs.Add(audioInput);
+            }
+            else
+                UpdatePanelVisual(true, "_", InputType.Holded, audioInput.IdInScene);
         }
         else if (audioInput.InputType == InputType.CustomTap && !_hasToWaitResetBeforeNewInput)
         {
-            StartCoroutine(CustomTapSend(audioInput.Key, audioInput.Param));
+            StartCoroutine(CustomTapSend(audioInput.Key, audioInput.Param, audioInput.IdInScene));
             _hasToWaitResetBeforeNewInput = true;
         }
         else if (audioInput.InputType == InputType.TimeHolded && !_hasToWaitResetBeforeNewInput)
         {
-            _inputSimulator.Keyboard.KeyDown(audioInput.Key);
-            _panel00.UpdateIcon(true);
+            if (On)
+                _inputSimulator.Keyboard.KeyDown(audioInput.Key);
+            UpdatePanelVisual(true, audioInput.Key.ToString(), InputType.TimeHolded, audioInput.IdInScene);
             StartCoroutine(TimeHolded(audioInput.Key, audioInput.Param));
+            _idTimeHolding = audioInput.IdInScene;
             _hasToWaitResetBeforeNewInput = true;
         }
         else
-            _panel00.UpdateIcon(false);
+            UpdatePanelVisual(false);
     }
 
-    private IEnumerator CustomTapSend(VirtualKeyCode key, int count)
+    private void UpdatePanelVisual(bool down, string key = null, InputType type = InputType.SingleTap, int id = -1)
     {
-         _inputSimulator.Keyboard.KeyPress(key);
-        _panel00.UpdateIcon(true);
+        if (On && _panel00.enabled)
+        {
+            _panel00.UpdateIcon(down, key, type);
+        }
+        else if (down == true)
+        {
+            if (_panel01.enabled && id != -1)
+                _panel01.UpdateTrigger(id);
+        }
+    }
+
+    private IEnumerator CustomTapSend(VirtualKeyCode key, int count, int id)
+    {
+        if (On)
+            _inputSimulator.Keyboard.KeyPress(key);
+        UpdatePanelVisual(true, key.ToString(), InputType.CustomTap, id);
         --count;
         if (count > 0)
         {
             yield return new WaitForSeconds(_panel00.CustomTapDelay);
-            StartCoroutine(CustomTapSend(key, count));
+            StartCoroutine(CustomTapSend(key, count, id));
         }
     }
 
     private IEnumerator TimeHolded(VirtualKeyCode key, int timeHolded)
     {
         yield return new WaitForSeconds(timeHolded);
-        _inputSimulator.Keyboard.KeyUp(key);
+        if (On)
+            _inputSimulator.Keyboard.KeyUp(key);
+        _idTimeHolding = -1;
     }
 
     void AnalyzeSound()

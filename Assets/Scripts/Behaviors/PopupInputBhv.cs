@@ -50,6 +50,19 @@ public class PopupInputBhv : PopupBhv
                 UpdateText();
             }
         }
+        //else if (e.isMouse && e.rawType == EventType.MouseDown)
+        //{
+        //    if (e.button == 0 && _currentString.Length > 0)
+        //    {
+        //        return;
+        //    }
+        //    else
+        //    {
+        //        _currentString = $"mouse{e.button}";
+        //        _newKeyCode = MapMouseToVirtualKeyCode(e.button);
+        //        UpdateText();
+        //    }
+        //}
     }
 
     private void UpdateText()
@@ -191,7 +204,6 @@ public class PopupInputBhv : PopupBhv
             case KeyCode.F13: vkc = VirtualKeyCode.F13; break;
             case KeyCode.F14: vkc = VirtualKeyCode.F14; break;
             case KeyCode.F15: vkc = VirtualKeyCode.F15; break;
-            case KeyCode.ScrollLock: vkc = VirtualKeyCode.SCROLL; break;
             case KeyCode.Plus: vkc = VirtualKeyCode.OEM_PLUS; break;
             case KeyCode.Comma: vkc = VirtualKeyCode.OEM_COMMA; break;
             case KeyCode.Minus: vkc = VirtualKeyCode.OEM_MINUS; break;
@@ -199,4 +211,16 @@ public class PopupInputBhv : PopupBhv
         }
         return vkc;
     }
+
+    //private VirtualKeyCode MapMouseToVirtualKeyCode(int id)
+    //{
+    //    var vkc = VirtualKeyCode.NONAME;
+    //    switch (id)
+    //    {
+    //        case 0: vkc = VirtualKeyCode.LBUTTON; break;
+    //        case 1: vkc = VirtualKeyCode.RBUTTON; break;
+    //        case 2: vkc = VirtualKeyCode.SCROLL; break;
+    //    }
+    //    return vkc;
+    //}
 }

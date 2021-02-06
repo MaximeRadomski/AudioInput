@@ -11,11 +11,13 @@ public class AudioInputBhv : MonoBehaviour
     private TMPro.TextMeshPro _inputData;
     private TMPro.TextMeshPro _typeData;
     private TMPro.TextMeshPro _paramData;
+    private SpriteRenderer _back;
 
     private AudioInput _audioInput;
     private Panel01Bhv _panelBhv;
     //private bool _hasInit;
     private int _id;
+    private bool _isTilting;
 
     public void Init(AudioInput audioInput, Panel01Bhv panelBhv, int id)
     {
@@ -28,6 +30,8 @@ public class AudioInputBhv : MonoBehaviour
         _inputData = transform.Find("AudioInputInput").transform.GetChild(0).GetComponent<TMPro.TextMeshPro>();
         _typeData = transform.Find("AudioInputType").transform.GetChild(0).GetComponent<TMPro.TextMeshPro>();
         _paramData = transform.Find("AudioInputParam").transform.GetChild(0).GetComponent<TMPro.TextMeshPro>();
+
+        _back = transform.Find("Back").GetComponent<SpriteRenderer>();
 
         SetButtons();
         LoadData();
@@ -152,5 +156,27 @@ public class AudioInputBhv : MonoBehaviour
     private void Delete()
     {
         _panelBhv.OnDelete(_id);
+    }
+
+    public void Tilt()
+    {
+        _back.color = Constants.ColorPlain;
+        _isTilting = true;
+    }
+
+    private void Update()
+    {
+        if (_isTilting)
+            Tilting();
+    }
+
+    private void Tilting()
+    {
+        _back.color = Color.Lerp(_back.color, Constants.ColorPlainTransparent, 0.1f);
+        if (Helper.FloatEqualsPrecision(_back.color.a, Constants.ColorPlainTransparent.a, 0.02f))
+        {
+            _back.color = Constants.ColorPlainTransparent;
+            _isTilting = false;
+        }
     }
 }

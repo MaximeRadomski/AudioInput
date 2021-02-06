@@ -6,6 +6,8 @@ public class Panel01Bhv : PanelBhv
 {
     public List<AudioInput> AudioInputs;
 
+    private List<AudioInputBhv> _audioInputBhvs;
+
     private CheckBoxBhv _allEnabled;
     private Transform _listSource;
     private TMPro.TextMeshPro _pageNumber;
@@ -65,6 +67,7 @@ public class Panel01Bhv : PanelBhv
                 break;
             }
             Instantiator.NewAudioInput(_listSource, new Vector3(0.0f, y * -_spaceBetween, 0.0f), AudioInputs[i], i, this);
+            AudioInputs[i].IdInScene = y;
             ++y;
         }
         if ((_currentPage + 1) * 10 >= AudioInputs.Count)
@@ -181,5 +184,11 @@ public class Panel01Bhv : PanelBhv
             return 1;
         else
             return 2;
+    }
+
+    public void UpdateTrigger(int id)
+    {
+        if (id < _listSource.childCount)
+            _listSource.GetChild(id).GetComponent<AudioInputBhv>().Tilt();
     }
 }

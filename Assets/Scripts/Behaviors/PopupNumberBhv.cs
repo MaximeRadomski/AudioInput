@@ -110,17 +110,20 @@ public class PopupNumberBhv : PopupBhv
     private void PositiveDelegate()
     {
         Constants.DecreaseInputLayer();
-        try
+        if (!string.IsNullOrEmpty(_currentString))
         {
-            if (_currentString[_currentString.Length - 1] == '.')
-                _currentString += "0";
-            float _cast = float.Parse(_currentString);
-            _resultAction?.Invoke(_cast);
-        }
-        catch (Exception e)
-        {
-            Debug.LogError(e.Message);
-            ExitPopup();
+            try
+            {
+                if (_currentString[_currentString.Length - 1] == '.')
+                    _currentString += "0";
+                float _cast = float.Parse(_currentString);
+                _resultAction?.Invoke(_cast);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e.Message);
+                ExitPopup();
+            }
         }
         Destroy(gameObject);
     }

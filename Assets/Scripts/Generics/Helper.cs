@@ -102,6 +102,7 @@ public static class Helper
     public static AudioInputBo ToAudioInputBo(this AudioInput audioInput)
     {
         var bo = new AudioInputBo();
+        bo.IdInScene = -1;
         bo.Enabled = audioInput.Enabled;
         bo.Hz = audioInput.Hz;
         bo.Peaks = audioInput.Peaks;
@@ -114,6 +115,7 @@ public static class Helper
     public static AudioInput ToAudioInput(this AudioInputBo bo)
     {
         var audioInput = new AudioInput();
+        audioInput.IdInScene = -1;
         audioInput.Enabled = bo.Enabled;
         audioInput.Hz = bo.Hz;
         audioInput.Peaks = bo.Peaks;

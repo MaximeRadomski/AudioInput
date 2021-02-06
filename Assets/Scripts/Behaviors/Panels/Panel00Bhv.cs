@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using WindowsInput.Native;
 
 public class Panel00Bhv : PanelBhv
 {
@@ -20,7 +21,11 @@ public class Panel00Bhv : PanelBhv
     private SpectrumAnalyzer _spectrumAnalyzer;
     private AudioLevelTracker _audioLevelTracker;
     private string _lastSavedDeviceName;
-    private SpriteRenderer _icon;
+    private SpriteRenderer _mainIcon;
+    private Transform _singleTapSpawn;
+    private Transform _customTapSpawn;
+    private Transform _holdedSpawn;
+    private Transform _timeHoldedSpawn;
 
     private DeviceDescriptor _currentDevice;
     private int _currentChannel;
@@ -56,7 +61,11 @@ public class Panel00Bhv : PanelBhv
         base.Init();
         _spectrumAnalyzer = GameObject.Find(Constants.AbjectAudioInputs).GetComponent<SpectrumAnalyzer>();
         _audioLevelTracker = GameObject.Find(Constants.AbjectAudioInputs).GetComponent<AudioLevelTracker>();
-        _icon = GameObject.Find("MainIcon").GetComponent<SpriteRenderer>();
+        _mainIcon = GameObject.Find("MainIcon").GetComponent<SpriteRenderer>();
+        _singleTapSpawn = GameObject.Find("SingleTapSpawn").transform;
+        _customTapSpawn = GameObject.Find("CustomTapSpawn").transform;
+        _holdedSpawn = GameObject.Find("HoldedSpawn").transform;
+        _timeHoldedSpawn = GameObject.Find("TimeHoldedSpawn").transform;
 
         //PlayerPrefs
         _lastSavedDeviceName = PlayerPrefHelper.GetLastSavedDeviceDefault();
@@ -382,29 +391,47 @@ public class Panel00Bhv : PanelBhv
         Instantiator.NewPopupNumber(transform.position, "Spectrum Gain", content, _spectrumGain, 3, SetSpectrumGain);
     }
 
-    private bool isDown = false;
-    private int minFramesDown = 4;
-    private int framesDown = 0;
+    //Icon and PoppingTexr
 
-    public void UpdateIcon(bool down)
+    private bool _isDown = false;
+    private int _minFramesDown = 4;
+    private int _framesDown = 0;
+
+    public void UpdateIcon(bool down, string key = null, InputType type = InputType.SingleTap)
     {
-        if (framesDown < minFramesDown)
+        if (!enabled)
+            return;
+        if (_framesDown < _minFramesDown)
         {
-            ++framesDown;
+            ++_framesDown;
             down = true;
         }
 
         if (down)
         {
-            if (!isDown)
-                framesDown = 0;
-            isDown = true;
-            _icon.sprite = IconDown;
+            if (!_isDown)
+                _framesDown = 0;
+            _isDown = true;
+            _mainIcon.sprite = IconDown;
         }
         else
         {
-            isDown = false;
-            _icon.sprite = IconUp;
+            _isDown = false;
+            _mainIcon.sprite = IconUp;
+        }
+
+        if (key != null)
+        {
+            var position = _singleTapSpawn.position;
+            if (type == InputType.CustomTap)
+                position = _customTapSpawn.position;
+            else if (type == InputType.Holded)
+                position = _holdedSpawn.position;
+            else if (type == InputType.TimeHolded)
+                position = _timeHoldedSpawn.position;
+            if (key == "_")
+                position += new Vector3(0.0f, -0.25f, 0.0f);
+            Instantiator.PopText(key.ToLower(), position + new Vector3(0.0f, 1.5f, 0.0f), distance: 2.0f, startFadingDistancePercent: 0.50f);
         }
     }
 }

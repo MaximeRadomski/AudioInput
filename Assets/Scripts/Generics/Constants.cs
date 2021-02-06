@@ -10,6 +10,7 @@ public static class Constants
     public const string AbjectAudioInputs = "AbjectAudioInputs";
 
     public const string TagAudioInputs = "AudioInputs";
+    public const string TagPoppingText = "PoppingText";
 
     //  PLAYER PREFS  //
     // Panel00

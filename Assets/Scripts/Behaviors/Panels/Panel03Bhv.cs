@@ -9,6 +9,7 @@ public class Panel03Bhv : PanelBhv
 
     private TMPro.TextMeshPro _resolutionData;
     private TMPro.TextMeshPro _languageData;
+    private TMPro.TextMeshPro _toolVersion;
 
     void Start()
     {
@@ -25,6 +26,7 @@ public class Panel03Bhv : PanelBhv
 
         _resolutionData = Helper.GetFieldData("Resolution");
         _languageData = Helper.GetFieldData("Language");
+        _toolVersion = transform.Find("ToolVersion").GetComponent<TMPro.TextMeshPro>();
     }
 
     private void SetButtons()
@@ -44,6 +46,7 @@ public class Panel03Bhv : PanelBhv
     {
         SetResolution(_resolution.GetHashCode());
         SetLanguage(_language.GetHashCode());
+        _toolVersion.text = $"version {Application.version}";
     }
 
     private object SetResolution(int id)

@@ -6,6 +6,7 @@ using WindowsInput;
 
 public class AudioInput
 {
+    public int IdInScene;
     public bool Enabled;
     public float Hz;
     public int Peaks;
@@ -26,6 +27,7 @@ public class AudioInput
 
 public class AudioInputBo
 {
+    public int IdInScene;
     public bool Enabled;
     public float Hz;
     public int Peaks;
