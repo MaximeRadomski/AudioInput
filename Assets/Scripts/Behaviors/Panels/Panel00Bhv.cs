@@ -430,8 +430,14 @@ public class Panel00Bhv : PanelBhv
             else if (type == InputType.TimeHolded)
                 position = _timeHoldedSpawn.position;
             if (key == "_")
+            {
                 position += new Vector3(0.0f, -0.25f, 0.0f);
-            Instantiator.PopText(key.ToLower(), position + new Vector3(0.0f, 1.5f, 0.0f), distance: 2.0f, startFadingDistancePercent: 0.50f);
+                Instantiator.PopNoShadowText(key.ToLower(), position + new Vector3(0.0f, 1.5f, 0.0f), distance: 2.0f, startFadingDistancePercent: 0.50f);
+            }
+            else
+            {
+                Instantiator.PopText(key.ToLower(), position + new Vector3(0.0f, 1.5f, 0.0f), distance: 2.0f, startFadingDistancePercent: 0.50f);
+            }
         }
     }
 }

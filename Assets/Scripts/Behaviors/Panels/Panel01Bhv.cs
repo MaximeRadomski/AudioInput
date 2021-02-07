@@ -59,6 +59,8 @@ public class Panel01Bhv : PanelBhv
         for (int dead = oldAudioInputs.Length - 1; dead >= 0; --dead)
             Destroy(oldAudioInputs[dead]);
         int y = 0;
+        foreach (var audioInput in AudioInputs)
+            audioInput.IdInScene = -1;
         for (int i = _currentPage * 10; i < (_currentPage + 1) * 10; ++i)
         {
             if (i >= AudioInputs.Count)

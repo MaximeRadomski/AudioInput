@@ -18,10 +18,11 @@ public class AbjectAudioInputs : MonoBehaviour
     public Sprite TabSmallOff;
 
     private float _pitchValue;
-    private float _highestPeak;
     private int _binSize = 2048;
     private float _threshold = 0.01f;
     private int _idTimeHolding = -1;
+    private int MaxPeak = 5;
+    private float freqNMultiplier = 0.5f;
 
     private SpectrumAnalyzer _spectrumAnalyzer;
     private AudioLevelTracker _audioLevelTracker;
@@ -305,31 +306,27 @@ public class AbjectAudioInputs : MonoBehaviour
             if (_spectrum[i] > maxV && _spectrum[i] > _threshold)
             {
                 _peaks.Add(new Peak(_spectrum[i], i));
-                if (_peaks.Count > 5)
+                if (_peaks.Count > MaxPeak)
                 {
                     _peaks.Sort(new AmpComparer());
-                    _peaks.Remove (_peaks [5]);
+                    _peaks.Remove (_peaks [MaxPeak]);
                 }
             }
-            if (i > _threshold * 5 && _spectrum[i - 1] > 0 && _spectrum[i] == 0)
+            if (i > _threshold * MaxPeak && _spectrum[i - 1] > 0 && _spectrum[i] == 0)
                 ++_peaksCount;
         }
         float freqN = 0f;
         if (_peaks.Count > 0)
         {
-            maxV = _peaks[0].amplitude;
             int maxN = _peaks[0].index;
             freqN = maxN;
             if (maxN > 0 && maxN < _binSize - 1)
             {
                 var dL = _spectrum[maxN - 1] / _spectrum[maxN];
                 var dR = _spectrum[maxN + 1] / _spectrum[maxN];
-                freqN += 0.5f * (dR * dR - dL * dL);
+                freqN += freqNMultiplier * (dR * dR - dL * dL);
             }
-            _highestPeak = maxN;
         }
-        else
-            _highestPeak = 0.0f;
         _pitchValue = freqN * (_samplerate / 2f) / _binSize;
         _pitchValue /= 100.0f;
         _peaks.Clear();
