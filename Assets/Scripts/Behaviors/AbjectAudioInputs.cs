@@ -39,6 +39,7 @@ public class AbjectAudioInputs : MonoBehaviour
     private LevelDrawerBhv _levelDrawer;
     private SpectrumDrawerBhv _spectrumDrawer;
     private CheckBoxBhv _onOff;
+    private ParticleSystem _notesThrower;
 
     private List<PanelBhv> _panels;
     private Panel00Bhv _panel00;
@@ -68,6 +69,7 @@ public class AbjectAudioInputs : MonoBehaviour
         _levelDrawer = GameObject.Find("LevelDrawer").GetComponent<LevelDrawerBhv>();
         _spectrumDrawer = GameObject.Find("SpectrumDrawer").GetComponent<SpectrumDrawerBhv>();
         _onOff = GameObject.Find("OnOff").GetComponent<CheckBoxBhv>();
+        _notesThrower = GameObject.Find("NotesThrower").GetComponent<ParticleSystem>();
 
         _panels = new List<PanelBhv>();
         _panels.Add(GameObject.Find("Panel00").GetComponent<PanelBhv>());
@@ -227,6 +229,7 @@ public class AbjectAudioInputs : MonoBehaviour
             if (On)
                 _inputSimulator.Keyboard.KeyPress(audioInput.Key);
             UpdatePanelVisual(true, audioInput.Key.ToString(), InputType.SingleTap, audioInput.IdInScene);
+            StartCoroutine(TimeHolded(audioInput.Key, 0.05f));
             _hasToWaitResetBeforeNewInput = true;
         }
         else if (audioInput.InputType == InputType.Holded)
@@ -263,6 +266,10 @@ public class AbjectAudioInputs : MonoBehaviour
 
     private void UpdatePanelVisual(bool down, string key = null, InputType type = InputType.SingleTap, int id = -1)
     {
+        if (On && down)
+        {
+            _notesThrower.Play();
+        }
         if (On && _panel00.enabled)
         {
             _panel00.UpdateIcon(down, key, type);
@@ -287,7 +294,7 @@ public class AbjectAudioInputs : MonoBehaviour
         }
     }
 
-    private IEnumerator TimeHolded(VirtualKeyCode key, int timeHolded)
+    private IEnumerator TimeHolded(VirtualKeyCode key, float timeHolded)
     {
         yield return new WaitForSeconds(timeHolded);
         if (On)

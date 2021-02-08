@@ -2,6 +2,7 @@ using Lasp;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using UnityEngine;
 
 public class PopupNumberBhv : PopupBhv
@@ -14,11 +15,16 @@ public class PopupNumberBhv : PopupBhv
     private float _currentFloat;
     private string _currentString;
 
+    private NumberFormatInfo _nfi;
+
     public void Init(string title, string content, float current, int maxLength, System.Func<float, object> resultAction)
     {
         _resultAction = resultAction;
         _maxLengthUnite = maxLength;
         _currentFloat = current;
+
+        var cultureInfo = CultureInfo.CurrentCulture;
+        _nfi = cultureInfo.NumberFormat;
 
         transform.Find("Title").GetComponent<TMPro.TextMeshPro>().text = title.ToLower();
         transform.Find("Content").GetComponent<TMPro.TextMeshPro>().text = content.ToLower();
@@ -114,7 +120,9 @@ public class PopupNumberBhv : PopupBhv
         {
             try
             {
-                if (_currentString[_currentString.Length - 1] == '.')
+                _currentString = _currentString.Replace(".", _nfi.CurrencyDecimalSeparator);
+                _currentString = _currentString.Replace(",", _nfi.CurrencyDecimalSeparator);
+                if (_currentString[_currentString.Length - 1] == _nfi.CurrencyDecimalSeparator[0])
                     _currentString += "0";
                 float _cast = float.Parse(_currentString);
                 _resultAction?.Invoke(_cast);

@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using WindowsInput;
 using WindowsInput.Native;
 
 public class PopupInputBhv : PopupBhv
@@ -15,8 +16,13 @@ public class PopupInputBhv : PopupBhv
     private VirtualKeyCode _currentKeyCode;
     private VirtualKeyCode _newKeyCode = VirtualKeyCode.NONAME;
 
+    //For Test Mapping
+    //private InputSimulator _inputSimulator;
+
     public void Init(VirtualKeyCode current, System.Func<VirtualKeyCode, object> resultAction)
     {
+        //_inputSimulator = new InputSimulator();
+
         Constants.EscapeOrEnterLocked = true;
         _resultAction = resultAction;
         _currentKeyCode = current;
@@ -33,22 +39,32 @@ public class PopupInputBhv : PopupBhv
         UpdateText();
     }
 
+    //for test Mapping
+    //int _id = 0;
+    //string _debugMapping = "";
+
+    //private void Update()
+    //{
+    //    if (_id < 256)
+    //    {
+    //        var test = (VirtualKeyCode)_id;
+    //        _inputSimulator.Keyboard.KeyPress(test);
+    //        _debugMapping = test.ToString();
+    //        ++_id;
+    //    }
+    //}
+
     void OnGUI()
     {
         Event e = Event.current;
         if (e.isKey && e.rawType == EventType.KeyDown && e.keyCode != KeyCode.None)
         {
-            if (e.keyCode == KeyCode.Backspace && _currentString.Length > 0)
-            {
-                _currentString = string.Empty;
-                UpdateText();
-            }
-            else
-            {
-                _currentString = e.keyCode.ToString().ToLower();
-                _newKeyCode = MapKeyCodeToVirtualKeyCode(e.keyCode);
-                UpdateText();
-            }
+            //for test mapping
+            //_debugMapping = $"{e.keyCode} -> {_debugMapping}";
+            //Debug.Log(_debugMapping);
+            _currentString = e.keyCode.ToString().ToLower();
+            _newKeyCode = MapKeyCodeToVirtualKeyCode(e.keyCode);
+            UpdateText();
         }
         //else if (e.isMouse && e.rawType == EventType.MouseDown)
         //{
@@ -113,6 +129,7 @@ public class PopupInputBhv : PopupBhv
         var vkc = VirtualKeyCode.NONAME;
         switch (keyCode)
         {
+            case KeyCode.Backspace: vkc = VirtualKeyCode.BACK; break;
             case KeyCode.Tab: vkc = VirtualKeyCode.TAB; break;
             case KeyCode.Clear: vkc = VirtualKeyCode.CLEAR; break;
             case KeyCode.Return: vkc = VirtualKeyCode.RETURN; break;
@@ -122,6 +139,8 @@ public class PopupInputBhv : PopupBhv
             case KeyCode.RightControl: vkc = VirtualKeyCode.RCONTROL; break;
             case KeyCode.Menu: vkc = VirtualKeyCode.MENU; break;
             case KeyCode.Pause: vkc = VirtualKeyCode.PAUSE; break;
+            case KeyCode.PageUp: vkc = VirtualKeyCode.PRIOR; break;
+            case KeyCode.PageDown: vkc = VirtualKeyCode.NEXT; break;
             case KeyCode.CapsLock: vkc = VirtualKeyCode.CAPITAL; break;
             case KeyCode.Escape: vkc = VirtualKeyCode.ESCAPE; break;
             case KeyCode.Space: vkc = VirtualKeyCode.SPACE; break;
@@ -130,7 +149,7 @@ public class PopupInputBhv : PopupBhv
             case KeyCode.LeftArrow: vkc = VirtualKeyCode.LEFT; break;
             case KeyCode.UpArrow: vkc = VirtualKeyCode.UP; break;
             case KeyCode.DownArrow: vkc = VirtualKeyCode.DOWN; break;
-            case KeyCode.RightAlt: vkc = VirtualKeyCode.RIGHT; break;
+            case KeyCode.RightArrow: vkc = VirtualKeyCode.RIGHT; break;
             case KeyCode.Print: vkc = VirtualKeyCode.PRINT; break;
             case KeyCode.Insert: vkc = VirtualKeyCode.INSERT; break;
             case KeyCode.Delete: vkc = VirtualKeyCode.DELETE; break;
@@ -173,6 +192,8 @@ public class PopupInputBhv : PopupBhv
             case KeyCode.Z: vkc = VirtualKeyCode.VK_Z; break;
             case KeyCode.LeftWindows: vkc = VirtualKeyCode.LWIN; break;
             case KeyCode.RightWindows: vkc = VirtualKeyCode.RWIN; break;
+            case KeyCode.LeftCommand: vkc = VirtualKeyCode.LWIN; break;
+            case KeyCode.RightCommand: vkc = VirtualKeyCode.RWIN; break;
             case KeyCode.Keypad0: vkc = VirtualKeyCode.NUMPAD0; break;
             case KeyCode.Keypad1: vkc = VirtualKeyCode.NUMPAD1; break;
             case KeyCode.Keypad2: vkc = VirtualKeyCode.NUMPAD2; break;
@@ -185,9 +206,9 @@ public class PopupInputBhv : PopupBhv
             case KeyCode.Keypad9: vkc = VirtualKeyCode.NUMPAD9; break;
             case KeyCode.KeypadMultiply: vkc = VirtualKeyCode.MULTIPLY; break;
             case KeyCode.KeypadPlus: vkc = VirtualKeyCode.ADD; break;
-            case KeyCode.KeypadEnter: vkc = VirtualKeyCode.SEPARATOR; break;
             case KeyCode.KeypadMinus: vkc = VirtualKeyCode.SUBTRACT; break;
             case KeyCode.Numlock: vkc = VirtualKeyCode.NUMLOCK; break;
+            case KeyCode.ScrollLock: vkc = VirtualKeyCode.SCROLL; break;
             case KeyCode.KeypadDivide: vkc = VirtualKeyCode.DIVIDE; break;
             case KeyCode.F1: vkc = VirtualKeyCode.F1; break;
             case KeyCode.F2: vkc = VirtualKeyCode.F2; break;
@@ -208,6 +229,17 @@ public class PopupInputBhv : PopupBhv
             case KeyCode.Comma: vkc = VirtualKeyCode.OEM_COMMA; break;
             case KeyCode.Minus: vkc = VirtualKeyCode.OEM_MINUS; break;
             case KeyCode.Period: vkc = VirtualKeyCode.OEM_PERIOD; break;
+            case KeyCode.Semicolon: vkc = VirtualKeyCode.OEM_1; break;
+            case KeyCode.Equals: vkc = VirtualKeyCode.OEM_PLUS; break;
+            case KeyCode.Slash: vkc = VirtualKeyCode.OEM_2; break;
+            case KeyCode.BackQuote: vkc = VirtualKeyCode.OEM_3; break;
+            case KeyCode.LeftBracket: vkc = VirtualKeyCode.OEM_4; break;
+            case KeyCode.Backslash: vkc = VirtualKeyCode.OEM_5; break;
+            case KeyCode.RightBracket: vkc = VirtualKeyCode.OEM_6; break;
+            case KeyCode.Quote: vkc = VirtualKeyCode.OEM_7; break;
+            case KeyCode.LeftAlt: vkc = VirtualKeyCode.LMENU; break;
+            case KeyCode.RightAlt: vkc = VirtualKeyCode.RMENU; break;
+            case KeyCode.AltGr: vkc = VirtualKeyCode.MENU; break;
         }
         return vkc;
     }
