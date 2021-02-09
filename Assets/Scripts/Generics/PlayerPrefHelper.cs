@@ -81,4 +81,7 @@ public class PlayerPrefHelper : MonoBehaviour
 
     public static void SetLanguage(Language language) { PlayerPrefs.SetInt(Constants.PpLanguage, language.GetHashCode()); }
     public static Language GetLanguage() { return (Language)PlayerPrefs.GetInt(Constants.PpLanguage, Constants.PpLanguageDefault); }
+
+    public static void SetMaximumTickrate(int maximumTickrate) { PlayerPrefs.SetInt(Constants.PpMaximumTickrate, maximumTickrate); }
+    public static int GetMaximumTickrate() { return PlayerPrefs.GetInt(Constants.PpMaximumTickrate, Constants.PpMaximumTickrateDefault); }
 }

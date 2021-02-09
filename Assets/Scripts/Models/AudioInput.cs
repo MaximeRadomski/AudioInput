@@ -12,7 +12,7 @@ public class AudioInput
     public int Peaks;
     public VirtualKeyCode Key;
     public InputType InputType;
-    public int Param;
+    public float Param;
 
     public AudioInput()
     {
@@ -21,7 +21,7 @@ public class AudioInput
         Peaks = 0;
         Key = VirtualKeyCode.NONAME;
         InputType = InputType.SingleTap;
-        Param = 0;
+        Param = 0.0f;
     }
 }
 
@@ -33,5 +33,5 @@ public class AudioInputBo
     public int Peaks;
     public int KeyId;
     public int InputTypeId;
-    public int Param;
+    public float Param;
 }

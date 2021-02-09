@@ -114,12 +114,23 @@ public class AudioInputBhv : MonoBehaviour
         var intValue = (int)value;
         if (intValue < 0)
             intValue = 0;
-        _audioInput.Param = intValue;
         if (_audioInput.InputType == InputType.SingleTap
             || _audioInput.InputType == InputType.Holded)
+        {
+            _audioInput.Param = value;
             _paramData.text = "/";
-        else
+            return false;
+        }
+        if (_audioInput.InputType == InputType.CustomTap)
+        {
+            _audioInput.Param = intValue;
             _paramData.text = intValue.ToString();
+        }
+        else if (_audioInput.InputType == InputType.TimeHolded)
+        {
+            _audioInput.Param = value;
+            _paramData.text = value.ToString("F2");
+        }
         return UpdateAudioInput();
     }
 

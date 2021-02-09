@@ -129,4 +129,14 @@ public static class Helper
     {
         return float1 >= float2 - precision && float1 <= float2 + precision;
     }
+
+    public static IEnumerator ExecuteAfterDelay(float delay, Func<object> func, bool lockInputWhile = true)
+    {
+        if (lockInputWhile)
+            Constants.InputLocked = true;
+        yield return new WaitForSeconds(delay);
+        func.Invoke();
+        if (lockInputWhile)
+            Constants.InputLocked = false;
+    }
 }

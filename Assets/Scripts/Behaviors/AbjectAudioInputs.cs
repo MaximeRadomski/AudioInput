@@ -9,8 +9,6 @@ using System.Collections;
 
 public class AbjectAudioInputs : MonoBehaviour
 {
-    public bool On = false;
-
     public float DynRangeDB { get; set; }
     public Sprite TabBigOn;
     public Sprite TabBigOff;
@@ -33,6 +31,7 @@ public class AbjectAudioInputs : MonoBehaviour
     private float[] _spectrum;
     int _samplerate;
 
+    private Instantiator _instantiator;
     private TMPro.TextMeshPro _dbData;
     private TMPro.TextMeshPro _hzData;
     private TMPro.TextMeshPro _peaksData;
@@ -40,6 +39,7 @@ public class AbjectAudioInputs : MonoBehaviour
     private SpectrumDrawerBhv _spectrumDrawer;
     private CheckBoxBhv _onOff;
     private ParticleSystem _notesThrower;
+    private float _lastNoteThrow;
 
     private List<PanelBhv> _panels;
     private Panel00Bhv _panel00;
@@ -63,6 +63,7 @@ public class AbjectAudioInputs : MonoBehaviour
         _audioLevelTracker = this.GetComponent<AudioLevelTracker>();
         _inputSimulator = new InputSimulator();
 
+        _instantiator = GetComponent<Instantiator>();
         _dbData = Helper.GetFieldData("Db");
         _hzData = Helper.GetFieldData("Hz");
         _peaksData = Helper.GetFieldData("Peaks");
@@ -70,6 +71,7 @@ public class AbjectAudioInputs : MonoBehaviour
         _spectrumDrawer = GameObject.Find("SpectrumDrawer").GetComponent<SpectrumDrawerBhv>();
         _onOff = GameObject.Find("OnOff").GetComponent<CheckBoxBhv>();
         _notesThrower = GameObject.Find("NotesThrower").GetComponent<ParticleSystem>();
+        _lastNoteThrow = Time.time;
 
         _panels = new List<PanelBhv>();
         _panels.Add(GameObject.Find("Panel00").GetComponent<PanelBhv>());
@@ -88,7 +90,7 @@ public class AbjectAudioInputs : MonoBehaviour
         GameObject.Find("Tab01").GetComponent<ButtonBhv>().EndActionDelegate = () => { SetPanel(1); };
         GameObject.Find("Tab02").GetComponent<ButtonBhv>().EndActionDelegate = () => { SetPanel(2); };
         GameObject.Find("Tab03").GetComponent<ButtonBhv>().EndActionDelegate = () => { SetPanel(3); };
-        _onOff.GetComponent<ButtonBhv>().EndActionDelegate = OnOff;
+        _onOff.GetComponent<ButtonBhv>().EndActionDelegate = () => { OnOff(); };
     }
 
     private void LoadData()
@@ -98,6 +100,14 @@ public class AbjectAudioInputs : MonoBehaviour
         _panel02.Init();
         _panel03.Init();
         SetPanel(0);
+        OnOff(Constants.IsOn);
+        StartCoroutine(Helper.ExecuteAfterDelay(0.1f, () =>
+        {
+            if (!Constants.HasInit)
+                _instantiator.NewPopupYesNo(_panel00.transform.position, "hover help", "this tool use a hover system to explain its features. if you are not sure what a feature does, hover its label to get its description.", null, "understood", null);
+            Constants.HasInit = true;
+            return true;
+        }, lockInputWhile: true));
     }
 
     private void SetPanel(int id)
@@ -132,6 +142,9 @@ public class AbjectAudioInputs : MonoBehaviour
 
     void Update()
     {
+        if (Time.time < Constants.LastFrame + Constants.Frame)
+            return;
+        Constants.LastFrame = Time.time;
         AnalyzeSound();
         _dbData.text = DynRangeDB.ToString("0");
         _hzData.text = DynRangeDB > 0 ? _pitchValue.ToString("F2") : "0.00";
@@ -226,7 +239,7 @@ public class AbjectAudioInputs : MonoBehaviour
     {
         if (audioInput.InputType == InputType.SingleTap && !_hasToWaitResetBeforeNewInput)
         {
-            if (On)
+            if (Constants.IsOn)
                 _inputSimulator.Keyboard.KeyPress(audioInput.Key);
             UpdatePanelVisual(true, audioInput.Key.ToString(), InputType.SingleTap, audioInput.IdInScene);
             StartCoroutine(TimeHolded(audioInput.Key, 0.05f));
@@ -238,7 +251,7 @@ public class AbjectAudioInputs : MonoBehaviour
                 _holdedInputs = new List<AudioInput>();
             if (_holdedInputs.Find(a => a.Key == audioInput.Key) == null)
             {
-                if (On)
+                if (Constants.IsOn)
                     _inputSimulator.Keyboard.KeyDown(audioInput.Key);
                 UpdatePanelVisual(true, audioInput.Key.ToString(), InputType.Holded, audioInput.IdInScene);
                 _holdedInputs.Add(audioInput);
@@ -248,12 +261,12 @@ public class AbjectAudioInputs : MonoBehaviour
         }
         else if (audioInput.InputType == InputType.CustomTap && !_hasToWaitResetBeforeNewInput)
         {
-            StartCoroutine(CustomTapSend(audioInput.Key, audioInput.Param, audioInput.IdInScene));
+            StartCoroutine(CustomTapSend(audioInput.Key, (int)audioInput.Param, audioInput.IdInScene));
             _hasToWaitResetBeforeNewInput = true;
         }
         else if (audioInput.InputType == InputType.TimeHolded && !_hasToWaitResetBeforeNewInput)
         {
-            if (On)
+            if (Constants.IsOn)
                 _inputSimulator.Keyboard.KeyDown(audioInput.Key);
             UpdatePanelVisual(true, audioInput.Key.ToString(), InputType.TimeHolded, audioInput.IdInScene);
             StartCoroutine(TimeHolded(audioInput.Key, audioInput.Param));
@@ -266,11 +279,12 @@ public class AbjectAudioInputs : MonoBehaviour
 
     private void UpdatePanelVisual(bool down, string key = null, InputType type = InputType.SingleTap, int id = -1)
     {
-        if (On && down)
+        if (Constants.IsOn && down && Time.time > _lastNoteThrow + 0.05f)
         {
+            _lastNoteThrow = Time.time;
             _notesThrower.Play();
         }
-        if (On && _panel00.enabled)
+        if (Constants.IsOn && _panel00.enabled)
         {
             _panel00.UpdateIcon(down, key, type);
         }
@@ -283,7 +297,7 @@ public class AbjectAudioInputs : MonoBehaviour
 
     private IEnumerator CustomTapSend(VirtualKeyCode key, int count, int id)
     {
-        if (On)
+        if (Constants.IsOn)
             _inputSimulator.Keyboard.KeyPress(key);
         UpdatePanelVisual(true, key.ToString(), InputType.CustomTap, id);
         --count;
@@ -297,7 +311,7 @@ public class AbjectAudioInputs : MonoBehaviour
     private IEnumerator TimeHolded(VirtualKeyCode key, float timeHolded)
     {
         yield return new WaitForSeconds(timeHolded);
-        if (On)
+        if (Constants.IsOn)
             _inputSimulator.Keyboard.KeyUp(key);
         _idTimeHolding = -1;
     }
@@ -339,10 +353,13 @@ public class AbjectAudioInputs : MonoBehaviour
         _peaks.Clear();
     }
 
-    private void OnOff()
+    private void OnOff(bool? isOnParam = null)
     {
-        On = !On;
-        if (On)
+        if (isOnParam != null)
+            Constants.IsOn = isOnParam.Value;
+        else
+            Constants.IsOn = !Constants.IsOn;
+        if (Constants.IsOn)
             _onOff.Check();
         else
             _onOff.Uncheck();

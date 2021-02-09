@@ -6,9 +6,11 @@ public class Panel03Bhv : PanelBhv
 {
     private Resolution _resolution;
     private Language _language;
+    private int _maximumTickrate;
 
     private TMPro.TextMeshPro _resolutionData;
     private TMPro.TextMeshPro _languageData;
+    private TMPro.TextMeshPro _maximumTickrateData;
     private TMPro.TextMeshPro _toolVersion;
 
     void Start()
@@ -23,9 +25,12 @@ public class Panel03Bhv : PanelBhv
         base.Init();
         _resolution = PlayerPrefHelper.GetResolution();
         _language = PlayerPrefHelper.GetLanguage();
+        _maximumTickrate = PlayerPrefHelper.GetMaximumTickrate();
 
         _resolutionData = Helper.GetFieldData("Resolution");
         _languageData = Helper.GetFieldData("Language");
+        _maximumTickrateData = Helper.GetFieldData("MaximumTickrate");
+
         _toolVersion = transform.Find("ToolVersion").GetComponent<TMPro.TextMeshPro>();
     }
 
@@ -33,6 +38,7 @@ public class Panel03Bhv : PanelBhv
     {
         Helper.GetFieldButton("Resolution").EndActionDelegate = SetResolutionPopup;
         Helper.GetFieldButton("Language").EndActionDelegate = SetLanguagePopup;
+        Helper.GetFieldButton("MaximumTickrate").EndActionDelegate = SetMaximumTickratePopup;
 
         Helper.GetFieldButton("ResetCalibration").EndActionDelegate = ResetCalibrationPopup;
 
@@ -46,6 +52,7 @@ public class Panel03Bhv : PanelBhv
     {
         SetResolution(_resolution.GetHashCode());
         SetLanguage(_language.GetHashCode());
+        SetMaximumTickrate(_maximumTickrate);
         _toolVersion.text = $"version {Application.version}";
     }
 
@@ -70,6 +77,17 @@ public class Panel03Bhv : PanelBhv
         return true;
     }
 
+    private object SetMaximumTickrate(float value)
+    {
+        var intValue = (int)value;
+        if (intValue < 0)
+            return false;
+        PlayerPrefHelper.SetMaximumTickrate(intValue);
+        Constants.SetFrame();
+        _maximumTickrateData.text = intValue.ToString();
+        return true;
+    }
+
     private object ResetCalibration(bool result)
     {
         if (!result)
@@ -88,8 +106,13 @@ public class Panel03Bhv : PanelBhv
         Instantiator.NewPopupEnum<Language>(transform.position, "language", _language.GetHashCode(), SetLanguage);
     }
 
+    private void SetMaximumTickratePopup()
+    {
+        Instantiator.NewPopupNumber(transform.position, "maximum framerate", "won't go over your current\nmonitor framerate", _maximumTickrate, 3, SetMaximumTickrate);
+    }
+
     private void ResetCalibrationPopup()
     {
-        Instantiator.NewPopupYesNo(transform.position, "be careful", "are you willing to reset the default calibration settings?", "nope", "yep", ResetCalibration);
+        Instantiator.NewPopupYesNo(transform.position, "be careful", "are you willing to reset the default calibration values?", "nope", "yep", ResetCalibration);
     }
 }

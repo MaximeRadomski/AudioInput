@@ -7,6 +7,27 @@ public static class Constants
     public const float Pixel = 0.14285f;
     public const int MaxAudioInputs = 256;
 
+    private static float? _frame;
+    public static float? Frame
+    {
+        get
+        {
+            if (_frame == null)
+                SetFrame();
+            return _frame;
+        }
+    }
+    public static float? LastFrame;
+
+    public static void SetFrame()
+    {
+        _frame = 1.0f / (PlayerPrefHelper.GetMaximumTickrate() + 1);
+        LastFrame = Time.time;
+    }
+
+    public static bool HasInit = false;
+    public static bool InputLocked = false;
+
     public const string AbjectAudioInputs = "AbjectAudioInputs";
 
     public const string TagAudioInputs = "AudioInputs";
@@ -44,6 +65,8 @@ public static class Constants
     public const int PpResolutionDefault = 1;
     public const string PpLanguage = "Language";
     public const int PpLanguageDefault = 0;
+    public const string PpMaximumTickrate = "MaximumTickrate";
+    public const int PpMaximumTickrateDefault = 60;
 
 
     public static Color ColorBlackTransparent = new Color(0.0f, 0.0f, 0.0f, 0.0f);
@@ -59,6 +82,7 @@ public static class Constants
     public static string LastEndActionClickedName = null;
     public static List<string> InputTopLayerNames = null;
     public static bool EscapeOrEnterLocked = false;
+    public static bool IsOn = false;
 
     public static void SetLastEndActionClickedName(string name)
     {

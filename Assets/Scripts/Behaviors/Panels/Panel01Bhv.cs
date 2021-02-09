@@ -6,8 +6,6 @@ public class Panel01Bhv : PanelBhv
 {
     public List<AudioInput> AudioInputs;
 
-    private List<AudioInputBhv> _audioInputBhvs;
-
     private CheckBoxBhv _allEnabled;
     private Transform _listSource;
     private TMPro.TextMeshPro _pageNumber;
