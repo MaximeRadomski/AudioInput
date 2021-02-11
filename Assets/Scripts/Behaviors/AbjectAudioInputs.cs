@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using Lasp;
 using WindowsInput;
 using WindowsInput.Native;
@@ -18,7 +17,6 @@ public class AbjectAudioInputs : MonoBehaviour
     private float _pitchValue;
     private int _binSize = 2048;
     private float _threshold = 0.01f;
-    private int _idTimeHolding = -1;
     private int MaxPeak = 5;
     private float freqNMultiplier = 0.5f;
 
@@ -149,15 +147,20 @@ public class AbjectAudioInputs : MonoBehaviour
         _dbData.text = DynRangeDB.ToString("0");
         _hzData.text = DynRangeDB > 0 ? _pitchValue.ToString("F2") : "0.00";
         _peaksData.text = DynRangeDB > 0 ? _peaksCount.ToString() : "0";
+
         if (DynRangeDB > _panel00.LevelReset)
             AnalyseAudioInputs();
         else if (DynRangeDB <= _panel00.LevelReset && _lastFrameLevel <= _panel00.LevelReset)
             LevelReset();
+        
+        if(_holdedInputs != null && _holdedInputs.Count > 0)
+            HandleHolded();
+        if (_timeHoldedInputs != null && _timeHoldedInputs.Count > 0)
+            HandleTimeHolded();
+
         _levelDrawer.Draw(_audioLevelTracker);
         _spectrumDrawer.Draw(_spectrum);
         _lastFrameLevel = DynRangeDB;
-        if (_idTimeHolding != -1)
-            UpdatePanelVisual(true, "_", InputType.TimeHolded, _idTimeHolding);
     }
 
     private void LevelReset()
@@ -167,11 +170,46 @@ public class AbjectAudioInputs : MonoBehaviour
         {
             foreach (var audioInput in _holdedInputs)
             {
-                _inputSimulator.Keyboard.KeyUp(audioInput.Key);
+                if (audioInput.InputType != InputType.Mouse)
+                    _inputSimulator.Keyboard.KeyUp(audioInput.Key);
+                else
+                    Click(audioInput.MouseInput, (int)audioInput.Param, down: false);
             }
             _holdedInputs.Clear();
         }
         UpdatePanelVisual(false);
+    }
+
+    private void HandleHolded()
+    {
+        int i = 0;
+        foreach (var audioInput in _holdedInputs)
+        {
+            if (audioInput.InputType == InputType.Mouse
+                && (audioInput.MouseInput == MouseInput.LeftRight
+                    || audioInput.MouseInput == MouseInput.UpDown))
+            {
+                MoveCursor(audioInput.MouseInput, (int)audioInput.Param);
+            }
+            UpdatePanelVisual(true, i == 0 ? "_" : string.Empty, InputType.Holded, audioInput.IdInScene);
+            ++i;
+        }
+    }
+
+    private void HandleTimeHolded()
+    {
+        for (int i = _timeHoldedInputs.Count - 1; i >= 0; --i)
+        {
+            if (_timeHoldedInputs[i].HiddenParam > Time.time)
+                UpdatePanelVisual(true, i == 0 ? "_" : string.Empty, InputType.TimeHolded, _timeHoldedInputs[i].IdInScene);
+            else
+            {
+                _inputSimulator.Keyboard.KeyUp(_timeHoldedInputs[i].Key);
+                _timeHoldedInputs.RemoveAt(i);
+            }
+        }
+        if (_timeHoldedInputs.Count == 0)
+            UpdatePanelVisual(false);
     }
 
     private float _lastFrameLevel = 0.0f;
@@ -181,6 +219,7 @@ public class AbjectAudioInputs : MonoBehaviour
     private bool _hasToWaitResetBeforeNewInput = false;
 
     private List<AudioInput> _holdedInputs;
+    private List<AudioInput> _timeHoldedInputs;
 
     void AnalyseAudioInputs()
     {
@@ -202,7 +241,8 @@ public class AbjectAudioInputs : MonoBehaviour
         var validFrequencies = new List<AudioInput>();
         for (int i = 0; i < _panel01.AudioInputs.Count; ++i)
         {
-            if (_panel01.AudioInputs[i].Enabled && _panel01.AudioInputs[i].Key != VirtualKeyCode.NONAME && Helper.FloatEqualsPrecision(_pitchValue, _panel01.AudioInputs[i].Hz, _panel00.HzOffset))
+            var isSet = (_panel01.AudioInputs[i].InputType != InputType.Mouse && _panel01.AudioInputs[i].Key != VirtualKeyCode.NONAME) || (_panel01.AudioInputs[i].InputType == InputType.Mouse && _panel01.AudioInputs[i].MouseInput != MouseInput.None);
+            if (_panel01.AudioInputs[i].Enabled && isSet && Helper.FloatEqualsPrecision(_pitchValue, _panel01.AudioInputs[i].Hz, _panel00.HzOffset))
             {
                 validFrequencies.Add(_panel01.AudioInputs[i]);
             }
@@ -240,24 +280,24 @@ public class AbjectAudioInputs : MonoBehaviour
         if (audioInput.InputType == InputType.SingleTap && !_hasToWaitResetBeforeNewInput)
         {
             if (Constants.IsOn)
-                _inputSimulator.Keyboard.KeyPress(audioInput.Key);
+            {
+                _inputSimulator.Keyboard.KeyDown(audioInput.Key);
+                StartCoroutine(KeyUpAfterDelay(audioInput.Key, Constants.SingleTapDelay));
+            }
             UpdatePanelVisual(true, audioInput.Key.ToString(), InputType.SingleTap, audioInput.IdInScene);
-            StartCoroutine(TimeHolded(audioInput.Key, 0.05f));
             _hasToWaitResetBeforeNewInput = true;
         }
         else if (audioInput.InputType == InputType.Holded)
         {
             if (_holdedInputs == null)
                 _holdedInputs = new List<AudioInput>();
-            if (_holdedInputs.Find(a => a.Key == audioInput.Key) == null)
+            if (_holdedInputs.Find(a => a.Key == audioInput.Key && a.Hz == audioInput.Hz) == null)
             {
                 if (Constants.IsOn)
                     _inputSimulator.Keyboard.KeyDown(audioInput.Key);
                 UpdatePanelVisual(true, audioInput.Key.ToString(), InputType.Holded, audioInput.IdInScene);
                 _holdedInputs.Add(audioInput);
             }
-            else
-                UpdatePanelVisual(true, "_", InputType.Holded, audioInput.IdInScene);
         }
         else if (audioInput.InputType == InputType.CustomTap && !_hasToWaitResetBeforeNewInput)
         {
@@ -266,20 +306,110 @@ public class AbjectAudioInputs : MonoBehaviour
         }
         else if (audioInput.InputType == InputType.TimeHolded && !_hasToWaitResetBeforeNewInput)
         {
-            if (Constants.IsOn)
-                _inputSimulator.Keyboard.KeyDown(audioInput.Key);
-            UpdatePanelVisual(true, audioInput.Key.ToString(), InputType.TimeHolded, audioInput.IdInScene);
-            StartCoroutine(TimeHolded(audioInput.Key, audioInput.Param));
-            _idTimeHolding = audioInput.IdInScene;
+            if (_timeHoldedInputs == null)
+                _timeHoldedInputs = new List<AudioInput>();
+            var alreadyContained = _timeHoldedInputs.Find(a => a.Key == audioInput.Key && a.Hz == audioInput.Hz);
+            if (alreadyContained == null)
+            {
+                if (Constants.IsOn)
+                    _inputSimulator.Keyboard.KeyDown(audioInput.Key);
+                UpdatePanelVisual(true, audioInput.Key.ToString(), InputType.TimeHolded, audioInput.IdInScene);
+                var tmpAudioInput = audioInput.Clone();
+                tmpAudioInput.HiddenParam = Time.time + tmpAudioInput.Param;
+                _timeHoldedInputs.Add(tmpAudioInput);
+            }
+            else
+            {
+                for (int i = 0; i < _timeHoldedInputs.Count; ++i)
+                {
+                    if (_timeHoldedInputs[i].Key == audioInput.Key && _timeHoldedInputs[i].Hz == audioInput.Hz)
+                    {
+                        _timeHoldedInputs[i].HiddenParam = Time.time + _timeHoldedInputs[i].Param;
+                        break;
+                    }
+                }
+            }
             _hasToWaitResetBeforeNewInput = true;
+        }
+        else if (audioInput.InputType == InputType.Mouse)
+        {
+            HandleMouse(audioInput);
         }
         else
             UpdatePanelVisual(false);
     }
 
+    private void HandleMouse(AudioInput audioInput)
+    {
+        if (audioInput.MouseInput == MouseInput.LeftButton
+            || audioInput.MouseInput == MouseInput.RightButton
+            || audioInput.MouseInput == MouseInput.XButton)
+        {
+            if ((audioInput.MouseInput == MouseInput.XButton || audioInput.Param == 1) && !_hasToWaitResetBeforeNewInput)
+            {
+                if (Constants.IsOn)
+                {
+                    Click(audioInput.MouseInput, (int)audioInput.Param, down: true);
+                    StartCoroutine(Helper.ExecuteAfterDelay(Constants.SingleTapDelay, () =>
+                    {
+                        Click(audioInput.MouseInput, (int)audioInput.Param, down: false);
+                        return true;
+                    }));
+                }
+                UpdatePanelVisual(true, audioInput.MouseInput.GetDescription().ToLower(), InputType.SingleTap, audioInput.IdInScene);
+                _hasToWaitResetBeforeNewInput = true;
+            }
+            else if (audioInput.Param > 1 && !_hasToWaitResetBeforeNewInput)
+            {
+                StartCoroutine(CustomClickSend(audioInput.MouseInput, (int)audioInput.Param, audioInput.IdInScene));
+                _hasToWaitResetBeforeNewInput = true;
+            }
+            else if (audioInput.Param < 1)
+            {
+                if (_holdedInputs == null)
+                    _holdedInputs = new List<AudioInput>();
+                if (_holdedInputs.Find(a => a.InputType == InputType.Mouse && a.MouseInput == audioInput.MouseInput && a.Hz == audioInput.Hz) == null)
+                {
+                    if (Constants.IsOn)
+                        Click(audioInput.MouseInput, down: true);
+                    UpdatePanelVisual(true, audioInput.MouseInput.GetDescription().ToLower(), InputType.Holded, audioInput.IdInScene);
+                    _holdedInputs.Add(audioInput);
+                }
+            }
+        }
+        else if (audioInput.MouseInput == MouseInput.LeftRight
+            || audioInput.MouseInput == MouseInput.UpDown)
+        {
+            if (_holdedInputs == null)
+                _holdedInputs = new List<AudioInput>();
+            if (_holdedInputs.Find(a => a.InputType == InputType.Mouse && a.MouseInput == audioInput.MouseInput && a.Hz == audioInput.Hz) == null)
+            {
+                if (Constants.IsOn)
+                    MoveCursor(audioInput.MouseInput, (int)audioInput.Param);
+                var mouseDirection = "stay";
+                if (audioInput.MouseInput == MouseInput.LeftRight)
+                {
+                    if (audioInput.Param < 0)
+                        mouseDirection = "left";
+                    else if (audioInput.Param > 0)
+                        mouseDirection = "right";
+                }
+                else if (audioInput.MouseInput == MouseInput.UpDown)
+                {
+                    if (audioInput.Param < 0)
+                        mouseDirection = "down";
+                    else if (audioInput.Param > 0)
+                        mouseDirection = "up";
+                }
+                UpdatePanelVisual(true, mouseDirection, InputType.Holded, audioInput.IdInScene);
+                _holdedInputs.Add(audioInput);
+            }
+        }
+    }
+
     private void UpdatePanelVisual(bool down, string key = null, InputType type = InputType.SingleTap, int id = -1)
     {
-        if (Constants.IsOn && down && Time.time > _lastNoteThrow + 0.05f)
+        if (Constants.IsOn && down && Time.time > _lastNoteThrow + Constants.SingleTapDelay)
         {
             _lastNoteThrow = Time.time;
             _notesThrower.Play();
@@ -297,23 +427,76 @@ public class AbjectAudioInputs : MonoBehaviour
 
     private IEnumerator CustomTapSend(VirtualKeyCode key, int count, int id)
     {
-        if (Constants.IsOn)
-            _inputSimulator.Keyboard.KeyPress(key);
-        UpdatePanelVisual(true, key.ToString(), InputType.CustomTap, id);
-        --count;
         if (count > 0)
         {
-            yield return new WaitForSeconds(_panel00.CustomTapDelay);
+            if (Constants.IsOn)
+            {
+                _inputSimulator.Keyboard.KeyDown(key);
+                StartCoroutine(KeyUpAfterDelay(key, Constants.SingleTapDelay));
+            }
+            UpdatePanelVisual(true, key.ToString(), InputType.CustomTap, id);
+            --count;
+            yield return new WaitForSeconds(_panel03.CustomTapDelay);
             StartCoroutine(CustomTapSend(key, count, id));
         }
     }
 
-    private IEnumerator TimeHolded(VirtualKeyCode key, float timeHolded)
+    private IEnumerator CustomClickSend(MouseInput input, int count, int id)
+    {
+        if (count > 0)
+        {
+            if (Constants.IsOn)
+            {
+                Click(input, count, down: true);
+                StartCoroutine(Helper.ExecuteAfterDelay(Constants.SingleTapDelay, () =>
+                {
+                    Click(input, count, down: false);
+                    return true;
+                }));
+            }
+            UpdatePanelVisual(true, input.GetDescription().ToLower(), InputType.CustomTap, id);
+            _hasToWaitResetBeforeNewInput = true;
+            --count;
+            yield return new WaitForSeconds(_panel03.CustomTapDelay);
+            StartCoroutine(CustomClickSend(input, count, id));
+        }
+    }
+
+    private void Click(MouseInput mouseInput, int x = 0, bool down = true)
+    {
+        if (down)
+        {
+            if (mouseInput == MouseInput.LeftButton)
+                _inputSimulator.Mouse.LeftButtonDown();
+            else if (mouseInput == MouseInput.RightButton)
+                _inputSimulator.Mouse.RightButtonDown();
+            else if (mouseInput == MouseInput.XButton)
+                _inputSimulator.Mouse.XButtonDown(x);
+        }
+        else
+        {
+            if (mouseInput == MouseInput.LeftButton)
+                _inputSimulator.Mouse.LeftButtonUp();
+            else if (mouseInput == MouseInput.RightButton)
+                _inputSimulator.Mouse.RightButtonUp();
+            else if (mouseInput == MouseInput.XButton)
+                _inputSimulator.Mouse.XButtonUp(x);
+        }
+    }
+
+    private void MoveCursor(MouseInput input, int param)
+    {
+        var x = input == MouseInput.LeftRight ? param : 0;
+        var y = input == MouseInput.UpDown ? param : 0;
+
+        _inputSimulator.Mouse.MoveMouseBy(x, y);
+    }
+
+    private IEnumerator KeyUpAfterDelay(VirtualKeyCode key, float timeHolded)
     {
         yield return new WaitForSeconds(timeHolded);
         if (Constants.IsOn)
             _inputSimulator.Keyboard.KeyUp(key);
-        _idTimeHolding = -1;
     }
 
     void AnalyzeSound()

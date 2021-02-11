@@ -6,6 +6,7 @@ public static class Constants
 {
     public const float Pixel = 0.14285f;
     public const int MaxAudioInputs = 256;
+    public const float SingleTapDelay = 0.05f;
 
     private static float? _frame;
     public static float? Frame

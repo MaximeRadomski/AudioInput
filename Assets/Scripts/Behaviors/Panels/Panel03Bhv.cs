@@ -7,10 +7,12 @@ public class Panel03Bhv : PanelBhv
     private Resolution _resolution;
     private Language _language;
     private int _maximumTickrate;
+    public float CustomTapDelay;
 
     private TMPro.TextMeshPro _resolutionData;
     private TMPro.TextMeshPro _languageData;
     private TMPro.TextMeshPro _maximumTickrateData;
+    private TMPro.TextMeshPro _customTapDelayData;
     private TMPro.TextMeshPro _toolVersion;
 
     void Start()
@@ -26,10 +28,12 @@ public class Panel03Bhv : PanelBhv
         _resolution = PlayerPrefHelper.GetResolution();
         _language = PlayerPrefHelper.GetLanguage();
         _maximumTickrate = PlayerPrefHelper.GetMaximumTickrate();
+        CustomTapDelay = PlayerPrefHelper.GetCustomTapDelay();
 
         _resolutionData = Helper.GetFieldData("Resolution");
         _languageData = Helper.GetFieldData("Language");
         _maximumTickrateData = Helper.GetFieldData("MaximumTickrate");
+        _customTapDelayData = Helper.GetFieldData("CustomTapDelay");
 
         _toolVersion = transform.Find("ToolVersion").GetComponent<TMPro.TextMeshPro>();
     }
@@ -39,6 +43,7 @@ public class Panel03Bhv : PanelBhv
         Helper.GetFieldButton("Resolution").EndActionDelegate = SetResolutionPopup;
         Helper.GetFieldButton("Language").EndActionDelegate = SetLanguagePopup;
         Helper.GetFieldButton("MaximumTickrate").EndActionDelegate = SetMaximumTickratePopup;
+        Helper.GetFieldButton("CustomTapDelay").EndActionDelegate = SetCustomTapDelayPopup;
 
         Helper.GetFieldButton("ResetCalibration").EndActionDelegate = ResetCalibrationPopup;
 
@@ -53,6 +58,7 @@ public class Panel03Bhv : PanelBhv
         SetResolution(_resolution.GetHashCode());
         SetLanguage(_language.GetHashCode());
         SetMaximumTickrate(_maximumTickrate);
+        SetCustomTapDelay(CustomTapDelay);
         _toolVersion.text = $"version {Application.version}";
     }
 
@@ -88,6 +94,16 @@ public class Panel03Bhv : PanelBhv
         return true;
     }
 
+    private object SetCustomTapDelay(float value)
+    {
+        if (value < 0.10f)
+            value = 0.10f;
+        CustomTapDelay = value;
+        PlayerPrefHelper.SetCustomTapDelay(value);
+        _customTapDelayData.text = value.ToString("F2");
+        return true;
+    }
+
     private object ResetCalibration(bool result)
     {
         if (!result)
@@ -109,6 +125,12 @@ public class Panel03Bhv : PanelBhv
     private void SetMaximumTickratePopup()
     {
         Instantiator.NewPopupNumber(transform.position, "maximum framerate", "won't go over your current\nmonitor framerate", _maximumTickrate, 3, SetMaximumTickrate);
+    }
+
+    private void SetCustomTapDelayPopup()
+    {
+        var content = $"1.0 = 1 second\nfrom 0.10 to infinity and beyond";
+        Instantiator.NewPopupNumber(transform.position, "Custom Tap Delay", content, CustomTapDelay, 2, SetCustomTapDelay);
     }
 
     private void ResetCalibrationPopup()

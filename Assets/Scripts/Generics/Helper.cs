@@ -106,6 +106,7 @@ public static class Helper
         bo.Enabled = audioInput.Enabled;
         bo.Hz = audioInput.Hz;
         bo.Peaks = audioInput.Peaks;
+        bo.MouseInputId = audioInput.MouseInput.GetHashCode();
         bo.KeyId = audioInput.Key.GetHashCode();
         bo.InputTypeId = audioInput.InputType.GetHashCode();
         bo.Param = audioInput.Param;
@@ -119,6 +120,7 @@ public static class Helper
         audioInput.Enabled = bo.Enabled;
         audioInput.Hz = bo.Hz;
         audioInput.Peaks = bo.Peaks;
+        audioInput.MouseInput = (MouseInput)bo.MouseInputId;
         audioInput.Key = (VirtualKeyCode)bo.KeyId;
         audioInput.InputType = (InputType)bo.InputTypeId;
         audioInput.Param = bo.Param;

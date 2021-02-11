@@ -16,7 +16,6 @@ public class Panel00Bhv : PanelBhv
     public int RequiredFrames;
     public PeaksPriority PeaksPriority;
     public int LevelReset;
-    public float CustomTapDelay;
 
     private SpectrumAnalyzer _spectrumAnalyzer;
     private AudioLevelTracker _audioLevelTracker;
@@ -41,7 +40,6 @@ public class Panel00Bhv : PanelBhv
     private TMPro.TextMeshPro _requiredFramesData;
     private TMPro.TextMeshPro _peaksPriorityData;
     private TMPro.TextMeshPro _levelResetData;
-    private TMPro.TextMeshPro _customTapDelayData;
     private TMPro.TextMeshPro _levelDynamicRangeData;
     private TMPro.TextMeshPro _levelGainData;
     private TMPro.TextMeshPro _spectrumDynamicRangeData;
@@ -74,7 +72,6 @@ public class Panel00Bhv : PanelBhv
         RequiredFrames = PlayerPrefHelper.GetRequiredFrames();
         PeaksPriority = PlayerPrefHelper.GetPeaksPriority();
         LevelReset = PlayerPrefHelper.GetLevelReset();
-        CustomTapDelay = PlayerPrefHelper.GetCustomTapDelay();
         _levelDynamicRange = PlayerPrefHelper.GetLevelDynamicRange();
         _levelGain = PlayerPrefHelper.GetLevelGain();
         _spectrumDynamicRange = PlayerPrefHelper.GetSpectrumDynamicRange();
@@ -87,7 +84,6 @@ public class Panel00Bhv : PanelBhv
         _requiredFramesData = Helper.GetFieldData("RequiredFrames");
         _peaksPriorityData = Helper.GetFieldData("PeaksPriority");
         _levelResetData = Helper.GetFieldData("LevelReset");
-        _customTapDelayData = Helper.GetFieldData("CustomTapDelay");
         _levelDynamicRangeData = Helper.GetFieldData("LevelDynamicRange");
         _levelGainData = Helper.GetFieldData("LevelGain");
         _spectrumDynamicRangeData = Helper.GetFieldData("SpectrumDynamicRange");
@@ -105,7 +101,6 @@ public class Panel00Bhv : PanelBhv
         Helper.GetFieldButton("RequiredFrames").EndActionDelegate = SetRequiredFramesPopup;
         Helper.GetFieldButton("PeaksPriority").EndActionDelegate = SetPeaksPriorityPopup;
         Helper.GetFieldButton("LevelReset").EndActionDelegate = SetLevelResetPopup;
-        Helper.GetFieldButton("CustomTapDelay").EndActionDelegate = SetCustomTapDelayPopup;
         Helper.GetFieldButton("LevelDynamicRange").EndActionDelegate = SetLevelDynamicRangePopup;
         Helper.GetFieldButton("LevelGain").EndActionDelegate = SetLevelGainPopup;
         Helper.GetFieldButton("SpectrumDynamicRange").EndActionDelegate = SetSpectrumDynamicRangePopup;
@@ -157,7 +152,6 @@ public class Panel00Bhv : PanelBhv
         SetRequiredFrames(RequiredFrames);
         SetPeaksPriority(PeaksPriority.GetHashCode());
         SetLevelReset(LevelReset);
-        SetCustomTapDelay(CustomTapDelay);
         SetLevelDynamicRange(_levelDynamicRange);
         SetLevelGain(_levelGain);
         SetSpectrumDynamicRange(_spectrumDynamicRange);
@@ -210,7 +204,6 @@ public class Panel00Bhv : PanelBhv
         SetRequiredFrames(Constants.PpRequiredFramesDefault);
         SetPeaksPriority(Constants.PpPeaksPriorityDefault);
         SetLevelReset(Constants.PpLevelResetDefault);
-        SetCustomTapDelay(Constants.PpCustomTapDelayDefault);
         SetLevelDynamicRange(Constants.PpLevelDynamicRangeDefault);
         SetLevelGain(Constants.PpLevelGainDefault);
         SetSpectrumDynamicRange(Constants.PpSpectrumDynamicRangeDefault);
@@ -256,16 +249,6 @@ public class Panel00Bhv : PanelBhv
         LevelReset = intValue;
         PlayerPrefHelper.SetLevelReset(intValue);
         _levelResetData.text = intValue.ToString();
-        return true;
-    }
-
-    private object SetCustomTapDelay(float value)
-    {
-        if (value < 0.01f)
-            value = 0.01f;
-        CustomTapDelay = value;
-        PlayerPrefHelper.SetCustomTapDelay(value);
-        _customTapDelayData.text = value.ToString("F2");
         return true;
     }
 
@@ -361,12 +344,6 @@ public class Panel00Bhv : PanelBhv
         Instantiator.NewPopupNumber(transform.position, "level reset", content, LevelReset, 3, SetLevelReset);
     }
 
-    private void SetCustomTapDelayPopup()
-    {
-        var content = $"1.0 = 1 second";
-        Instantiator.NewPopupNumber(transform.position, "Custom Tap Delay", content, CustomTapDelay, 2, SetCustomTapDelay);
-    }
-
     private void SetLevelDynamicRangePopup()
     {
         var content = $"from 1 to 40";
@@ -434,7 +411,7 @@ public class Panel00Bhv : PanelBhv
                 position += new Vector3(0.0f, -0.25f, 0.0f);
                 Instantiator.PopNoShadowText(key.ToLower(), position + new Vector3(0.0f, 1.5f, 0.0f), distance: 2.0f, startFadingDistancePercent: 0.50f);
             }
-            else
+            else if (key != string.Empty)
             {
                 Instantiator.PopText(key.ToLower(), position + new Vector3(0.0f, 1.5f, 0.0f), distance: 2.0f, startFadingDistancePercent: 0.50f);
             }
