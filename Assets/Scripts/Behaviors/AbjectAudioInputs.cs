@@ -140,6 +140,8 @@ public class AbjectAudioInputs : MonoBehaviour
 
     void Update()
     {
+        if (Constants.IsOn)
+            MoveMouseOutOfSync();
         if (Time.time < Constants.LastFrame + Constants.Frame)
             return;
         Constants.LastFrame = Time.time;
@@ -147,25 +149,37 @@ public class AbjectAudioInputs : MonoBehaviour
         _dbData.text = DynRangeDB.ToString("0");
         _hzData.text = DynRangeDB > 0 ? _pitchValue.ToString("F2") : "0.00";
         _peaksData.text = DynRangeDB > 0 ? _peaksCount.ToString() : "0";
+        var isUnderHoldedReset = _levelDrawer.Draw(_audioLevelTracker, _panel00.HoldedReset, (int)_currentSingleFrameReset);
+        _spectrumDrawer.Draw(_spectrum);
 
-        if (DynRangeDB > _panel00.LevelReset)
+        if (DynRangeDB > 0)
             AnalyseAudioInputs();
-        else if (DynRangeDB <= _panel00.LevelReset && _lastFrameLevel <= _panel00.LevelReset)
-            LevelReset();
+        if (isUnderHoldedReset)
+            HoldedReset();
+        if (DynRangeDB <= _currentSingleFrameReset)
+            SingleTapReset();
         
         if(_holdedInputs != null && _holdedInputs.Count > 0)
             HandleHolded();
         if (_timeHoldedInputs != null && _timeHoldedInputs.Count > 0)
             HandleTimeHolded();
-
-        _levelDrawer.Draw(_audioLevelTracker);
-        _spectrumDrawer.Draw(_spectrum);
-        _lastFrameLevel = DynRangeDB;
     }
 
-    private void LevelReset()
+    private void MoveMouseOutOfSync()
     {
-        _hasToWaitResetBeforeNewInput = false;
+        if (_holdedInputs == null || _holdedInputs.Count == 0)
+            return;
+        foreach (var audioInput in _holdedInputs)
+        {
+            if (audioInput.InputType == InputType.Mouse
+                && (audioInput.MouseInput == MouseInput.LeftRight
+                    || audioInput.MouseInput == MouseInput.UpDown))
+                MoveCursor(audioInput.MouseInput, (int)audioInput.Param);
+        }
+    }
+
+    private void HoldedReset()
+    {
         if (_holdedInputs != null && _holdedInputs.Count > 0)
         {
             foreach (var audioInput in _holdedInputs)
@@ -180,17 +194,26 @@ public class AbjectAudioInputs : MonoBehaviour
         UpdatePanelVisual(false);
     }
 
+    private void SingleTapReset()
+    {
+        var limitOverDynRangeDB = DynRangeDB + (DynRangeDB + 10);
+        if (_currentSingleFrameReset > limitOverDynRangeDB)
+        {
+            _currentSingleFrameReset = limitOverDynRangeDB;
+        }
+        if (DynRangeDB == 0)
+            _currentSingleFrameReset -= 0.5f;
+        if (_currentSingleFrameReset < 0)
+            _currentSingleFrameReset = 0;
+        _lastMaxBeforeNewInput = limitOverDynRangeDB;
+        _hasToWaitResetBeforeNewSingle = false;
+    }
+
     private void HandleHolded()
     {
         int i = 0;
         foreach (var audioInput in _holdedInputs)
         {
-            if (audioInput.InputType == InputType.Mouse
-                && (audioInput.MouseInput == MouseInput.LeftRight
-                    || audioInput.MouseInput == MouseInput.UpDown))
-            {
-                MoveCursor(audioInput.MouseInput, (int)audioInput.Param);
-            }
             UpdatePanelVisual(true, i == 0 ? "_" : string.Empty, InputType.Holded, audioInput.IdInScene);
             ++i;
         }
@@ -212,11 +235,12 @@ public class AbjectAudioInputs : MonoBehaviour
             UpdatePanelVisual(false);
     }
 
-    private float _lastFrameLevel = 0.0f;
     private float _lastFrameFrequency = 0.00f;
+    private float _currentSingleFrameReset = 0.0f;
     private int _nbConsecutiveFrames = 1;
     private int _nbConsecutiveFramesDefault = 1;
-    private bool _hasToWaitResetBeforeNewInput = false;
+    private bool _hasToWaitResetBeforeNewSingle = false;
+    private float _lastMaxBeforeNewInput = 0.0f;
 
     private List<AudioInput> _holdedInputs;
     private List<AudioInput> _timeHoldedInputs;
@@ -277,7 +301,7 @@ public class AbjectAudioInputs : MonoBehaviour
 
     private void SendAudioInput(AudioInput audioInput)
     {
-        if (audioInput.InputType == InputType.SingleTap && !_hasToWaitResetBeforeNewInput)
+        if (audioInput.InputType == InputType.SingleTap && !_hasToWaitResetBeforeNewSingle)
         {
             if (Constants.IsOn)
             {
@@ -285,7 +309,7 @@ public class AbjectAudioInputs : MonoBehaviour
                 StartCoroutine(KeyUpAfterDelay(audioInput.Key, Constants.SingleTapDelay));
             }
             UpdatePanelVisual(true, audioInput.Key.ToString(), InputType.SingleTap, audioInput.IdInScene);
-            _hasToWaitResetBeforeNewInput = true;
+            _hasToWaitResetBeforeNewSingle = true;
         }
         else if (audioInput.InputType == InputType.Holded)
         {
@@ -299,12 +323,12 @@ public class AbjectAudioInputs : MonoBehaviour
                 _holdedInputs.Add(audioInput);
             }
         }
-        else if (audioInput.InputType == InputType.CustomTap && !_hasToWaitResetBeforeNewInput)
+        else if (audioInput.InputType == InputType.CustomTap && !_hasToWaitResetBeforeNewSingle)
         {
             StartCoroutine(CustomTapSend(audioInput.Key, (int)audioInput.Param, audioInput.IdInScene));
-            _hasToWaitResetBeforeNewInput = true;
+            _hasToWaitResetBeforeNewSingle = true;
         }
-        else if (audioInput.InputType == InputType.TimeHolded && !_hasToWaitResetBeforeNewInput)
+        else if (audioInput.InputType == InputType.TimeHolded && !_hasToWaitResetBeforeNewSingle)
         {
             if (_timeHoldedInputs == null)
                 _timeHoldedInputs = new List<AudioInput>();
@@ -329,7 +353,7 @@ public class AbjectAudioInputs : MonoBehaviour
                     }
                 }
             }
-            _hasToWaitResetBeforeNewInput = true;
+            _hasToWaitResetBeforeNewSingle = true;
         }
         else if (audioInput.InputType == InputType.Mouse)
         {
@@ -345,8 +369,10 @@ public class AbjectAudioInputs : MonoBehaviour
             || audioInput.MouseInput == MouseInput.RightButton
             || audioInput.MouseInput == MouseInput.XButton)
         {
-            if ((audioInput.MouseInput == MouseInput.XButton || audioInput.Param == 1) && !_hasToWaitResetBeforeNewInput)
+            if (audioInput.MouseInput == MouseInput.XButton || audioInput.Param == 1)
             {
+                if (_hasToWaitResetBeforeNewSingle)
+                    return;
                 if (Constants.IsOn)
                 {
                     Click(audioInput.MouseInput, (int)audioInput.Param, down: true);
@@ -357,12 +383,12 @@ public class AbjectAudioInputs : MonoBehaviour
                     }));
                 }
                 UpdatePanelVisual(true, audioInput.MouseInput.GetDescription().ToLower(), InputType.SingleTap, audioInput.IdInScene);
-                _hasToWaitResetBeforeNewInput = true;
+                _hasToWaitResetBeforeNewSingle = true;
             }
-            else if (audioInput.Param > 1 && !_hasToWaitResetBeforeNewInput)
+            else if (audioInput.Param > 1 && !_hasToWaitResetBeforeNewSingle)
             {
                 StartCoroutine(CustomClickSend(audioInput.MouseInput, (int)audioInput.Param, audioInput.IdInScene));
-                _hasToWaitResetBeforeNewInput = true;
+                _hasToWaitResetBeforeNewSingle = true;
             }
             else if (audioInput.Param < 1)
             {
@@ -455,7 +481,7 @@ public class AbjectAudioInputs : MonoBehaviour
                 }));
             }
             UpdatePanelVisual(true, input.GetDescription().ToLower(), InputType.CustomTap, id);
-            _hasToWaitResetBeforeNewInput = true;
+            _hasToWaitResetBeforeNewSingle = true;
             --count;
             yield return new WaitForSeconds(_panel03.CustomTapDelay);
             StartCoroutine(CustomClickSend(input, count, id));
@@ -534,6 +560,14 @@ public class AbjectAudioInputs : MonoBehaviour
         _pitchValue = freqN * (_samplerate / 2f) / _binSize;
         _pitchValue /= 100.0f;
         _peaks.Clear();
+
+        if (DynRangeDB > _lastMaxBeforeNewInput)
+        {
+            _lastMaxBeforeNewInput = DynRangeDB;
+            _currentSingleFrameReset = DynRangeDB + _panel00.SingleTapReset;
+            if (_currentSingleFrameReset < 0.0f)
+                _currentSingleFrameReset = 0.0f;
+        }
     }
 
     private void OnOff(bool? isOnParam = null)

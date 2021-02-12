@@ -20,8 +20,11 @@ public class PlayerPrefHelper : MonoBehaviour
     public static void SetPeaksPriority(PeaksPriority peaksPriority) { PlayerPrefs.SetInt(Constants.PpPeaksPriority, peaksPriority.GetHashCode()); }
     public static PeaksPriority GetPeaksPriority() { return (PeaksPriority)PlayerPrefs.GetInt(Constants.PpPeaksPriority, Constants.PpPeaksPriorityDefault); }
 
-    public static void SetLevelReset(int levelReset) { PlayerPrefs.SetInt(Constants.PpLevelReset, levelReset); }
-    public static int GetLevelReset() { return PlayerPrefs.GetInt(Constants.PpLevelReset, Constants.PpLevelResetDefault); }
+    public static void SetHoldedReset(int holdedReset) { PlayerPrefs.SetInt(Constants.PpHoldedReset, holdedReset); }
+    public static int GetHoldedReset() { return PlayerPrefs.GetInt(Constants.PpHoldedReset, Constants.PpHoldedResetDefault); }
+
+    public static void SetSingleTapReset(int singleTapReset) { PlayerPrefs.SetInt(Constants.PpSingleTapReset, singleTapReset); }
+    public static int GetSingleTapReset() { return PlayerPrefs.GetInt(Constants.PpSingleTapReset, Constants.PpSingleTapResetDefault); }
 
     public static void SetCustomTapDelay(float customTapDelay) { PlayerPrefs.SetFloat(Constants.PpCustomTapDelay, customTapDelay); }
     public static float GetCustomTapDelay() { return PlayerPrefs.GetFloat(Constants.PpCustomTapDelay, Constants.PpCustomTapDelayDefault); }

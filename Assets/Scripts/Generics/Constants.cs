@@ -46,8 +46,10 @@ public static class Constants
     public const int PpRequiredFramesDefault = 2;
     public const string PpPeaksPriority = "PeaksPriority";
     public const int PpPeaksPriorityDefault = 0;
-    public const string PpLevelReset = "LevelReset";
-    public const int PpLevelResetDefault = 0;
+    public const string PpHoldedReset = "HoldedReset";
+    public const int PpHoldedResetDefault = -10;
+    public const string PpSingleTapReset = "SingleTapReset";
+    public const int PpSingleTapResetDefault = -30;
     public const string PpCustomTapDelay = "CustomTapDelay";
     public const float PpCustomTapDelayDefault = 0.5f;
     public const string PpLevelDynamicRange = "LevelDynamicRange";
