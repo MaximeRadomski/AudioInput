@@ -25,7 +25,7 @@ public class PopupDeviceIdBhv : PopupBhv
         foreach (var device in _devices)
         {
             var tmpButtonObject = Resources.Load<GameObject>("Prefabs/DevicePopupButton");
-            var tmpButtonInstance = Instantiate(tmpButtonObject, _listStartPosition + new Vector3(0.0f, -spaceBetween * i, 0.0f), tmpButtonObject.transform.rotation);
+            var tmpButtonInstance = Instantiate(tmpButtonObject, _listStartPosition + new Vector3(-0.8557f, -spaceBetween * i, 0.0f), tmpButtonObject.transform.rotation);
             tmpButtonInstance.name = $"DeviceChoice{i}";
             string tmpName = device.Name;
             tmpButtonInstance.transform.GetChild(0).GetComponent<TMPro.TextMeshPro>().text = tmpName.ToLower();

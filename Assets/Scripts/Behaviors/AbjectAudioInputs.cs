@@ -163,6 +163,8 @@ public class AbjectAudioInputs : MonoBehaviour
             HandleHolded();
         if (_timeHoldedInputs != null && _timeHoldedInputs.Count > 0)
             HandleTimeHolded();
+
+        _currentValidAudioInput = null;
     }
 
     private void MoveMouseOutOfSync()
@@ -211,11 +213,16 @@ public class AbjectAudioInputs : MonoBehaviour
 
     private void HandleHolded()
     {
-        int i = 0;
-        foreach (var audioInput in _holdedInputs)
+        for (int i = _holdedInputs.Count - 1; i >= 0; --i)
         {
-            UpdatePanelVisual(true, i == 0 ? "_" : string.Empty, InputType.Holded, audioInput.IdInScene);
-            ++i;
+            if (_currentValidAudioInput != null && _holdedInputs[i] != null
+                && (int)_holdedInputs[i].Param == 1 && !(_holdedInputs[i].Key == _currentValidAudioInput.Key && _holdedInputs[i].Hz == _currentValidAudioInput.Hz))
+            {
+                _inputSimulator.Keyboard.KeyUp(_holdedInputs[i].Key);
+                _holdedInputs.RemoveAt(i);
+                continue;
+            }
+            UpdatePanelVisual(true, i == 0 ? "_" : string.Empty, InputType.Holded, _holdedInputs[i].IdInScene);
         }
     }
 
@@ -241,6 +248,7 @@ public class AbjectAudioInputs : MonoBehaviour
     private int _nbConsecutiveFramesDefault = 1;
     private bool _hasToWaitResetBeforeNewSingle = false;
     private float _lastMaxBeforeNewInput = 0.0f;
+    private AudioInput _currentValidAudioInput;
 
     private List<AudioInput> _holdedInputs;
     private List<AudioInput> _timeHoldedInputs;
@@ -322,6 +330,7 @@ public class AbjectAudioInputs : MonoBehaviour
                 UpdatePanelVisual(true, audioInput.Key.ToString(), InputType.Holded, audioInput.IdInScene);
                 _holdedInputs.Add(audioInput);
             }
+            _currentValidAudioInput = audioInput.Clone();
         }
         else if (audioInput.InputType == InputType.CustomTap && !_hasToWaitResetBeforeNewSingle)
         {

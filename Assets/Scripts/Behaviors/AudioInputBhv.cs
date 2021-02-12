@@ -124,23 +124,26 @@ public class AudioInputBhv : FrameRateBehavior
             SetMouseInput(_audioInput.MouseInput.GetHashCode());
         return UpdateAudioInput();
     }
+
     private object SetParam(float value)
     {
         var intValue = (int)value;
         if ((_audioInput.InputType != InputType.Mouse && intValue < 0)
-            || _audioInput.InputType == InputType.Mouse && _audioInput.MouseInput == MouseInput.XButton && intValue < 0)
+            || (_audioInput.InputType == InputType.Mouse && _audioInput.MouseInput == MouseInput.XButton && intValue < 0))
             intValue = 0;
         if (_audioInput.InputType == InputType.SingleTap
-            || _audioInput.InputType == InputType.Holded
             || (_audioInput.InputType == InputType.Mouse && _audioInput.MouseInput == MouseInput.None))
         {
             _audioInput.Param = value;
             _paramData.text = "/";
             return false;
         }
-        if (_audioInput.InputType == InputType.CustomTap
+        if (_audioInput.InputType == InputType.Holded
+            || _audioInput.InputType == InputType.CustomTap
             || _audioInput.InputType == InputType.Mouse)
         {
+            if (_audioInput.InputType == InputType.Holded && intValue > 1)
+                intValue = 1;
             _audioInput.Param = intValue;
             _paramData.text = intValue.ToString();
         }
@@ -179,12 +182,13 @@ public class AudioInputBhv : FrameRateBehavior
     private void SetParamPopup()
     {
         if (_audioInput.InputType == InputType.SingleTap
-            || _audioInput.InputType == InputType.Holded
             || (_audioInput.InputType == InputType.Mouse && _audioInput.MouseInput == MouseInput.None))
             return;
         var maxDigit = 2;
         var content = $"linked to the input type";
-        if (_audioInput.InputType == InputType.CustomTap)
+        if (_audioInput.InputType == InputType.Holded)
+            content = "0 = holded until level reset\n1 = holded only when listened";
+        else if (_audioInput.InputType == InputType.CustomTap)
             content = "the number of times the input\nwill be sent";
         else if (_audioInput.InputType == InputType.TimeHolded)
             content = "the number of seconds the input\nwill be holded";

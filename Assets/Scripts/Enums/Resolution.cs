@@ -5,6 +5,8 @@ using UnityEngine;
 
 public enum Resolution
 {
+    //[Description("256*144")]
+    //R256x144,
     [Description("960*540")]
     R960x540,
     [Description("1280*720")]
@@ -14,5 +16,10 @@ public enum Resolution
     [Description("1920*1080")]
     R1920x1080,
     [Description("2560*1440")]
-    R2560x1440
+    R2560x1440,
+    Bite,
+    zizi,
+    caca,
+    couille,
+    trompette
 }
