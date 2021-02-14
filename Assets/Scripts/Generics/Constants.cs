@@ -9,21 +9,32 @@ public static class Constants
     public const float SingleTapDelay = 0.05f;
 
     private static float? _frame;
-    public static float? Frame
-    {
-        get
-        {
+    public static float? Frame {
+        get {
             if (_frame == null)
                 SetFrame();
             return _frame;
-        }
-    }
+        }}
     public static float? LastFrame;
-
     public static void SetFrame()
     {
         _frame = 1.0f / (PlayerPrefHelper.GetMaximumTickrate() + 1);
         LastFrame = Time.time;
+    }
+
+    private static int? _mouseSensitivity;
+    public static int? MouseSensitivity
+    {
+        get
+        {
+            if (_mouseSensitivity == null)
+                SetMouseSensitivity();
+            return _mouseSensitivity;
+        }
+    }
+    public static void SetMouseSensitivity()
+    {
+        _mouseSensitivity = PlayerPrefHelper.GetMouseSensitivity();
     }
 
     public static bool HasInit = false;
@@ -50,8 +61,6 @@ public static class Constants
     public const int PpHoldedResetDefault = -10;
     public const string PpSingleTapReset = "SingleTapReset";
     public const int PpSingleTapResetDefault = -30;
-    public const string PpCustomTapDelay = "CustomTapDelay";
-    public const float PpCustomTapDelayDefault = 0.5f;
     public const string PpLevelDynamicRange = "LevelDynamicRange";
     public const int PpLevelDynamicRangeDefault = 30;
     public const string PpLevelGain = "LevelGain";
@@ -65,11 +74,15 @@ public static class Constants
     public const string PpAudioInputsDefault = null;
     //Panel03
     public const string PpResolution = "Resolution";
-    public const int PpResolutionDefault = 1;
+    public const int PpResolutionDefault = 3;
     public const string PpLanguage = "Language";
     public const int PpLanguageDefault = 0;
     public const string PpMaximumTickrate = "MaximumTickrate";
     public const int PpMaximumTickrateDefault = 60;
+    public const string PpCustomTapDelay = "CustomTapDelay";
+    public const float PpCustomTapDelayDefault = 0.5f;
+    public const string PpMouseSensitivity = "MouseSensitivity";
+    public const int PpMouseSensitivityDefault = 30;
 
 
     public static Color ColorBlackTransparent = new Color(0.0f, 0.0f, 0.0f, 0.0f);

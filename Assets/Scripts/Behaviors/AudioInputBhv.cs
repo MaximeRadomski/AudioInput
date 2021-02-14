@@ -54,8 +54,8 @@ public class AudioInputBhv : FrameRateBehavior
         SetEnabled(_audioInput.Enabled);
         SetHz(_audioInput.Hz);
         SetPeaks(_audioInput.Peaks);
-        if (_audioInput.InputType != InputType.Mouse)
-            SetInput(_audioInput.Key);
+        if (_audioInput.MouseInput == MouseInput.None)
+            SetKeyboardInput(_audioInput.Key);
         else
             SetMouseInput(_audioInput.MouseInput.GetHashCode());
         SetType(_audioInput.InputType.GetHashCode());
@@ -98,8 +98,9 @@ public class AudioInputBhv : FrameRateBehavior
         return UpdateAudioInput();
     }
 
-    private object SetInput(VirtualKeyCode keyCode)
+    private object SetKeyboardInput(VirtualKeyCode keyCode)
     {
+        _audioInput.MouseInput = MouseInput.None;
         _audioInput.Key = keyCode;
         _inputData.text = keyCode == VirtualKeyCode.NONAME ? "none" : keyCode.ToString().ToLower();
         return UpdateAudioInput();
@@ -107,6 +108,7 @@ public class AudioInputBhv : FrameRateBehavior
 
     private object SetMouseInput(int id)
     {
+        _audioInput.Key = VirtualKeyCode.NONAME;
         _audioInput.MouseInput = (MouseInput)id;
         _inputData.text = _audioInput.MouseInput.GetDescription().ToLower();
         SetParam(_audioInput.Param);
@@ -118,29 +120,26 @@ public class AudioInputBhv : FrameRateBehavior
         _audioInput.InputType = (InputType)id;
         _typeData.text = _audioInput.InputType.GetDescription().ToLower();
         SetParam(_audioInput.Param);
-        if (_audioInput.InputType != InputType.Mouse)
-            SetInput(_audioInput.Key);
-        else
-            SetMouseInput(_audioInput.MouseInput.GetHashCode());
+        //if (_audioInput.InputType != InputType.Mouse)
+        //    SetInput(_audioInput.Key);
+        //else
+        //    SetMouseInput(_audioInput.MouseInput.GetHashCode());
         return UpdateAudioInput();
     }
 
     private object SetParam(float value)
     {
         var intValue = (int)value;
-        if ((_audioInput.InputType != InputType.Mouse && intValue < 0)
-            || (_audioInput.InputType == InputType.Mouse && _audioInput.MouseInput == MouseInput.XButton && intValue < 0))
+        if ((_audioInput.MouseInput == MouseInput.None && intValue < 0))
             intValue = 0;
-        if (_audioInput.InputType == InputType.SingleTap
-            || (_audioInput.InputType == InputType.Mouse && _audioInput.MouseInput == MouseInput.None))
+        if (_audioInput.InputType == InputType.SingleTap)
         {
             _audioInput.Param = value;
             _paramData.text = "/";
             return false;
         }
         if (_audioInput.InputType == InputType.Holded
-            || _audioInput.InputType == InputType.CustomTap
-            || _audioInput.InputType == InputType.Mouse)
+            || _audioInput.InputType == InputType.CustomTap)
         {
             if (_audioInput.InputType == InputType.Holded && intValue > 1)
                 intValue = 1;
@@ -169,10 +168,16 @@ public class AudioInputBhv : FrameRateBehavior
 
     private void SetInputPopup()
     {
-        if (_audioInput.InputType != InputType.Mouse)
-            _panelBhv.Instantiator.NewPopupInput(_panelBhv.transform.position, _audioInput.Key, SetInput);
+        _panelBhv.Instantiator.NewPopupYesNo(_panelBhv.transform.position, "input", string.Empty, "keyboard", "mouse", OnSetInputPopup);
+    }
+
+    private object OnSetInputPopup(bool isMouse)
+    {
+        if (isMouse)
+            _panelBhv.Instantiator.NewPopupEnum<MouseInput>(_panelBhv.transform.position, "mouse input", _audioInput.MouseInput.GetHashCode(), SetMouseInput);
         else
-            _panelBhv.Instantiator.NewPopupEnum<MouseInput>(_panelBhv.transform.position, "mouse input", _audioInput.MouseInput.GetHashCode(), SetMouseInput, 1);
+            _panelBhv.Instantiator.NewPopupInput(_panelBhv.transform.position, _audioInput.Key, SetKeyboardInput);
+        return true;
     }
 
     private void SetTypePopup()
@@ -181,8 +186,7 @@ public class AudioInputBhv : FrameRateBehavior
     }
     private void SetParamPopup()
     {
-        if (_audioInput.InputType == InputType.SingleTap
-            || (_audioInput.InputType == InputType.Mouse && _audioInput.MouseInput == MouseInput.None))
+        if (_audioInput.InputType == InputType.SingleTap)
             return;
         var maxDigit = 2;
         var content = $"linked to the input type";
@@ -192,26 +196,26 @@ public class AudioInputBhv : FrameRateBehavior
             content = "the number of times the input\nwill be sent";
         else if (_audioInput.InputType == InputType.TimeHolded)
             content = "the number of seconds the input\nwill be holded";
-        else if (_audioInput.InputType == InputType.Mouse)
-        {
-            if (_audioInput.MouseInput == MouseInput.LeftButton
-                || _audioInput.MouseInput == MouseInput.RightButton)
-            {
-                content = "under 1 = holded\n1 = 1 click\nover 1 = multiple clicks";
-            }
-            else if (_audioInput.MouseInput == MouseInput.LeftRight)
-            {
-                content = "1 = 1 pixel\nnegative = left\npositive = right";
-                maxDigit = 4;
-            }
-            else if (_audioInput.MouseInput == MouseInput.UpDown)
-            {
-                content = "1 = 1 pixel\nnegative = down\npositive = up";
-                maxDigit = 4;
-            }
-            else if (_audioInput.MouseInput == MouseInput.XButton)
-                content = "id of the button for mouses with more than 2 buttons";
-        }
+        //else if (_audioInput.InputType == InputType.Mouse)
+        //{
+        //    if (_audioInput.MouseInput == MouseInput.LeftButton
+        //        || _audioInput.MouseInput == MouseInput.RightButton)
+        //    {
+        //        content = "under 1 = holded\n1 = 1 click\nover 1 = multiple clicks";
+        //    }
+        //    else if (_audioInput.MouseInput == MouseInput.LeftRight)
+        //    {
+        //        content = "1 = 1 pixel\nnegative = left\npositive = right";
+        //        maxDigit = 4;
+        //    }
+        //    else if (_audioInput.MouseInput == MouseInput.UpDown)
+        //    {
+        //        content = "1 = 1 pixel\nnegative = down\npositive = up";
+        //        maxDigit = 4;
+        //    }
+        //    else if (_audioInput.MouseInput == MouseInput.XButton)
+        //        content = "id of the button for mouses with more than 2 buttons";
+        //}
         _panelBhv.Instantiator.NewPopupNumber(_panelBhv.transform.position, "type param", content, _audioInput.Param, maxDigit, SetParam);
     }
 

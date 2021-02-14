@@ -12,7 +12,5 @@ public enum InputType
     [Description("Holded")]
     Holded,
     [Description("Time Holded")]
-    TimeHolded,
-    [Description("Mouse")]
-    Mouse,
+    TimeHolded
 }

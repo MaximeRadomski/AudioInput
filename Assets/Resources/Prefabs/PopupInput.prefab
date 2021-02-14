@@ -245,6 +245,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Layer: 0
   ForcedLayer: 0
+  Sprite: {fileID: 0}
   Content: the raw input recorded by your keyboard.
 --- !u!1 &2586766368951758290
 GameObject:
@@ -711,6 +712,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Layer: 0
   ForcedLayer: 0
+  Sprite: {fileID: 0}
   Content: "the equivalent of the recorded input, sent to the foreground process\r.\nnote:
     all recorded inputs don't have a sendable equivalent."
 --- !u!1 &6606341254048347315
@@ -1936,7 +1938,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6634099503351920174, guid: 927d8467c7527f14797e2b668d0a326e, type: 3}
       propertyPath: m_text
-      value: input
+      value: keyboard
       objectReference: {fileID: 0}
     - target: {fileID: 6634099503351920174, guid: 927d8467c7527f14797e2b668d0a326e, type: 3}
       propertyPath: _SortingLayerID

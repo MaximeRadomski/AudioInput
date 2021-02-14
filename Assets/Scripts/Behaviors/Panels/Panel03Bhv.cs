@@ -8,11 +8,13 @@ public class Panel03Bhv : PanelBhv
     private Language _language;
     private int _maximumTickrate;
     public float CustomTapDelay;
+    public float MouseSensitivity;
 
     private TMPro.TextMeshPro _resolutionData;
     private TMPro.TextMeshPro _languageData;
     private TMPro.TextMeshPro _maximumTickrateData;
     private TMPro.TextMeshPro _customTapDelayData;
+    private TMPro.TextMeshPro _mouseSensitivityData;
     private TMPro.TextMeshPro _toolVersion;
 
     void Start()
@@ -29,11 +31,13 @@ public class Panel03Bhv : PanelBhv
         _language = PlayerPrefHelper.GetLanguage();
         _maximumTickrate = PlayerPrefHelper.GetMaximumTickrate();
         CustomTapDelay = PlayerPrefHelper.GetCustomTapDelay();
+        MouseSensitivity = PlayerPrefHelper.GetMouseSensitivity();
 
         _resolutionData = Helper.GetFieldData("Resolution");
         _languageData = Helper.GetFieldData("Language");
         _maximumTickrateData = Helper.GetFieldData("MaximumTickrate");
         _customTapDelayData = Helper.GetFieldData("CustomTapDelay");
+        _mouseSensitivityData = Helper.GetFieldData("MouseSensitivity");
 
         _toolVersion = transform.Find("ToolVersion").GetComponent<TMPro.TextMeshPro>();
     }
@@ -44,6 +48,7 @@ public class Panel03Bhv : PanelBhv
         Helper.GetFieldButton("Language").EndActionDelegate = SetLanguagePopup;
         Helper.GetFieldButton("MaximumTickrate").EndActionDelegate = SetMaximumTickratePopup;
         Helper.GetFieldButton("CustomTapDelay").EndActionDelegate = SetCustomTapDelayPopup;
+        Helper.GetFieldButton("MouseSensitivity").EndActionDelegate = SetMouseSensitivityPopup;
 
         Helper.GetFieldButton("ResetCalibration").EndActionDelegate = ResetCalibrationPopup;
 
@@ -59,6 +64,7 @@ public class Panel03Bhv : PanelBhv
         SetLanguage(_language.GetHashCode());
         SetMaximumTickrate(_maximumTickrate);
         SetCustomTapDelay(CustomTapDelay);
+        SetMouseSensitivity(MouseSensitivity);
         _toolVersion.text = $"version {Application.version}";
     }
 
@@ -104,6 +110,17 @@ public class Panel03Bhv : PanelBhv
         return true;
     }
 
+    private object SetMouseSensitivity(float value)
+    {
+        var intValue = (int)value;
+        if (intValue < 0)
+            return false;
+        PlayerPrefHelper.SetMouseSensitivity(intValue);
+        Constants.SetMouseSensitivity();
+        _mouseSensitivityData.text = intValue.ToString();
+        return true;
+    }
+
     private object ResetCalibration(bool result)
     {
         if (!result)
@@ -124,13 +141,18 @@ public class Panel03Bhv : PanelBhv
 
     private void SetMaximumTickratePopup()
     {
-        Instantiator.NewPopupNumber(transform.position, "maximum framerate", "won't go over your current\nmonitor framerate", _maximumTickrate, 3, SetMaximumTickrate);
+        Instantiator.NewPopupNumber(transform.position, "maximum framerate", "won't go over your current\nmonitor framerate.", _maximumTickrate, 3, SetMaximumTickrate);
     }
 
     private void SetCustomTapDelayPopup()
     {
-        var content = $"1.0 = 1 second\nfrom 0.10 to infinity and beyond";
+        var content = $"1.0 = 1 second.\nfrom 0.10 to infinity and beyond.";
         Instantiator.NewPopupNumber(transform.position, "Custom Tap Delay", content, CustomTapDelay, 2, SetCustomTapDelay);
+    }
+
+    private void SetMouseSensitivityPopup()
+    {
+        Instantiator.NewPopupNumber(transform.position, "mouse sensitivity", "1 = 1 pixel", MouseSensitivity, 3, SetMouseSensitivity);
     }
 
     private void ResetCalibrationPopup()

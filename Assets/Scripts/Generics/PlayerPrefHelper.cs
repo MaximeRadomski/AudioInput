@@ -87,4 +87,7 @@ public class PlayerPrefHelper : MonoBehaviour
 
     public static void SetMaximumTickrate(int maximumTickrate) { PlayerPrefs.SetInt(Constants.PpMaximumTickrate, maximumTickrate); }
     public static int GetMaximumTickrate() { return PlayerPrefs.GetInt(Constants.PpMaximumTickrate, Constants.PpMaximumTickrateDefault); }
+
+    public static void SetMouseSensitivity(int mouseSensitivity) { PlayerPrefs.SetInt(Constants.PpMouseSensitivity, mouseSensitivity); }
+    public static int GetMouseSensitivity() { return PlayerPrefs.GetInt(Constants.PpMouseSensitivity, Constants.PpMouseSensitivityDefault); }
 }

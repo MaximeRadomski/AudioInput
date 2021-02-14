@@ -14,7 +14,7 @@ public class PopupEnumBhv : PopupBhv
     private ButtonBhv _pageUp;
     private ButtonBhv _pageDown;
 
-    public void Init<EnumType>(string title, int currentId, System.Func<int, object> resultAction, int startId) where EnumType : System.Enum
+    public void Init<EnumType>(string title, int currentId, System.Func<int, object> resultAction) where EnumType : System.Enum
     {
         _currentId = currentId;
         _resultAction = resultAction;
@@ -28,8 +28,8 @@ public class PopupEnumBhv : PopupBhv
         (_pageDown = transform.Find("PageDown").GetComponent<ButtonBhv>()).EndActionDelegate = () => { PageDown<EnumType>(); };
 
         _listStartPosition = transform.Find("ListStartPosition");
-        _startId = startId;
-        _currentPageFirst = startId;
+        _startId = 0;
+        _currentPageFirst = 0;
         LoadList<EnumType>(_currentPageFirst);
     }
 
@@ -64,28 +64,32 @@ public class PopupEnumBhv : PopupBhv
         var alreadyCount = _listStartPosition.transform.childCount;
         if (alreadyCount > 0)
         {
-            // TODO
             for (int i = alreadyCount - 1; i >= 0; --i)
                 Destroy(_listStartPosition.GetChild(i).gameObject);
         }
         int y = 0;
+        var reachedTheEnd = false;
         for (int i = start; i < _enumLength && y < 5; ++i)
         {
+            if (values[i].GetHashCode() == -1)
+            {
+                reachedTheEnd = true;
+                continue;
+            }
             var tmpButtonObject = Resources.Load<GameObject>("Prefabs/EnumButton");
             var tmpButtonInstance = Instantiate(tmpButtonObject, _listStartPosition.position + new Vector3(0.0f, -spaceBetween * y, 0.0f), tmpButtonObject.transform.rotation);
             tmpButtonInstance.name = $"EnumChoice{i}";
-            tmpButtonInstance.transform.SetParent(_listStartPosition);
             string tmpName = values[i].GetDescription();
             tmpButtonInstance.transform.GetChild(0).GetComponent<TMPro.TextMeshPro>().text = tmpName.ToLower();
             tmpButtonInstance.GetComponent<ButtonBhv>().EndActionDelegate = SelectEnum;
-            tmpButtonInstance.transform.SetParent(transform);
+            tmpButtonInstance.transform.SetParent(_listStartPosition);
             ++y;
         }
         if (start <= _startId)
             _pageUp.DisableButton();
         else
             _pageUp.EnableButton();
-        if (start + y >= _enumLength)
+        if (start + y >= _enumLength || reachedTheEnd)
             _pageDown.DisableButton();
         else
             _pageDown.EnableButton();

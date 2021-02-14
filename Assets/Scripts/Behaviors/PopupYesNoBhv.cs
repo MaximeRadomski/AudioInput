@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class PopupYesNoBhv : PopupBhv
 {
+    public Sprite BigButton;
+    
     private System.Func<bool, object> _resultAction;
 
     public void Init(string title, string content, string negative, string positive,
@@ -25,6 +27,14 @@ public class PopupYesNoBhv : PopupBhv
         buttonNegative.transform.Find("ButtonNegativeText").GetComponent<TMPro.TextMeshPro>().text = negative;
         if (string.IsNullOrEmpty(negative))
             buttonNegative.gameObject.SetActive(false);
+
+        if (string.IsNullOrEmpty(content))
+        {
+            buttonPositive.transform.position = new Vector3(buttonPositive.transform.position.x, buttonPositive.transform.parent.position.y - 0.5f, 0.0f);
+            buttonPositive.GetComponent<SpriteRenderer>().sprite = BigButton;
+            buttonNegative.transform.position = new Vector3(buttonNegative.transform.position.x, buttonPositive.transform.parent.position.y - 0.5f, 0.0f);
+            buttonNegative.GetComponent<SpriteRenderer>().sprite = BigButton;
+        }
     }
 
     private void PositiveDelegate()

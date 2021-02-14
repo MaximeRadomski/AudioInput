@@ -43,12 +43,12 @@ public class Instantiator : MonoBehaviour
         return tmpPopupInstance;
     }
 
-    public GameObject NewPopupEnum<EnumType>(Vector3 position, string title, int currentId, System.Func<int, object> resultAction, int startId = 0) where EnumType : System.Enum
+    public GameObject NewPopupEnum<EnumType>(Vector3 position, string title, int currentId, System.Func<int, object> resultAction) where EnumType : System.Enum
     {
         var tmpPopupObject = Resources.Load<GameObject>("Prefabs/PopupEnum");
         var tmpPopupInstance = Instantiate(tmpPopupObject, position, tmpPopupObject.transform.rotation);
         Constants.IncreaseInputLayer(tmpPopupInstance.name);
-        tmpPopupInstance.GetComponent<PopupEnumBhv>().Init<EnumType>(title, currentId, resultAction, startId);
+        tmpPopupInstance.GetComponent<PopupEnumBhv>().Init<EnumType>(title, currentId, resultAction);
         return tmpPopupInstance;
     }
 
