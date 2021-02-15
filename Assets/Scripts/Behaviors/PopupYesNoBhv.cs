@@ -54,7 +54,7 @@ public class PopupYesNoBhv : PopupBhv
     public override void ExitPopup()
     {
         Constants.DecreaseInputLayer();
-        _resultAction?.Invoke(false);
+        //_resultAction?.Invoke(false);
         Destroy(gameObject);
     }
 

@@ -17,8 +17,8 @@ public class AbjectAudioInputs : MonoBehaviour
     private float _pitchValue;
     private int _binSize = 2048;
     private float _threshold = 0.01f;
-    private int MaxPeak = 5;
-    private float freqNMultiplier = 0.5f;
+    private int _maxPeak = 1;
+    private float _freqNMultiplier = 0.5f;
 
     private SpectrumAnalyzer _spectrumAnalyzer;
     private AudioLevelTracker _audioLevelTracker;
@@ -27,7 +27,8 @@ public class AbjectAudioInputs : MonoBehaviour
     private List<Peak> _peaks = new List<Peak>();
     private int _peaksCount;
     private float[] _spectrum;
-    int _samplerate;
+    private int _samplerate;
+    private int _currentPanel = -1;
 
     private Instantiator _instantiator;
     private TMPro.TextMeshPro _dbData;
@@ -110,6 +111,9 @@ public class AbjectAudioInputs : MonoBehaviour
 
     private void SetPanel(int id)
     {
+        if (_currentPanel == id)
+            return;
+        _currentPanel = id;
         var referencePosition = GameObject.Find("---------- Panels").transform.position;
         for (int i = 0; i < _panels.Count; ++i)
         {
@@ -577,33 +581,52 @@ public class AbjectAudioInputs : MonoBehaviour
         float maxV = 0f;
         _peaksCount = 0;
         if (_spectrum != null && _spectrum.Count() > 0)
-        for (int i = 0; i < _binSize; i++)
         {
-            if (_spectrum[i] > maxV && _spectrum[i] > _threshold)
+            int currentNbPeak = 0;
+            float currentPeakMax = 0.0f;
+            for (int i = 0; i < _binSize; i++)
             {
-                _peaks.Add(new Peak(_spectrum[i], i));
-                if (_peaks.Count > MaxPeak)
+                if (_spectrum[i] > currentPeakMax && _spectrum[i] > _threshold)
                 {
-                    _peaks.Sort(new AmpComparer());
-                    _peaks.Remove (_peaks [MaxPeak]);
+                    currentPeakMax = _spectrum[i];
+                    if (_peaks.Count < currentNbPeak + 1)
+                        _peaks.Add(new Peak(_spectrum[i], i));
+                    else
+                    {
+                        _peaks[currentNbPeak].amplitude = _spectrum[i];
+                        _peaks[currentNbPeak].index = i;
+                    }
+                }
+                if (i > 0 && _spectrum[i - 1] > _threshold && _spectrum[i] == 0)
+                {
+                    ++_peaksCount;
+                    ++currentNbPeak;
+                    currentPeakMax = 0.0f;
                 }
             }
-            if (i > _threshold * MaxPeak && _spectrum[i - 1] > 0 && _spectrum[i] == 0)
-                ++_peaksCount;
+            _peaks.Sort(new AmpComparer());
         }
         float freqN = 0f;
+        var total = 0.0f;
         if (_peaks.Count > 0)
         {
             int maxN = _peaks[0].index;
             freqN = maxN;
-            if (maxN > 0 && maxN < _binSize - 1)
+
+            
+            for (int i = 0; i < _peaks.Count && i < _maxPeak; ++i)
             {
-                var dL = _spectrum[maxN - 1] / _spectrum[maxN];
-                var dR = _spectrum[maxN + 1] / _spectrum[maxN];
-                freqN += freqNMultiplier * (dR * dR - dL * dL);
+                total += _peaks[i].index;
             }
+            total = total / _maxPeak;
+            //if (maxN > 0 && maxN < _binSize - 1)
+            //{
+            //    var dL = _spectrum[maxN - 1] / _spectrum[maxN];
+            //    var dR = _spectrum[maxN + 1] / _spectrum[maxN];
+            //    freqN += _freqNMultiplier * (dR * dR - dL * dL);
+            //}
         }
-        _pitchValue = freqN * (_samplerate / 2f) / _binSize;
+        _pitchValue = total * (_samplerate / 2f) / _binSize;
         _pitchValue /= 100.0f;
         _peaks.Clear();
 
