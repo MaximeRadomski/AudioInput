@@ -102,7 +102,6 @@ public class PopupDeviceIdBhv : PopupBhv
             ++y;
         }
 
-        ///
         if (start <= 0)
             _pageUp.DisableButton();
         else

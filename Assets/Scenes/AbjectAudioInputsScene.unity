@@ -449,6 +449,10 @@ PrefabInstance:
       value: device id all in lowercases
       objectReference: {fileID: 0}
     - target: {fileID: 6634099503351920174, guid: 386ed2ae1a37b8b4f8a0accbbeb523e3, type: 3}
+      propertyPath: m_overflowMode
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 6634099503351920174, guid: 386ed2ae1a37b8b4f8a0accbbeb523e3, type: 3}
       propertyPath: _SortingLayerID
       value: -1455142755
       objectReference: {fileID: 0}
@@ -864,7 +868,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6634099503351920174, guid: 927d8467c7527f14797e2b668d0a326e, type: 3}
       propertyPath: m_text
-      value: holded reset
+      value: held reset
       objectReference: {fileID: 0}
     - target: {fileID: 6634099503351920174, guid: 927d8467c7527f14797e2b668d0a326e, type: 3}
       propertyPath: m_margin.z
@@ -876,7 +880,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7003603624851055399, guid: 927d8467c7527f14797e2b668d0a326e, type: 3}
       propertyPath: m_Name
-      value: HoldedReset
+      value: HeldReset
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 927d8467c7527f14797e2b668d0a326e, type: 3}
@@ -1745,8 +1749,11 @@ MonoBehaviour:
   Layer: 0
   ForcedLayer: 0
   Sprite: {fileID: 0}
-  Content: the level that should be reached up for a frequency to be analysed, and
+  Content: 'the level that should be reached up for a frequency to be analysed, and
     that should be reached down before being able to listen for a new input.
+
+    symbolized
+    by the lifgr bar in the level visualisation'
 --- !u!61 &176138202
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -3449,13 +3456,13 @@ MonoBehaviour:
   Layer: 0
   ForcedLayer: 0
   Sprite: {fileID: 0}
-  Content: 'how much frames with the same frequency should be needed to validate
-    a frequency.
+  Content: 'how much ticks with the same frequency should be needed to validate a
+    frequency.
 
-    few frames means a faster reactivity but a bad precision.
+    few ticks means a faster reactivity but a bad precision.
 
     more
-    frames means the opposite.'
+    ticks means the opposite.'
 --- !u!61 &384130164
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -4678,7 +4685,10 @@ MonoBehaviour:
   Content: 'the fixed level at which holded inputs will stop being listened.
 
     note:
-    any input starts to be listened at level 0 (zero).'
+    any input starts to be listened at level 0 (zero).
+
+    symbolized by the dark
+    bar in the level visualisation'
 --- !u!61 &548776136
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -4692,7 +4702,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 1.4782481, y: 0}
+  m_Offset: {x: 0.7001066, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -4703,7 +4713,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 8.316285, y: 1.0897872}
+  m_Size: {x: 6.760002, y: 1.0897872}
   m_EdgeRadius: 0
 --- !u!1 &554374249
 GameObject:
@@ -6471,8 +6481,8 @@ MonoBehaviour:
   Sprite: {fileID: 0}
   Content: 'number of pixels the cursor will move per frame.
 
-    is not linked
-    to your tickrate but to your monitor framerate.'
+    is not linked to
+    your tickrate but to your monitor framerate.'
 --- !u!61 &809199388
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -7101,7 +7111,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 916944212}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 4.73855, y: 0, z: 0}
+  m_LocalPosition: {x: 3.59955, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 548776134}
@@ -9556,7 +9566,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6634099503351920174, guid: 927d8467c7527f14797e2b668d0a326e, type: 3}
       propertyPath: m_text
-      value: required frames
+      value: required ticks
       objectReference: {fileID: 0}
     - target: {fileID: 6634099503351920174, guid: 927d8467c7527f14797e2b668d0a326e, type: 3}
       propertyPath: m_margin.z
@@ -10495,7 +10505,7 @@ MonoBehaviour:
   HzOffset: 0
   RequiredFrames: 0
   PeaksPriority: 0
-  HoldedReset: 0
+  HeldReset: 0
   SingleTapReset: 0
 --- !u!1 &1345072101
 GameObject:
@@ -19083,6 +19093,10 @@ PrefabInstance:
     - target: {fileID: 6634099503351920174, guid: 927d8467c7527f14797e2b668d0a326e, type: 3}
       propertyPath: m_text
       value: id
+      objectReference: {fileID: 0}
+    - target: {fileID: 6634099503351920174, guid: 927d8467c7527f14797e2b668d0a326e, type: 3}
+      propertyPath: m_overflowMode
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6634099503351920174, guid: 927d8467c7527f14797e2b668d0a326e, type: 3}
       propertyPath: m_HorizontalAlignment

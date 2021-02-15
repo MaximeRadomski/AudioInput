@@ -18,7 +18,6 @@ public class AbjectAudioInputs : MonoBehaviour
     private int _binSize = 2048;
     private float _threshold = 0.01f;
     private int _maxPeak = 1;
-    private float _freqNMultiplier = 0.5f;
 
     private SpectrumAnalyzer _spectrumAnalyzer;
     private AudioLevelTracker _audioLevelTracker;
@@ -153,7 +152,7 @@ public class AbjectAudioInputs : MonoBehaviour
         _dbData.text = DynRangeDB.ToString("0");
         _hzData.text = DynRangeDB > 0 ? _pitchValue.ToString("F2") : "0.00";
         _peaksData.text = DynRangeDB > 0 ? _peaksCount.ToString() : "0";
-        var isUnderHoldedReset = _levelDrawer.Draw(_audioLevelTracker, _panel00.HoldedReset, (int)_currentSingleFrameReset);
+        var isUnderHoldedReset = _levelDrawer.Draw(_audioLevelTracker, _panel00.HeldReset, (int)_currentSingleFrameReset);
         _spectrumDrawer.Draw(_spectrum);
 
         if (DynRangeDB > 0)
@@ -578,7 +577,6 @@ public class AbjectAudioInputs : MonoBehaviour
     void AnalyzeSound()
     {
         _spectrum = _spectrumAnalyzer.logSpectrumArray.ToArray();
-        float maxV = 0f;
         _peaksCount = 0;
         if (_spectrum != null && _spectrum.Count() > 0)
         {
@@ -619,6 +617,7 @@ public class AbjectAudioInputs : MonoBehaviour
                 total += _peaks[i].index;
             }
             total = total / _maxPeak;
+            //var _freqNMultiplier = 0.5f;
             //if (maxN > 0 && maxN < _binSize - 1)
             //{
             //    var dL = _spectrum[maxN - 1] / _spectrum[maxN];

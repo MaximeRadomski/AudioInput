@@ -20,8 +20,8 @@ public class PlayerPrefHelper : MonoBehaviour
     public static void SetPeaksPriority(PeaksPriority peaksPriority) { PlayerPrefs.SetInt(Constants.PpPeaksPriority, peaksPriority.GetHashCode()); }
     public static PeaksPriority GetPeaksPriority() { return (PeaksPriority)PlayerPrefs.GetInt(Constants.PpPeaksPriority, Constants.PpPeaksPriorityDefault); }
 
-    public static void SetHoldedReset(int holdedReset) { PlayerPrefs.SetInt(Constants.PpHoldedReset, holdedReset); }
-    public static int GetHoldedReset() { return PlayerPrefs.GetInt(Constants.PpHoldedReset, Constants.PpHoldedResetDefault); }
+    public static void SetHeldReset(int holdedReset) { PlayerPrefs.SetInt(Constants.PpHoldedReset, holdedReset); }
+    public static int GetHeldReset() { return PlayerPrefs.GetInt(Constants.PpHoldedReset, Constants.PpHeldResetDefault); }
 
     public static void SetSingleTapReset(int singleTapReset) { PlayerPrefs.SetInt(Constants.PpSingleTapReset, singleTapReset); }
     public static int GetSingleTapReset() { return PlayerPrefs.GetInt(Constants.PpSingleTapReset, Constants.PpSingleTapResetDefault); }

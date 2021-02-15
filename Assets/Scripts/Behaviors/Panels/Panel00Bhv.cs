@@ -15,7 +15,7 @@ public class Panel00Bhv : PanelBhv
     public float HzOffset;
     public int RequiredFrames;
     public PeaksPriority PeaksPriority;
-    public int HoldedReset;
+    public int HeldReset;
     public int SingleTapReset;
 
     private SpectrumAnalyzer _spectrumAnalyzer;
@@ -40,7 +40,7 @@ public class Panel00Bhv : PanelBhv
     private TMPro.TextMeshPro _hzOffsetData;
     private TMPro.TextMeshPro _requiredFramesData;
     private TMPro.TextMeshPro _peaksPriorityData;
-    private TMPro.TextMeshPro _holdedResetData;
+    private TMPro.TextMeshPro _heldResetData;
     private TMPro.TextMeshPro _singleTapResetData;
     private TMPro.TextMeshPro _levelDynamicRangeData;
     private TMPro.TextMeshPro _levelGainData;
@@ -73,7 +73,7 @@ public class Panel00Bhv : PanelBhv
         HzOffset = PlayerPrefHelper.GetHzOffset();
         RequiredFrames = PlayerPrefHelper.GetRequiredFrames();
         PeaksPriority = PlayerPrefHelper.GetPeaksPriority();
-        HoldedReset = PlayerPrefHelper.GetHoldedReset();
+        HeldReset = PlayerPrefHelper.GetHeldReset();
         SingleTapReset = PlayerPrefHelper.GetSingleTapReset();
         _levelDynamicRange = PlayerPrefHelper.GetLevelDynamicRange();
         _levelGain = PlayerPrefHelper.GetLevelGain();
@@ -86,7 +86,7 @@ public class Panel00Bhv : PanelBhv
         _hzOffsetData = Helper.GetFieldData("HzOffset");
         _requiredFramesData = Helper.GetFieldData("RequiredFrames");
         _peaksPriorityData = Helper.GetFieldData("PeaksPriority");
-        _holdedResetData = Helper.GetFieldData("HoldedReset");
+        _heldResetData = Helper.GetFieldData("HeldReset");
         _singleTapResetData = Helper.GetFieldData("SingleTapReset");
         _levelDynamicRangeData = Helper.GetFieldData("LevelDynamicRange");
         _levelGainData = Helper.GetFieldData("LevelGain");
@@ -104,7 +104,7 @@ public class Panel00Bhv : PanelBhv
         Helper.GetFieldButton("HzOffset").EndActionDelegate = SetHzOffsetPopup;
         Helper.GetFieldButton("RequiredFrames").EndActionDelegate = SetRequiredFramesPopup;
         Helper.GetFieldButton("PeaksPriority").EndActionDelegate = SetPeaksPriorityPopup;
-        Helper.GetFieldButton("HoldedReset").EndActionDelegate = SetHoldedResetPopup;
+        Helper.GetFieldButton("HeldReset").EndActionDelegate = SetHeldResetPopup;
         Helper.GetFieldButton("SingleTapReset").EndActionDelegate = SetSingleTapResetPopup;
         Helper.GetFieldButton("LevelDynamicRange").EndActionDelegate = SetLevelDynamicRangePopup;
         Helper.GetFieldButton("LevelGain").EndActionDelegate = SetLevelGainPopup;
@@ -156,7 +156,7 @@ public class Panel00Bhv : PanelBhv
         SetHzOffset(HzOffset);
         SetRequiredFrames(RequiredFrames);
         SetPeaksPriority(PeaksPriority.GetHashCode());
-        SetHoldedReset(HoldedReset);
+        SetHeldReset(HeldReset);
         SetSingleTapReset(SingleTapReset);
         SetLevelDynamicRange(_levelDynamicRange);
         SetLevelGain(_levelGain);
@@ -209,7 +209,7 @@ public class Panel00Bhv : PanelBhv
         SetHzOffset(Constants.PpHzOffsetDefault);
         SetRequiredFrames(Constants.PpRequiredFramesDefault);
         SetPeaksPriority(Constants.PpPeaksPriorityDefault);
-        SetHoldedReset(Constants.PpHoldedResetDefault);
+        SetHeldReset(Constants.PpHeldResetDefault);
         SetSingleTapReset(Constants.PpSingleTapResetDefault);
         SetLevelDynamicRange(Constants.PpLevelDynamicRangeDefault);
         SetLevelGain(Constants.PpLevelGainDefault);
@@ -246,16 +246,16 @@ public class Panel00Bhv : PanelBhv
         return true;
     }
 
-    private object SetHoldedReset(float value)
+    private object SetHeldReset(float value)
     {
         var intValue = (int)value;
         if (intValue > 0)
             intValue = -intValue;
         if (intValue < -100)
             intValue = -100;
-        HoldedReset = intValue;
-        PlayerPrefHelper.SetHoldedReset(intValue);
-        _holdedResetData.text = intValue.ToString();
+        HeldReset = intValue;
+        PlayerPrefHelper.SetHeldReset(intValue);
+        _heldResetData.text = intValue.ToString();
         return true;
     }
 
@@ -358,10 +358,10 @@ public class Panel00Bhv : PanelBhv
         Instantiator.NewPopupEnum<PeaksPriority>(transform.position, "peaks priority", PeaksPriority.GetHashCode(), SetPeaksPriority);
     }
 
-    private void SetHoldedResetPopup()
+    private void SetHeldResetPopup()
     {
         var content = $"fixed value\nfrom 0 to -100";
-        Instantiator.NewPopupNumber(transform.position, "holded reset", content, HoldedReset, 3, SetHoldedReset);
+        Instantiator.NewPopupNumber(transform.position, "holded reset", content, HeldReset, 3, SetHeldReset);
     }
 
     private void SetSingleTapResetPopup()
