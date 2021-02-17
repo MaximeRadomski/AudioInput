@@ -4,8 +4,7 @@ using UnityEngine;
 
 public abstract class FrameRateBehavior : MonoBehaviour
 {
-    public int FramesPerSecond = 60;
-
+    private int _framesPerSecond = 60;
     private float? _frameValue = null;
     private float? _lastFrameValue = null;
     protected float _frame
@@ -33,7 +32,7 @@ public abstract class FrameRateBehavior : MonoBehaviour
 
     private void SetFrameValue()
     {
-        _frameValue = 1.0f / (FramesPerSecond + 1);        
+        _frameValue = 1.0f / (_framesPerSecond + 1);        
     }
 
     private void SetLastFrameValue()

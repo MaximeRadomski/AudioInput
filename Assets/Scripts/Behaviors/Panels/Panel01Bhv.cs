@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 public class Panel01Bhv : PanelBhv
@@ -12,6 +13,8 @@ public class Panel01Bhv : PanelBhv
     private ButtonBhv _pagePrevious;
     private ButtonBhv _pageNext;
     private ButtonBhv _newButton;
+    private ButtonBhv _importButton;
+    private ButtonBhv _exportButton;
 
 
     private float _spaceBetween = Constants.Pixel * 12;
@@ -21,6 +24,7 @@ public class Panel01Bhv : PanelBhv
     {
         Init();
         SetButtons();
+        SetFolders();
         LoadData();
     }
 
@@ -44,6 +48,20 @@ public class Panel01Bhv : PanelBhv
         (_pagePrevious = GameObject.Find("PagePrevious").GetComponent<ButtonBhv>()).EndActionDelegate = () => { SetCurrentPage(_currentPage - 1); };
         (_pageNext = GameObject.Find("PageNext").GetComponent<ButtonBhv>()).EndActionDelegate = () => { SetCurrentPage(_currentPage + 1); };
         (_newButton = GameObject.Find("NewButton").GetComponent<ButtonBhv>()).EndActionDelegate = () => { NewAudioInput(); };
+        
+        (_importButton = GameObject.Find("ImportButton").GetComponent<ButtonBhv>()).EndActionDelegate = Import;
+        (_exportButton = GameObject.Find("ExportButton").GetComponent<ButtonBhv>()).EndActionDelegate = Export;
+    }
+
+    private void SetFolders()
+    {
+        var folderPath = $"{Application.dataPath}/../Exports";
+        if (!Directory.Exists(folderPath))
+            Directory.CreateDirectory(folderPath);
+
+        folderPath = $"{Application.dataPath}/../Imports";
+        if (!Directory.Exists(folderPath))
+            Directory.CreateDirectory(folderPath);
     }
 
     private void LoadData()
@@ -58,7 +76,7 @@ public class Panel01Bhv : PanelBhv
             Destroy(oldAudioInputs[dead]);
         int y = 0;
         foreach (var audioInput in AudioInputs)
-            audioInput.IdInScene = -1;
+            audioInput.Id = -1;
         for (int i = _currentPage * 10; i < (_currentPage + 1) * 10; ++i)
         {
             if (i >= AudioInputs.Count)
@@ -67,7 +85,7 @@ public class Panel01Bhv : PanelBhv
                 break;
             }
             Instantiator.NewAudioInput(_listSource, new Vector3(0.0f, y * -_spaceBetween, 0.0f), AudioInputs[i], i, this);
-            AudioInputs[i].IdInScene = y;
+            AudioInputs[i].Id = y;
             ++y;
         }
         if ((_currentPage + 1) * 10 >= AudioInputs.Count)
@@ -190,5 +208,49 @@ public class Panel01Bhv : PanelBhv
     {
         if (id < _listSource.childCount)
             _listSource.GetChild(id).GetComponent<AudioInputBhv>().Tilt();
+    }
+
+    private void Import()
+    {
+
+    }
+
+    private void Export()
+    {
+        if (AudioInputs == null || AudioInputs.Count == 0)
+        {
+            this.Instantiator.PopText("no inputs", _exportButton.transform.position + new Vector3(0.0f, 2.0f, 0.0f), distance: 2.0f, startFadingDistancePercent: 0.50f);
+            return;
+        }
+
+        string path = "";
+        string fileName = "";
+        int i = 1;
+        while (i <= 100)
+        {
+            fileName = $"Export-{i.ToString("00")}.json";
+            path = $"{Application.dataPath}/../Exports/{fileName}";
+            if (!File.Exists(path))
+            {
+                File.WriteAllText(path, string.Empty);
+                break;
+            }
+            ++i;
+        }
+
+        string content = "[\n";
+
+
+        for (int id = 0; id < AudioInputs.Count; ++id)
+        {
+            if (id != 0)
+                content += ",\n";
+            content += $"{JsonUtility.ToJson(AudioInputs[id])}";
+        }
+
+        content += "\n]";
+
+        File.AppendAllText(path, content);
+        this.Instantiator.PopText(fileName.ToLower(), _exportButton.transform.position + new Vector3(0.0f, 2.0f, 0.0f), distance: 2.0f, startFadingDistancePercent: 0.50f);
     }
 }

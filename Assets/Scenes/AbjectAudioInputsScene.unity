@@ -491,10 +491,9 @@ MonoBehaviour:
   Layer: 0
   ForcedLayer: 0
   Sprite: {fileID: 0}
-  Content: 'the required offset around a frequency for it to be valid.
-
-    note:
-    lower frequencies tend to be less precise.'
+  Content: the margin for error (in hz) that is allowed on individual notes. If the
+    pitch is outside this range (higher or lower than the desired hz) the input will
+    not be sent.
 --- !u!61 &61632863
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -784,7 +783,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1434189542567186884, guid: 927d8467c7527f14797e2b668d0a326e, type: 3}
       propertyPath: m_RootOrder
-      value: 7
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 1434189542567186884, guid: 927d8467c7527f14797e2b668d0a326e, type: 3}
       propertyPath: m_AnchorMax.x
@@ -844,7 +843,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1434189542567186884, guid: 927d8467c7527f14797e2b668d0a326e, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -2.9950001
+      value: -4.72
       objectReference: {fileID: 0}
     - target: {fileID: 1434189542567186884, guid: 927d8467c7527f14797e2b668d0a326e, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -1624,7 +1623,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1434189542567186884, guid: 927d8467c7527f14797e2b668d0a326e, type: 3}
       propertyPath: m_RootOrder
-      value: 8
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 1434189542567186884, guid: 927d8467c7527f14797e2b668d0a326e, type: 3}
       propertyPath: m_AnchorMax.x
@@ -1684,7 +1683,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1434189542567186884, guid: 927d8467c7527f14797e2b668d0a326e, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -4.7201
+      value: -2.9929
       objectReference: {fileID: 0}
     - target: {fileID: 1434189542567186884, guid: 927d8467c7527f14797e2b668d0a326e, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -1708,7 +1707,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6634099503351920174, guid: 927d8467c7527f14797e2b668d0a326e, type: 3}
       propertyPath: m_text
-      value: single tap reset
+      value: tap reset
       objectReference: {fileID: 0}
     - target: {fileID: 6634099503351920174, guid: 927d8467c7527f14797e2b668d0a326e, type: 3}
       propertyPath: m_margin.z
@@ -1720,7 +1719,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7003603624851055399, guid: 927d8467c7527f14797e2b668d0a326e, type: 3}
       propertyPath: m_Name
-      value: SingleTapReset
+      value: TapReset
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 927d8467c7527f14797e2b668d0a326e, type: 3}
@@ -1749,11 +1748,8 @@ MonoBehaviour:
   Layer: 0
   ForcedLayer: 0
   Sprite: {fileID: 0}
-  Content: 'the level that should be reached up for a frequency to be analysed, and
-    that should be reached down before being able to listen for a new input.
-
-    symbolized
-    by the lifgr bar in the level visualisation'
+  Content: (light colored line on L) - the volume level must fall below this line
+    before another "single tap", "custom tap" or "time held" input can be registered.
 --- !u!61 &176138202
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -1767,7 +1763,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 2.25558, y: 0}
+  m_Offset: {x: 0.73020315, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -1778,7 +1774,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 9.870949, y: 1.0897872}
+  m_Size: {x: 6.820195, y: 1.0897872}
   m_EdgeRadius: 0
 --- !u!1001 &181627118
 PrefabInstance:
@@ -2061,11 +2057,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6634099503351920174, guid: 582c115ce6e422a418e146b052d4b3bb, type: 3}
       propertyPath: m_text
-      value: time holded
+      value: time held
       objectReference: {fileID: 0}
     - target: {fileID: 7003603624851055399, guid: 582c115ce6e422a418e146b052d4b3bb, type: 3}
       propertyPath: m_Name
-      value: TimeHoldedSpawn
+      value: TimeHeldSpawn
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 582c115ce6e422a418e146b052d4b3bb, type: 3}
@@ -2094,21 +2090,16 @@ MonoBehaviour:
   Layer: 0
   ForcedLayer: 0
   Sprite: {fileID: 0}
-  Content: '- <material="3x5.1.2.3">Holded: </material>holded mode
+  Content: '- <material="3x5.1.2.3">Single Tap: </material>mouse sensitivity
+
+    -
+    <material="3x5.1.2.3">Held: </material>held mode
 
     - <material="3x5.1.2.3">Custom
     Tap: </material>inputs count
 
-    - <material="3x5.1.2.3">Custom Holded: </material>holding
-    time
-
-    - <material="3x5.1.2.3">up / down: </material>mouse sensitivity
-
-    -
-    <material="3x5.1.2.3">left / right: </material>mouse sensitivity
-
-    - <material="3x5.1.2.3">x
-    button: </material>mouse button id'
+    - <material="3x5.1.2.3">Time Held: </material>holding
+    time'
 --- !u!61 &221126883
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -2228,11 +2219,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6634099503351920174, guid: 582c115ce6e422a418e146b052d4b3bb, type: 3}
       propertyPath: m_text
-      value: holded
+      value: held
       objectReference: {fileID: 0}
     - target: {fileID: 7003603624851055399, guid: 582c115ce6e422a418e146b052d4b3bb, type: 3}
       propertyPath: m_Name
-      value: HoldedSpawn
+      value: HeldSpawn
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 582c115ce6e422a418e146b052d4b3bb, type: 3}
@@ -3456,13 +3447,9 @@ MonoBehaviour:
   Layer: 0
   ForcedLayer: 0
   Sprite: {fileID: 0}
-  Content: 'how much ticks with the same frequency should be needed to validate a
-    frequency.
-
-    few ticks means a faster reactivity but a bad precision.
-
-    more
-    ticks means the opposite.'
+  Content: The number of ticks required for the note to play before an input is registered.
+    Lower = faster response but lower accuracy. higher = more accurate but adds input
+    lag.
 --- !u!61 &384130164
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -4241,6 +4228,133 @@ MonoBehaviour:
   Disabled: 0
   EffectDisabled: 1
   CustomSound: 0
+--- !u!1 &460457145
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 460457146}
+  - component: {fileID: 460457149}
+  - component: {fileID: 460457148}
+  - component: {fileID: 460457147}
+  m_Layer: 0
+  m_Name: ImportButton
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &460457146
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 460457145}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -16.50115, y: -9.710999, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1952888606}
+  m_RootOrder: 9
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &460457147
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 460457145}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4b674869087f34e4082e72480b9282cc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Layer: 0
+  ForcedLayer: 0
+  Disabled: 0
+  EffectDisabled: 0
+  CustomSound: 0
+--- !u!61 &460457148
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 460457145}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 1.8571428, y: 1.8571428}
+    newSize: {x: 1.8571428, y: 1.8571428}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 1.8571428, y: 1.8571428}
+  m_EdgeRadius: 0
+--- !u!212 &460457149
+SpriteRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 460457145}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 1838348617
+  m_SortingLayer: -2
+  m_SortingOrder: 0
+  m_Sprite: {fileID: -6881576263296879089, guid: 27d19f93001db2f419f76e6766aade70, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 1.8571428, y: 1.8571428}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_MaskInteraction: 0
+  m_SpriteSortPoint: 0
 --- !u!1001 &490684775
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4682,13 +4796,8 @@ MonoBehaviour:
   Layer: 0
   ForcedLayer: 0
   Sprite: {fileID: 0}
-  Content: 'the fixed level at which holded inputs will stop being listened.
-
-    note:
-    any input starts to be listened at level 0 (zero).
-
-    symbolized by the dark
-    bar in the level visualisation'
+  Content: (darker line on L) - When the volume level reaches below this line on
+    a sustained note, the desired input will stop being held.
 --- !u!61 &548776136
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -6308,9 +6417,9 @@ MonoBehaviour:
   Sprite: {fileID: 0}
   Content: '<material="3x5.1.2.3">spectrum</material>
 
-    adjust dynamic range and
-    gain until there are no peaks when you don''t play, and a stable amount of peaks
-    when you play your notes.'
+    increases the sensitivy/volume
+    that the software registers your instrument/mic. (setting this too high will
+    pick up static and cable noise from instruments and decrease accuracy)'
 --- !u!61 &807860859
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -6324,7 +6433,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -1.3399469, y: 0.34567744}
+  m_Offset: {x: -1.4110019, y: -0.00012344122}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -6335,7 +6444,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 2.6798937, y: 1.7811421}
+  m_Size: {x: 2.5377836, y: 1.0895404}
   m_EdgeRadius: 0
 --- !u!1001 &809199384
 PrefabInstance:
@@ -6764,7 +6873,7 @@ GameObject:
   - component: {fileID: 901849273}
   - component: {fileID: 901849274}
   m_Layer: 0
-  m_Name: LevelHoldedReset
+  m_Name: LevelHeldReset
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10475,8 +10584,8 @@ Transform:
   - {fileID: 951326691}
   - {fileID: 1153912326}
   - {fileID: 490684776}
-  - {fileID: 548776134}
   - {fileID: 176138199}
+  - {fileID: 548776134}
   - {fileID: 1145991646}
   - {fileID: 1438624500}
   - {fileID: 888819270}
@@ -10721,7 +10830,7 @@ MonoBehaviour:
   Content: 'this zone shows you in real time which inputs are sent to the foreground
     window.
 
-    note: the tool have to be switched on.'
+    note: the tool has to be switched on.'
 --- !u!1001 &1376524064
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -11878,7 +11987,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1460232319}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 6.64755, y: 0, z: 0}
+  m_LocalPosition: {x: 3.598, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 176138199}
@@ -12860,10 +12969,10 @@ MonoBehaviour:
     Tap: </material>taps ''<material="3x5.1.2.3">param</material>'' times
 
     -
-    <material="3x5.1.2.3">Holded: </material>holds until level reset
+    <material="3x5.1.2.3">Held: </material>holds until level reset
 
     - <material="3x5.1.2.3">Time
-    Holded: </material>holds for ''<material="3x5.1.2.3">param</material>'' seconds
+    Held: </material>holds for ''<material="3x5.1.2.3">param</material>'' seconds
 
     -
     <material="3x5.1.2.3">Mouse: </material>gives access to mouse inputs'
@@ -17835,6 +17944,133 @@ Transform:
   m_Father: {fileID: 1746136344}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1571477521
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1571477522}
+  - component: {fileID: 1571477525}
+  - component: {fileID: 1571477524}
+  - component: {fileID: 1571477523}
+  m_Layer: 0
+  m_Name: ExportButton
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1571477522
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1571477521}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -14.07275, y: -9.711, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1952888606}
+  m_RootOrder: 10
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1571477523
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1571477521}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4b674869087f34e4082e72480b9282cc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Layer: 0
+  ForcedLayer: 0
+  Disabled: 0
+  EffectDisabled: 0
+  CustomSound: 0
+--- !u!61 &1571477524
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1571477521}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 1.8571428, y: 1.8571428}
+    newSize: {x: 1.8571428, y: 1.8571428}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 1.8571428, y: 1.8571428}
+  m_EdgeRadius: 0
+--- !u!212 &1571477525
+SpriteRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1571477521}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 1838348617
+  m_SortingLayer: -2
+  m_SortingOrder: 0
+  m_Sprite: {fileID: -7266593204248964789, guid: 27d19f93001db2f419f76e6766aade70, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 1.8571428, y: 1.8571428}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_MaskInteraction: 0
+  m_SpriteSortPoint: 0
 --- !u!1001 &1582478876
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -18870,9 +19106,9 @@ MonoBehaviour:
   Sprite: {fileID: 0}
   Content: '<material="3x5.1.2.3">level</material>
 
-    adjust dynamic range and
-    gain until the caught level is under the recording area when you don''t play,
-    and doesn''t go over it when you play loud.'
+    The range of volume the played
+    notes must fall within to register an input. if volume is too soft and falls
+    outside this zone, the input will not be registered.'
 --- !u!1001 &1678586482
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -20618,7 +20854,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -1.1393477, y: 0.3385806}
+  m_Offset: {x: -1.4045209, y: 0.0042318404}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -20629,7 +20865,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 3.0810921, y: 1.7669487}
+  m_Size: {x: 2.5507457, y: 1.0982511}
   m_EdgeRadius: 0
 --- !u!114 &1798855410
 MonoBehaviour:
@@ -20648,9 +20884,8 @@ MonoBehaviour:
   Sprite: {fileID: 0}
   Content: '<material="3x5.1.2.3">level</material>
 
-    adjust dynamic range and
-    gain until the caught level is under the recording area when you don''t play,
-    and doesn''t go over it when you play loud.'
+    raises or lowers the whole
+    dynamic range (light blue bar) to allow softer/louder notes to register inputs.'
 --- !u!1001 &1817212549
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -21489,9 +21724,9 @@ MonoBehaviour:
   Sprite: {fileID: 0}
   Content: '<material="3x5.1.2.3">spectrum</material>
 
-    adjust dynamic range and
-    gain until there are no peaks when you don''t play, and a stable amount of peaks
-    when you play your notes.'
+    increases the range of
+    the pitch registration to pick up more variable frequencies. (setting this too
+    high will pick up static and cable noise from instruments and decrease accuracy.)'
 --- !u!61 &1886188443
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -21738,6 +21973,8 @@ Transform:
   - {fileID: 1485378420}
   - {fileID: 1699762758}
   - {fileID: 80108232}
+  - {fileID: 460457146}
+  - {fileID: 1571477522}
   m_Father: {fileID: 0}
   m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

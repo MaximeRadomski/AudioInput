@@ -6,7 +6,7 @@ using WindowsInput;
 
 public class AudioInput
 {
-    public int IdInScene;
+    public int Id;
     public bool Enabled;
     public float Hz;
     public int Peaks;
@@ -31,7 +31,7 @@ public class AudioInput
     {
         var clone = new AudioInput();
 
-        clone.IdInScene = IdInScene;
+        clone.Id = Id;
         clone.Enabled = Enabled;
         clone.Hz = Hz;
         clone.Peaks = Peaks;

@@ -9,8 +9,8 @@ public enum InputType
     SingleTap,
     [Description("Custom Tap")]
     CustomTap,
-    [Description("Holded")]
-    Holded,
-    [Description("Time Holded")]
-    TimeHolded
+    [Description("Held")]
+    Held,
+    [Description("Time Held")]
+    TimeHeld
 }

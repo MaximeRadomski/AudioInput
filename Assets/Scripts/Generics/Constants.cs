@@ -7,6 +7,8 @@ public static class Constants
     public const float Pixel = 0.14285f;
     public const int MaxAudioInputs = 256;
     public const float SingleTapDelay = 0.05f;
+    public const int HeldUntilReset = 1;
+    public const int HeldUntilReleased = 2;
 
     private static float? _frame;
     public static float? Frame {
@@ -57,8 +59,8 @@ public static class Constants
     public const int PpRequiredFramesDefault = 2;
     public const string PpPeaksPriority = "PeaksPriority";
     public const int PpPeaksPriorityDefault = 0;
-    public const string PpHoldedReset = "HoldedReset";
-    public const int PpHeldResetDefault = -10;
+    public const string PpHeldReset = "HeldReset";
+    public const int PpHeldResetDefault = -15;
     public const string PpSingleTapReset = "SingleTapReset";
     public const int PpSingleTapResetDefault = -30;
     public const string PpLevelDynamicRange = "LevelDynamicRange";
@@ -82,7 +84,7 @@ public static class Constants
     public const string PpCustomTapDelay = "CustomTapDelay";
     public const float PpCustomTapDelayDefault = 0.5f;
     public const string PpMouseSensitivity = "MouseSensitivity";
-    public const int PpMouseSensitivityDefault = 30;
+    public const int PpMouseSensitivityDefault = 10;
 
 
     public static Color ColorBlackTransparent = new Color(0.0f, 0.0f, 0.0f, 0.0f);

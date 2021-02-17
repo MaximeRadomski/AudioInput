@@ -16,7 +16,7 @@ public class AbjectAudioInputs : MonoBehaviour
 
     private float _pitchValue;
     private int _binSize = 2048;
-    private float _threshold = 0.01f;
+    private float _threshold = 0.05f;
     private int _maxPeak = 1;
 
     private SpectrumAnalyzer _spectrumAnalyzer;
@@ -152,51 +152,36 @@ public class AbjectAudioInputs : MonoBehaviour
         _dbData.text = DynRangeDB.ToString("0");
         _hzData.text = DynRangeDB > 0 ? _pitchValue.ToString("F2") : "0.00";
         _peaksData.text = DynRangeDB > 0 ? _peaksCount.ToString() : "0";
-        var isUnderHoldedReset = _levelDrawer.Draw(_audioLevelTracker, _panel00.HeldReset, (int)_currentSingleFrameReset);
+        var isUnderHeldReset = _levelDrawer.Draw(_audioLevelTracker, _panel00.HeldReset, (int)_currentSingleFrameReset);
         _spectrumDrawer.Draw(_spectrum);
 
         if (DynRangeDB > 0)
             AnalyseAudioInputs();
-        if (isUnderHoldedReset)
-            HoldedReset();
+        if (isUnderHeldReset)
+            HeldReset();
         if (DynRangeDB <= _currentSingleFrameReset)
             SingleTapReset();
         
-        if(_holdedInputs != null && _holdedInputs.Count > 0)
-            HandleHolded();
-        if (_timeHoldedInputs != null && _timeHoldedInputs.Count > 0)
-            HandleTimeHolded();
+        if(_heldInputs != null && _heldInputs.Count > 0)
+            HandleHeld();
+        if (_timeHeldInputs != null && _timeHeldInputs.Count > 0)
+            HandleTimeHeld();
 
         _currentValidAudioInput = null;
-    }
+    }    
 
-    private void MoveMouseOutOfSync()
+    private void HeldReset()
     {
-        if (_holdedInputs == null || _holdedInputs.Count == 0)
-            return;
-        foreach (var audioInput in _holdedInputs)
+        if (_heldInputs != null && _heldInputs.Count > 0)
         {
-            if (audioInput.InputType == InputType.Holded
-                && (audioInput.MouseInput == MouseInput.Up
-                || audioInput.MouseInput == MouseInput.Down
-                || audioInput.MouseInput == MouseInput.Left
-                || audioInput.MouseInput == MouseInput.Right))
-                MoveCursor(audioInput.MouseInput);
-        }
-    }
-
-    private void HoldedReset()
-    {
-        if (_holdedInputs != null && _holdedInputs.Count > 0)
-        {
-            foreach (var audioInput in _holdedInputs)
+            foreach (var audioInput in _heldInputs)
             {
                 if (audioInput.MouseInput == MouseInput.None)
                     _inputSimulator.Keyboard.KeyUp(audioInput.Key);
                 else
-                    Click(audioInput.MouseInput, down: false);
+                    TriggerMouseInput(audioInput.MouseInput, down: false);
             }
-            _holdedInputs.Clear();
+            _heldInputs.Clear();
         }
         UpdatePanelVisual(false);
     }
@@ -216,41 +201,41 @@ public class AbjectAudioInputs : MonoBehaviour
         _hasToWaitResetBeforeNewSingle = false;
     }
 
-    private void HandleHolded()
+    private void HandleHeld()
     {
-        for (int i = _holdedInputs.Count - 1; i >= 0; --i)
+        for (int i = _heldInputs.Count - 1; i >= 0; --i)
         {
-            if (_currentValidAudioInput != null && _holdedInputs[i] != null
-                && (int)_holdedInputs[i].Param == 1
-                && !(_holdedInputs[i].Key == _currentValidAudioInput.Key && _holdedInputs[i].MouseInput == _currentValidAudioInput.MouseInput && _holdedInputs[i].Hz == _currentValidAudioInput.Hz))
+            if (_currentValidAudioInput != null && _heldInputs[i] != null
+                && (int)_heldInputs[i].Param == Constants.HeldUntilReleased
+                && !(_heldInputs[i].Key == _currentValidAudioInput.Key && _heldInputs[i].MouseInput == _currentValidAudioInput.MouseInput && _heldInputs[i].Hz == _currentValidAudioInput.Hz))
             {
-                if (_holdedInputs[i].MouseInput == MouseInput.None)
-                    _inputSimulator.Keyboard.KeyUp(_holdedInputs[i].Key);
+                if (_heldInputs[i].MouseInput == MouseInput.None)
+                    _inputSimulator.Keyboard.KeyUp(_heldInputs[i].Key);
                 else
-                    Click(_holdedInputs[i].MouseInput, down: false);
-                _holdedInputs.RemoveAt(i);
+                    TriggerMouseInput(_heldInputs[i].MouseInput, down: false);
+                _heldInputs.RemoveAt(i);
                 continue;
             }
-            UpdatePanelVisual(true, i == 0 ? "_" : string.Empty, InputType.Holded, _holdedInputs[i].IdInScene);
+            UpdatePanelVisual(true, i == 0 ? "_" : string.Empty, InputType.Held, _heldInputs[i].Id);
         }
     }
 
-    private void HandleTimeHolded()
+    private void HandleTimeHeld()
     {
-        for (int i = _timeHoldedInputs.Count - 1; i >= 0; --i)
+        for (int i = _timeHeldInputs.Count - 1; i >= 0; --i)
         {
-            if (_timeHoldedInputs[i].HiddenParam > Time.time)
-                UpdatePanelVisual(true, i == 0 ? "_" : string.Empty, InputType.TimeHolded, _timeHoldedInputs[i].IdInScene);
+            if (_timeHeldInputs[i].HiddenParam > Time.time)
+                UpdatePanelVisual(true, i == 0 ? "_" : string.Empty, InputType.TimeHeld, _timeHeldInputs[i].Id);
             else
             {
-                if (_holdedInputs[i].MouseInput == MouseInput.None)
-                    _inputSimulator.Keyboard.KeyUp(_timeHoldedInputs[i].Key);
+                if (_timeHeldInputs[i].MouseInput == MouseInput.None)
+                    _inputSimulator.Keyboard.KeyUp(_timeHeldInputs[i].Key);
                 else
-                    Click(_holdedInputs[i].MouseInput, down: false);
-                _timeHoldedInputs.RemoveAt(i);
+                    TriggerMouseInput(_timeHeldInputs[i].MouseInput, down: false);
+                _timeHeldInputs.RemoveAt(i);
             }
         }
-        if (_timeHoldedInputs.Count == 0)
+        if (_timeHeldInputs.Count == 0)
             UpdatePanelVisual(false);
     }
 
@@ -262,8 +247,8 @@ public class AbjectAudioInputs : MonoBehaviour
     private float _lastMaxBeforeNewInput = 0.0f;
     private AudioInput _currentValidAudioInput;
 
-    private List<AudioInput> _holdedInputs;
-    private List<AudioInput> _timeHoldedInputs;
+    private List<AudioInput> _heldInputs;
+    private List<AudioInput> _timeHeldInputs;
 
     void AnalyseAudioInputs()
     {
@@ -330,40 +315,40 @@ public class AbjectAudioInputs : MonoBehaviour
                 if (audioInput.MouseInput == MouseInput.None)
                     _inputSimulator.Keyboard.KeyDown(audioInput.Key);
                 else
-                    Click(audioInput.MouseInput, down: true);
+                    TriggerMouseInput(audioInput.MouseInput, down: true, (int)audioInput.Param);
                 StartCoroutine(InputUpAfterDelay(audioInput.Key, audioInput.MouseInput, Constants.SingleTapDelay));
             }
-            UpdatePanelVisual(true, inputStr, InputType.SingleTap, audioInput.IdInScene);
+            UpdatePanelVisual(true, inputStr, InputType.SingleTap, audioInput.Id);
             _hasToWaitResetBeforeNewSingle = true;
         }
-        else if (audioInput.InputType == InputType.Holded)
+        else if (audioInput.InputType == InputType.Held)
         {
-            if (_holdedInputs == null)
-                _holdedInputs = new List<AudioInput>();
-            if (_holdedInputs.Find(a => a.Key == audioInput.Key && a.MouseInput == audioInput.MouseInput && a.Hz == audioInput.Hz) == null)
+            if (_heldInputs == null)
+                _heldInputs = new List<AudioInput>();
+            if (_heldInputs.Find(a => a.Key == audioInput.Key && a.MouseInput == audioInput.MouseInput && a.Hz == audioInput.Hz) == null)
             {
                 if (Constants.IsOn)
                 {
                     if (audioInput.MouseInput == MouseInput.None)
                         _inputSimulator.Keyboard.KeyDown(audioInput.Key);
                     else
-                        Click(audioInput.MouseInput, down: true);
+                        TriggerMouseInput(audioInput.MouseInput, down: true, (int)audioInput.Param);
                 }
-                UpdatePanelVisual(true, inputStr, InputType.Holded, audioInput.IdInScene);
-                _holdedInputs.Add(audioInput);
+                UpdatePanelVisual(true, inputStr, InputType.Held, audioInput.Id);
+                _heldInputs.Add(audioInput);
             }
             _currentValidAudioInput = audioInput.Clone();
         }
         else if (audioInput.InputType == InputType.CustomTap && !_hasToWaitResetBeforeNewSingle)
         {
-            StartCoroutine(CustomTapSend(audioInput.Key, audioInput.MouseInput, (int)audioInput.Param, audioInput.IdInScene));
+            StartCoroutine(CustomTapSend(audioInput.Key, audioInput.MouseInput, (int)audioInput.Param, audioInput.Id));
             _hasToWaitResetBeforeNewSingle = true;
         }
-        else if (audioInput.InputType == InputType.TimeHolded && !_hasToWaitResetBeforeNewSingle)
+        else if (audioInput.InputType == InputType.TimeHeld && !_hasToWaitResetBeforeNewSingle)
         {
-            if (_timeHoldedInputs == null)
-                _timeHoldedInputs = new List<AudioInput>();
-            var alreadyContained = _timeHoldedInputs.Find(a => a.Key == audioInput.Key && a.Hz == audioInput.Hz);
+            if (_timeHeldInputs == null)
+                _timeHeldInputs = new List<AudioInput>();
+            var alreadyContained = _timeHeldInputs.Find(a => a.Key == audioInput.Key && a.Hz == audioInput.Hz);
             if (alreadyContained == null)
             {
                 if (Constants.IsOn)
@@ -371,20 +356,20 @@ public class AbjectAudioInputs : MonoBehaviour
                     if (audioInput.MouseInput == MouseInput.None)
                         _inputSimulator.Keyboard.KeyDown(audioInput.Key);
                     else
-                        Click(audioInput.MouseInput, down: true);
+                        TriggerMouseInput(audioInput.MouseInput, down: true, (int)audioInput.Param);
                 }
-                UpdatePanelVisual(true, inputStr, InputType.TimeHolded, audioInput.IdInScene);
+                UpdatePanelVisual(true, inputStr, InputType.TimeHeld, audioInput.Id);
                 var tmpAudioInput = audioInput.Clone();
                 tmpAudioInput.HiddenParam = Time.time + tmpAudioInput.Param;
-                _timeHoldedInputs.Add(tmpAudioInput);
+                _timeHeldInputs.Add(tmpAudioInput);
             }
             else
             {
-                for (int i = 0; i < _timeHoldedInputs.Count; ++i)
+                for (int i = 0; i < _timeHeldInputs.Count; ++i)
                 {
-                    if (_timeHoldedInputs[i].Key == audioInput.Key && _timeHoldedInputs[i].Hz == audioInput.Hz)
+                    if (_timeHeldInputs[i].Key == audioInput.Key && _timeHeldInputs[i].Hz == audioInput.Hz)
                     {
-                        _timeHoldedInputs[i].HiddenParam = Time.time + _timeHoldedInputs[i].Param;
+                        _timeHeldInputs[i].HiddenParam = Time.time + _timeHeldInputs[i].Param;
                         break;
                     }
                 }
@@ -394,76 +379,6 @@ public class AbjectAudioInputs : MonoBehaviour
         else
             UpdatePanelVisual(false);
     }
-
-    //private void HandleMouse(AudioInput audioInput)
-    //{
-    //    if (audioInput.MouseInput == MouseInput.LeftButton
-    //        || audioInput.MouseInput == MouseInput.RightButton
-    //        || audioInput.MouseInput == MouseInput.XButton)
-    //    {
-    //        if (audioInput.MouseInput == MouseInput.XButton || audioInput.Param == 1)
-    //        {
-    //            if (_hasToWaitResetBeforeNewSingle)
-    //                return;
-    //            if (Constants.IsOn)
-    //            {
-    //                Click(audioInput.MouseInput, (int)audioInput.Param, down: true);
-    //                StartCoroutine(Helper.ExecuteAfterDelay(Constants.SingleTapDelay, () =>
-    //                {
-    //                    Click(audioInput.MouseInput, (int)audioInput.Param, down: false);
-    //                    return true;
-    //                }));
-    //            }
-    //            UpdatePanelVisual(true, audioInput.MouseInput.GetDescription().ToLower(), InputType.SingleTap, audioInput.IdInScene);
-    //            _hasToWaitResetBeforeNewSingle = true;
-    //        }
-    //        else if (audioInput.Param > 1 && !_hasToWaitResetBeforeNewSingle)
-    //        {
-    //            StartCoroutine(CustomClickSend(audioInput.MouseInput, (int)audioInput.Param, audioInput.IdInScene));
-    //            _hasToWaitResetBeforeNewSingle = true;
-    //        }
-    //        else if (audioInput.Param < 1)
-    //        {
-    //            if (_holdedInputs == null)
-    //                _holdedInputs = new List<AudioInput>();
-    //            if (_holdedInputs.Find(a => a.InputType == InputType.Mouse && a.MouseInput == audioInput.MouseInput && a.Hz == audioInput.Hz) == null)
-    //            {
-    //                if (Constants.IsOn)
-    //                    Click(audioInput.MouseInput, down: true);
-    //                UpdatePanelVisual(true, audioInput.MouseInput.GetDescription().ToLower(), InputType.Holded, audioInput.IdInScene);
-    //                _holdedInputs.Add(audioInput);
-    //            }
-    //        }
-    //    }
-    //    else if (audioInput.MouseInput == MouseInput.LeftRight
-    //        || audioInput.MouseInput == MouseInput.UpDown)
-    //    {
-    //        if (_holdedInputs == null)
-    //            _holdedInputs = new List<AudioInput>();
-    //        if (_holdedInputs.Find(a => a.InputType == InputType.Mouse && a.MouseInput == audioInput.MouseInput && a.Hz == audioInput.Hz) == null)
-    //        {
-    //            if (Constants.IsOn)
-    //                MoveCursor(audioInput.MouseInput, (int)audioInput.Param);
-    //            var mouseDirection = "stay";
-    //            if (audioInput.MouseInput == MouseInput.LeftRight)
-    //            {
-    //                if (audioInput.Param < 0)
-    //                    mouseDirection = "left";
-    //                else if (audioInput.Param > 0)
-    //                    mouseDirection = "right";
-    //            }
-    //            else if (audioInput.MouseInput == MouseInput.UpDown)
-    //            {
-    //                if (audioInput.Param < 0)
-    //                    mouseDirection = "down";
-    //                else if (audioInput.Param > 0)
-    //                    mouseDirection = "up";
-    //            }
-    //            UpdatePanelVisual(true, mouseDirection, InputType.Holded, audioInput.IdInScene);
-    //            _holdedInputs.Add(audioInput);
-    //        }
-    //    }
-    //}
 
     private void UpdatePanelVisual(bool down, string key = null, InputType type = InputType.SingleTap, int id = -1)
     {
@@ -492,7 +407,7 @@ public class AbjectAudioInputs : MonoBehaviour
                 if (mouseInput == MouseInput.None)
                     _inputSimulator.Keyboard.KeyDown(key);
                 else
-                    Click(mouseInput, down: true);
+                    TriggerMouseInput(mouseInput, down: true);
                 StartCoroutine(InputUpAfterDelay(key, mouseInput, Constants.SingleTapDelay));
             }
             UpdatePanelVisual(true, key.ToString(), InputType.CustomTap, id);
@@ -502,28 +417,7 @@ public class AbjectAudioInputs : MonoBehaviour
         }
     }
 
-    //private IEnumerator CustomClickSend(MouseInput input, int count, int id)
-    //{
-    //    if (count > 0)
-    //    {
-    //        if (Constants.IsOn)
-    //        {
-    //            Click(input, count, down: true);
-    //            StartCoroutine(Helper.ExecuteAfterDelay(Constants.SingleTapDelay, () =>
-    //            {
-    //                Click(input, count, down: false);
-    //                return true;
-    //            }));
-    //        }
-    //        UpdatePanelVisual(true, input.GetDescription().ToLower(), InputType.CustomTap, id);
-    //        _hasToWaitResetBeforeNewSingle = true;
-    //        --count;
-    //        yield return new WaitForSeconds(_panel03.CustomTapDelay);
-    //        StartCoroutine(CustomClickSend(input, count, id));
-    //    }
-    //}
-
-    private void Click(MouseInput mouseInput, bool down = true)
+    private void TriggerMouseInput(MouseInput mouseInput, bool down = true, int? cursorOffset = null)
     {
         if (down)
         {
@@ -533,6 +427,12 @@ public class AbjectAudioInputs : MonoBehaviour
                 _inputSimulator.Mouse.RightButtonDown();
             else if (mouseInput.GetHashCode() >= MouseInput.Button0.GetHashCode())
                 _inputSimulator.Mouse.XButtonDown(mouseInput.GetHashCode() - MouseInput.Button0.GetHashCode());
+            else if (Helper.IsMouseDirection(mouseInput))
+            {
+                if (cursorOffset == null)
+                    cursorOffset = Constants.MouseSensitivity ?? Constants.PpMouseSensitivityDefault;
+                MoveCursor(mouseInput, cursorOffset);
+            }
         }
         else
         {
@@ -545,32 +445,51 @@ public class AbjectAudioInputs : MonoBehaviour
         }
     }
 
-    private void MoveCursor(MouseInput input)
+    private void MoveMouseOutOfSync()
+    {
+        CycleThroughAudioInputs(_heldInputs);
+        CycleThroughAudioInputs(_timeHeldInputs);
+
+        void CycleThroughAudioInputs(List<AudioInput> audioInputs)
+        {
+            if (audioInputs == null || audioInputs.Count == 0)
+                return;
+            foreach (var audioInput in audioInputs)
+            {
+                if ((audioInput.InputType == InputType.Held || audioInput.InputType == InputType.TimeHeld)
+                    && Helper.IsMouseDirection(audioInput.MouseInput))
+                    MoveCursor(audioInput.MouseInput);
+            }
+        }
+    }
+
+    private void MoveCursor(MouseInput input, int? cursorOffset = null)
     {
         var x = 0;
         var y = 0;
+        if (cursorOffset == null)
+            cursorOffset = Constants.MouseSensitivity ?? Constants.PpMouseSensitivityDefault;
         if (input == MouseInput.Up)
-            y = Constants.MouseSensitivity ?? Constants.PpMouseSensitivityDefault;
+            y = -cursorOffset.Value;
         else if (input == MouseInput.Down)
-            y = -Constants.MouseSensitivity ?? Constants.PpMouseSensitivityDefault;
+            y = cursorOffset.Value;
         else if (input == MouseInput.Left)
-            x = -Constants.MouseSensitivity ?? Constants.PpMouseSensitivityDefault;
+            x = -cursorOffset.Value;
         else if (input == MouseInput.Right)
-            x = Constants.MouseSensitivity ?? Constants.PpMouseSensitivityDefault;
-
+            x = cursorOffset.Value;
 
         _inputSimulator.Mouse.MoveMouseBy(x, y);
     }
 
-    private IEnumerator InputUpAfterDelay(VirtualKeyCode key, MouseInput mouseInput, float timeHolded)
+    private IEnumerator InputUpAfterDelay(VirtualKeyCode key, MouseInput mouseInput, float timeHeld)
     {
-        yield return new WaitForSeconds(timeHolded);
+        yield return new WaitForSeconds(timeHeld);
         if (Constants.IsOn)
         {
             if (mouseInput == MouseInput.None)
                 _inputSimulator.Keyboard.KeyUp(key);
             else
-                Click(mouseInput, down: false);
+                TriggerMouseInput(mouseInput, down: false);
         }
     }
 
@@ -582,7 +501,9 @@ public class AbjectAudioInputs : MonoBehaviour
         {
             int currentNbPeak = 0;
             float currentPeakMax = 0.0f;
-            for (int i = 0; i < _binSize; i++)
+            var hundredth = _spectrum.Length / 100;
+            var twoHundredth = _spectrum.Length / 200;
+            for (int i = 0; i < _binSize; i+= 1)
             {
                 if (_spectrum[i] > currentPeakMax && _spectrum[i] > _threshold)
                 {
@@ -595,12 +516,13 @@ public class AbjectAudioInputs : MonoBehaviour
                         _peaks[currentNbPeak].index = i;
                     }
                 }
-                if (i > 0 && _spectrum[i - 1] > _threshold && _spectrum[i] == 0)
+                if (i > 0 && _spectrum[i - 1] > _threshold && _spectrum[i] < _threshold)
                 {
-                    ++_peaksCount;
                     ++currentNbPeak;
                     currentPeakMax = 0.0f;
                 }
+                if (i > 0 && i % hundredth == 0 && _spectrum[i - hundredth] > _threshold && _spectrum[i] < _threshold)
+                    ++_peaksCount;
             }
             _peaks.Sort(new AmpComparer());
         }
@@ -611,12 +533,13 @@ public class AbjectAudioInputs : MonoBehaviour
             int maxN = _peaks[0].index;
             freqN = maxN;
 
-            
-            for (int i = 0; i < _peaks.Count && i < _maxPeak; ++i)
+            int i = 0;
+            while (i < _peaks.Count && i < _maxPeak)
             {
                 total += _peaks[i].index;
+                ++i;
             }
-            total = total / _maxPeak;
+            total = total / i;
             //var _freqNMultiplier = 0.5f;
             //if (maxN > 0 && maxN < _binSize - 1)
             //{

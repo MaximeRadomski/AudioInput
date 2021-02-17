@@ -103,6 +103,7 @@ public class AudioInputBhv : FrameRateBehavior
         _audioInput.MouseInput = MouseInput.None;
         _audioInput.Key = keyCode;
         _inputData.text = keyCode == VirtualKeyCode.NONAME ? "none" : keyCode.ToString().ToLower();
+        SetParam(_audioInput.Param);
         return UpdateAudioInput();
     }
 
@@ -120,33 +121,32 @@ public class AudioInputBhv : FrameRateBehavior
         _audioInput.InputType = (InputType)id;
         _typeData.text = _audioInput.InputType.GetDescription().ToLower();
         SetParam(_audioInput.Param);
-        //if (_audioInput.InputType != InputType.Mouse)
-        //    SetInput(_audioInput.Key);
-        //else
-        //    SetMouseInput(_audioInput.MouseInput.GetHashCode());
         return UpdateAudioInput();
     }
 
     private object SetParam(float value)
     {
+        if (value < 0.0f)
+            value = 0.0f;
         var intValue = (int)value;
-        if ((_audioInput.MouseInput == MouseInput.None && intValue < 0))
-            intValue = 0;
-        if (_audioInput.InputType == InputType.SingleTap)
+        if (_audioInput.MouseInput == MouseInput.None || intValue < 1)
+            intValue = 1;
+        if (_audioInput.InputType == InputType.SingleTap && !Helper.IsMouseDirection(_audioInput.MouseInput))
         {
             _audioInput.Param = value;
             _paramData.text = "/";
             return false;
         }
-        if (_audioInput.InputType == InputType.Holded
-            || _audioInput.InputType == InputType.CustomTap)
+        else if ((_audioInput.InputType == InputType.SingleTap && Helper.IsMouseDirection(_audioInput.MouseInput))
+               || _audioInput.InputType == InputType.Held
+               || _audioInput.InputType == InputType.CustomTap)
         {
-            if (_audioInput.InputType == InputType.Holded && intValue > 1)
-                intValue = 1;
+            if (_audioInput.InputType == InputType.Held && intValue > Constants.HeldUntilReleased)
+                intValue = Constants.HeldUntilReleased;
             _audioInput.Param = intValue;
             _paramData.text = intValue.ToString();
         }
-        else if (_audioInput.InputType == InputType.TimeHolded)
+        else if (_audioInput.InputType == InputType.TimeHeld)
         {
             _audioInput.Param = value;
             _paramData.text = value.ToString("F2");
@@ -186,36 +186,18 @@ public class AudioInputBhv : FrameRateBehavior
     }
     private void SetParamPopup()
     {
-        if (_audioInput.InputType == InputType.SingleTap)
+        if (_audioInput.InputType == InputType.SingleTap && !Helper.IsMouseDirection(_audioInput.MouseInput))
             return;
         var maxDigit = 2;
         var content = $"linked to the input type";
-        if (_audioInput.InputType == InputType.Holded)
-            content = "0 = holded until level reset\n1 = holded only when listened";
+        if (_audioInput.InputType == InputType.SingleTap && Helper.IsMouseDirection(_audioInput.MouseInput))
+            content = "cursor offset\n1 = 1 pixel";
+        else if (_audioInput.InputType == InputType.Held)
+            content = "1 = held until level reset\n2 = held only when listened";
         else if (_audioInput.InputType == InputType.CustomTap)
             content = "the number of times the input\nwill be sent";
-        else if (_audioInput.InputType == InputType.TimeHolded)
-            content = "the number of seconds the input\nwill be holded";
-        //else if (_audioInput.InputType == InputType.Mouse)
-        //{
-        //    if (_audioInput.MouseInput == MouseInput.LeftButton
-        //        || _audioInput.MouseInput == MouseInput.RightButton)
-        //    {
-        //        content = "under 1 = holded\n1 = 1 click\nover 1 = multiple clicks";
-        //    }
-        //    else if (_audioInput.MouseInput == MouseInput.LeftRight)
-        //    {
-        //        content = "1 = 1 pixel\nnegative = left\npositive = right";
-        //        maxDigit = 4;
-        //    }
-        //    else if (_audioInput.MouseInput == MouseInput.UpDown)
-        //    {
-        //        content = "1 = 1 pixel\nnegative = down\npositive = up";
-        //        maxDigit = 4;
-        //    }
-        //    else if (_audioInput.MouseInput == MouseInput.XButton)
-        //        content = "id of the button for mouses with more than 2 buttons";
-        //}
+        else if (_audioInput.InputType == InputType.TimeHeld)
+            content = "the number of seconds the input\nwill be held";
         _panelBhv.Instantiator.NewPopupNumber(_panelBhv.transform.position, "type param", content, _audioInput.Param, maxDigit, SetParam);
     }
 

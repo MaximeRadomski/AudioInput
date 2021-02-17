@@ -8,7 +8,7 @@ public class LevelDrawerBhv : MonoBehaviour
     private Transform _levelLower;
     private Transform _levelInside;
     private Transform _dynamicRange;
-    private Transform _levelHoldedReset;
+    private Transform _levelHeldReset;
     private Transform _levelSingleTapReset;
     private Transform _levelOver;
 
@@ -24,13 +24,13 @@ public class LevelDrawerBhv : MonoBehaviour
         _levelLower = transform.Find("LevelLower");
         _levelInside = transform.Find("LevelInside");
         _dynamicRange = transform.Find("DynamicRange");
-        _levelHoldedReset = transform.Find("LevelHoldedReset");
+        _levelHeldReset = transform.Find("LevelHeldReset");
         _levelSingleTapReset = transform.Find("LevelSingleTapReset");
         _levelOver = transform.Find("LevelOver");
         _hasInit = true;
     }
 
-    public bool Draw(AudioLevelTracker tracker, float holdedReset, float singleTapReset)
+    public bool Draw(AudioLevelTracker tracker, float heldReset, float singleTapReset)
     {
         if (!_hasInit)
             Init();
@@ -50,15 +50,15 @@ public class LevelDrawerBhv : MonoBehaviour
         DrawRect(y2, amp, _levelOver);
 
         //var y3 = peak + dr * (tracker.normalizedLevel - 1);
-        var holded = (holdedReset / 100) * dr;
+        var held = (heldReset / 100) * dr;
         var singleTap = (singleTapReset / 100) * dr;
-        DrawRect(drStart + holded, drStart + holded, _levelHoldedReset, constantsScale:true);
+        DrawRect(drStart + held, drStart + held, _levelHeldReset, constantsScale:true);
         DrawRect(drStart + singleTap, drStart + singleTap, _levelSingleTapReset, constantsScale: true);
 
         if (y2 > y1)
-            return y2 < drStart + holded;
+            return y2 < drStart + held;
         else
-            return y1 < drStart + holded;
+            return y1 < drStart + held;
     }
 
     private void DrawRect(float y1, float y2, Transform shape, bool constantsScale = false)

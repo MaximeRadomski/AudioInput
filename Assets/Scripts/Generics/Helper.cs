@@ -116,7 +116,7 @@ public static class Helper
     public static AudioInput ToAudioInput(this AudioInputBo bo)
     {
         var audioInput = new AudioInput();
-        audioInput.IdInScene = -1;
+        audioInput.Id = -1;
         audioInput.Enabled = bo.Enabled;
         audioInput.Hz = bo.Hz;
         audioInput.Peaks = bo.Peaks;
@@ -140,5 +140,10 @@ public static class Helper
         func.Invoke();
         if (lockInputWhile)
             Constants.InputLocked = false;
+    }
+
+    public static bool IsMouseDirection(MouseInput mouseInput)
+    {
+        return mouseInput.GetHashCode() >= MouseInput.Up.GetHashCode() && mouseInput.GetHashCode() <= MouseInput.Right.GetHashCode();
     }
 }

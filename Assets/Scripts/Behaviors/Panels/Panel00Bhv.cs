@@ -24,8 +24,8 @@ public class Panel00Bhv : PanelBhv
     private SpriteRenderer _mainIcon;
     private Transform _singleTapSpawn;
     private Transform _customTapSpawn;
-    private Transform _holdedSpawn;
-    private Transform _timeHoldedSpawn;
+    private Transform _heldSpawn;
+    private Transform _timeHeldSpawn;
 
     private DeviceDescriptor _currentDevice;
     private int _currentChannel;
@@ -64,8 +64,8 @@ public class Panel00Bhv : PanelBhv
         _mainIcon = GameObject.Find("MainIcon").GetComponent<SpriteRenderer>();
         _singleTapSpawn = GameObject.Find("SingleTapSpawn").transform;
         _customTapSpawn = GameObject.Find("CustomTapSpawn").transform;
-        _holdedSpawn = GameObject.Find("HoldedSpawn").transform;
-        _timeHoldedSpawn = GameObject.Find("TimeHoldedSpawn").transform;
+        _heldSpawn = GameObject.Find("HeldSpawn").transform;
+        _timeHeldSpawn = GameObject.Find("TimeHeldSpawn").transform;
 
         //PlayerPrefs
         _lastSavedDeviceName = PlayerPrefHelper.GetLastSavedDeviceDefault();
@@ -87,7 +87,7 @@ public class Panel00Bhv : PanelBhv
         _requiredFramesData = Helper.GetFieldData("RequiredFrames");
         _peaksPriorityData = Helper.GetFieldData("PeaksPriority");
         _heldResetData = Helper.GetFieldData("HeldReset");
-        _singleTapResetData = Helper.GetFieldData("SingleTapReset");
+        _singleTapResetData = Helper.GetFieldData("TapReset");
         _levelDynamicRangeData = Helper.GetFieldData("LevelDynamicRange");
         _levelGainData = Helper.GetFieldData("LevelGain");
         _spectrumDynamicRangeData = Helper.GetFieldData("SpectrumDynamicRange");
@@ -105,7 +105,7 @@ public class Panel00Bhv : PanelBhv
         Helper.GetFieldButton("RequiredFrames").EndActionDelegate = SetRequiredFramesPopup;
         Helper.GetFieldButton("PeaksPriority").EndActionDelegate = SetPeaksPriorityPopup;
         Helper.GetFieldButton("HeldReset").EndActionDelegate = SetHeldResetPopup;
-        Helper.GetFieldButton("SingleTapReset").EndActionDelegate = SetSingleTapResetPopup;
+        Helper.GetFieldButton("TapReset").EndActionDelegate = SetSingleTapResetPopup;
         Helper.GetFieldButton("LevelDynamicRange").EndActionDelegate = SetLevelDynamicRangePopup;
         Helper.GetFieldButton("LevelGain").EndActionDelegate = SetLevelGainPopup;
         Helper.GetFieldButton("SpectrumDynamicRange").EndActionDelegate = SetSpectrumDynamicRangePopup;
@@ -192,6 +192,7 @@ public class Panel00Bhv : PanelBhv
     private object SetChannel(float result)
     {
         var intResult = (int)result;
+        --intResult;
         if (intResult < 0)
             intResult = 0;
         else if (intResult >= _currentDevice.ChannelCount)
@@ -200,7 +201,7 @@ public class Panel00Bhv : PanelBhv
         _audioLevelTracker.channel = _currentChannel;
         _spectrumAnalyzer.channel = _currentChannel;
         PlayerPrefHelper.SetCurrentChannel(intResult);
-        _channelData.text = _currentChannel.ToString();
+        _channelData.text = (_currentChannel + 1).ToString();
         return true;
     }
 
@@ -335,7 +336,7 @@ public class Panel00Bhv : PanelBhv
 
     private void SetChannelPopup()
     {
-        var content = $"From 0 to {_currentDevice.ChannelCount - 1}\n(current device range)";
+        var content = $"From 1 to {_currentDevice.ChannelCount}\n(current device range)";
         if (_currentDevice.ChannelCount == 1)
             content = "Your selected device has only one channel";
         Instantiator.NewPopupNumber(transform.position, "Channel", content, _currentChannel, 2, SetChannel);
@@ -361,13 +362,13 @@ public class Panel00Bhv : PanelBhv
     private void SetHeldResetPopup()
     {
         var content = $"fixed value\nfrom 0 to -100";
-        Instantiator.NewPopupNumber(transform.position, "holded reset", content, HeldReset, 3, SetHeldReset);
+        Instantiator.NewPopupNumber(transform.position, "held reset", content, HeldReset, 3, SetHeldReset);
     }
 
     private void SetSingleTapResetPopup()
     {
         var content = $"unfixed value\nfrom 0 to -100";
-        Instantiator.NewPopupNumber(transform.position, "single tap reset", content, SingleTapReset, 3, SetSingleTapReset);
+        Instantiator.NewPopupNumber(transform.position, "tap reset", content, SingleTapReset, 3, SetSingleTapReset);
     }
 
     private void SetLevelDynamicRangePopup()
@@ -428,10 +429,10 @@ public class Panel00Bhv : PanelBhv
             var position = _singleTapSpawn.position;
             if (type == InputType.CustomTap)
                 position = _customTapSpawn.position;
-            else if (type == InputType.Holded)
-                position = _holdedSpawn.position;
-            else if (type == InputType.TimeHolded)
-                position = _timeHoldedSpawn.position;
+            else if (type == InputType.Held)
+                position = _heldSpawn.position;
+            else if (type == InputType.TimeHeld)
+                position = _timeHeldSpawn.position;
             if (key == "_")
             {
                 position += new Vector3(0.0f, -0.25f, 0.0f);
