@@ -78,7 +78,7 @@ public static class Constants
     public const string PpAudioInputsDefault = null;
     //Panel03
     public const string PpResolution = "Resolution";
-    public const int PpResolutionDefault = 3;
+    public const int PpResolutionDefault = 2;
     public const string PpLanguage = "Language";
     public const int PpLanguageDefault = 0;
     public const string PpMaximumTickrate = "MaximumTickrate";

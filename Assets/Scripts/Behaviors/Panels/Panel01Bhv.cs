@@ -18,6 +18,7 @@ public class Panel01Bhv : PanelBhv
     private ButtonBhv _newButton;
     private ButtonBhv _importButton;
     private ButtonBhv _exportButton;
+    private ButtonBhv _folderExportsButton;
 
 
     private float _spaceBetween = Constants.Pixel * 12;
@@ -54,6 +55,7 @@ public class Panel01Bhv : PanelBhv
         
         (_importButton = GameObject.Find("ImportButton").GetComponent<ButtonBhv>()).EndActionDelegate = Import;
         (_exportButton = GameObject.Find("ExportButton").GetComponent<ButtonBhv>()).EndActionDelegate = Export;
+        (_folderExportsButton = GameObject.Find("FolderExportsButton").GetComponent<ButtonBhv>()).EndActionDelegate = OpenExportsFolder;
     }
 
     private void SetFolders()
@@ -258,6 +260,7 @@ public class Panel01Bhv : PanelBhv
 
             AudioInputs.Clear();
             AudioInputs = tmpList;
+            _currentPage = 0;
             ActualizeList();
 
             return true;
@@ -268,7 +271,7 @@ public class Panel01Bhv : PanelBhv
     {
         if (AudioInputs == null || AudioInputs.Count == 0)
         {
-            this.Instantiator.PopText("no inputs", _exportButton.transform.position + new Vector3(0.0f, 2.0f, 0.0f), distance: 2.0f, startFadingDistancePercent: 0.50f);
+            this.Instantiator.PopText("no inputs", _folderExportsButton.transform.position + new Vector3(5.5f, 0.0f, 0.0f), fadingSpeed: 0.05f);
             return;
         }
 
@@ -300,27 +303,13 @@ public class Panel01Bhv : PanelBhv
         content += "]";
 
         File.AppendAllText(path, content);
-        this.Instantiator.PopText(fileName.ToLower(), _exportButton.transform.position + new Vector3(6.0f, 0.0f, 0.0f), distance: 2.0f, startFadingDistancePercent: 0.50f);
-        //openInExplorer();
+        this.Instantiator.PopText(fileName.ToLower(), _folderExportsButton.transform.position + new Vector3(5.5f, 0.0f, 0.0f), fadingSpeed: 0.05f);
     }
 
-    private void openInExplorer()
+    private void OpenExportsFolder()
     {
-        var upperFolder = $"{Application.dataPath}/../".Replace("Assets/../", string.Empty);
-        if (Directory.Exists(upperFolder))
-        {
-            var folders = Directory.GetDirectories(upperFolder);
-            foreach (var folder in folders)
-            {
-                if (folder.Contains("Exports"))
-                {
-                    string cmd = "explorer.exe";
-                    string arg = "/select, " + folder;
-                    Process.Start(cmd, $"\"{arg}\"");
-                    return;
-                }
-            }
-        }
-        
+        SetFolders();
+        var upperFolder = $"{Application.dataPath}/../{Constants.ExportsFolderName}";
+        Process.Start(upperFolder);        
     }
 }
