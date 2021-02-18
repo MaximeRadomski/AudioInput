@@ -129,7 +129,7 @@ public class AudioInputBhv : FrameRateBehavior
         if (value < 0.0f)
             value = 0.0f;
         var intValue = (int)value;
-        if (_audioInput.MouseInput == MouseInput.None || intValue < 1)
+        if (intValue < 1)
             intValue = 1;
         if (_audioInput.InputType == InputType.SingleTap && !Helper.IsMouseDirection(_audioInput.MouseInput))
         {

@@ -177,7 +177,7 @@ public class Panel00Bhv : PanelBhv
             if (_currentChannel >= device.ChannelCount)
                 SetChannel(0);
             else
-                SetChannel(_currentChannel);
+                SetChannel(_currentChannel + 1);
         }
         catch (Exception e)
         {

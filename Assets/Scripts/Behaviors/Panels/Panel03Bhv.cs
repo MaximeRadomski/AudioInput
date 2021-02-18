@@ -15,7 +15,6 @@ public class Panel03Bhv : PanelBhv
     private TMPro.TextMeshPro _maximumTickrateData;
     private TMPro.TextMeshPro _customTapDelayData;
     private TMPro.TextMeshPro _mouseSensitivityData;
-    private TMPro.TextMeshPro _toolVersion;
 
     void Start()
     {
@@ -38,8 +37,6 @@ public class Panel03Bhv : PanelBhv
         _maximumTickrateData = Helper.GetFieldData("MaximumTickrate");
         _customTapDelayData = Helper.GetFieldData("CustomTapDelay");
         _mouseSensitivityData = Helper.GetFieldData("MouseSensitivity");
-
-        _toolVersion = transform.Find("ToolVersion").GetComponent<TMPro.TextMeshPro>();
     }
 
     private void SetButtons()
@@ -51,11 +48,6 @@ public class Panel03Bhv : PanelBhv
         Helper.GetFieldButton("MouseSensitivity").EndActionDelegate = SetMouseSensitivityPopup;
 
         Helper.GetFieldButton("ResetCalibration").EndActionDelegate = ResetCalibrationPopup;
-
-        transform.Find("KeijiroTakahashi").GetComponent<ButtonBhv>().EndActionDelegate = () => { Application.OpenURL("https://github.com/keijiro/Lasp"); };
-        transform.Find("Devs").GetComponent<ButtonBhv>().EndActionDelegate = () => { Application.OpenURL("https://forum.unity.com/threads/detecting-musical-notes-from-vocal-input.316698/"); };
-        transform.Find("MichaelNoonan").GetComponent<ButtonBhv>().EndActionDelegate = () => { Application.OpenURL("https://github.com/michaelnoonan/inputsimulator"); };
-        transform.Find("GrafxKid").GetComponent<ButtonBhv>().EndActionDelegate = () => { Application.OpenURL("https://lospec.com/palette-list/oil-6"); };
     }
 
     private void LoadData()
@@ -65,7 +57,6 @@ public class Panel03Bhv : PanelBhv
         SetMaximumTickrate(_maximumTickrate);
         SetCustomTapDelay(CustomTapDelay);
         SetMouseSensitivity(MouseSensitivity);
-        _toolVersion.text = $"version {Application.version}";
     }
 
     private object SetResolution(int id)
@@ -141,7 +132,7 @@ public class Panel03Bhv : PanelBhv
 
     private void SetMaximumTickratePopup()
     {
-        Instantiator.NewPopupNumber(transform.position, "maximum framerate", "won't go over your current\nmonitor framerate.", _maximumTickrate, 3, SetMaximumTickrate);
+        Instantiator.NewPopupNumber(transform.position, "ticks per second", "won't go over your current\nmonitor framerate.", _maximumTickrate, 3, SetMaximumTickrate);
     }
 
     private void SetCustomTapDelayPopup()
@@ -157,6 +148,6 @@ public class Panel03Bhv : PanelBhv
 
     private void ResetCalibrationPopup()
     {
-        Instantiator.NewPopupYesNo(transform.position, "be careful", "are you willing to reset the default calibration values?", "nope", "yep", ResetCalibration);
+        Instantiator.NewPopupYesNo(transform.position, "be careful", "are you willing to reset to the default calibration values?", "nope", "yep", ResetCalibration);
     }
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
@@ -9,6 +10,7 @@ using WindowsInput.Native;
 
 public static class Helper
 {
+    private static NumberFormatInfo _nfi;
     public static float GetMedian(this IEnumerable<float> source)
     {
         // Create a copy of the input, and sort the copy
@@ -99,31 +101,42 @@ public static class Helper
         return description;
     }
 
-    public static AudioInputBo ToAudioInputBo(this AudioInput audioInput)
+    public static AudioInputJson ToAudioInputJson(this AudioInput audioInput)
     {
-        var bo = new AudioInputBo();
-        bo.IdInScene = -1;
-        bo.Enabled = audioInput.Enabled;
-        bo.Hz = audioInput.Hz;
-        bo.Peaks = audioInput.Peaks;
-        bo.MouseInputId = audioInput.MouseInput.GetHashCode();
-        bo.KeyId = audioInput.Key.GetHashCode();
-        bo.InputTypeId = audioInput.InputType.GetHashCode();
-        bo.Param = audioInput.Param;
-        return bo;
+        var json = new AudioInputJson();
+        json.Enabled = audioInput.Enabled;
+        json.Hz = audioInput.Hz.ToString("F2");
+        json.Peaks = audioInput.Peaks;
+        json.MouseInputId = audioInput.MouseInput.GetHashCode();
+        json.KeyboardInputId = audioInput.Key.GetHashCode();
+        json.InputTypeId = audioInput.InputType.GetHashCode();
+        json.Param = audioInput.Param;
+        return json;
     }
 
-    public static AudioInput ToAudioInput(this AudioInputBo bo)
+    public static AudioInput ToAudioInput(this AudioInputJson json)
     {
+        if (_nfi == null)
+        {
+            var cultureInfo = CultureInfo.CurrentCulture;
+            _nfi = cultureInfo.NumberFormat;
+        }
+
+        json.Hz = json.Hz.Replace(".", _nfi.CurrencyDecimalSeparator);
+        json.Hz = json.Hz.Replace(",", _nfi.CurrencyDecimalSeparator);
+        if (json.Hz[json.Hz.Length - 1] == _nfi.CurrencyDecimalSeparator[0])
+            json.Hz += "0";
+        float hzCast = float.Parse(json.Hz);
+
         var audioInput = new AudioInput();
         audioInput.Id = -1;
-        audioInput.Enabled = bo.Enabled;
-        audioInput.Hz = bo.Hz;
-        audioInput.Peaks = bo.Peaks;
-        audioInput.MouseInput = (MouseInput)bo.MouseInputId;
-        audioInput.Key = (VirtualKeyCode)bo.KeyId;
-        audioInput.InputType = (InputType)bo.InputTypeId;
-        audioInput.Param = bo.Param;
+        audioInput.Enabled = json.Enabled;
+        audioInput.Hz = hzCast;
+        audioInput.Peaks = json.Peaks;
+        audioInput.MouseInput = (MouseInput)json.MouseInputId;
+        audioInput.Key = (VirtualKeyCode)json.KeyboardInputId;
+        audioInput.InputType = (InputType)json.InputTypeId;
+        audioInput.Param = json.Param;
         return audioInput;
     }
 

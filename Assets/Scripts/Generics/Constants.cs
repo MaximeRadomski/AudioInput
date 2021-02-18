@@ -9,6 +9,8 @@ public static class Constants
     public const float SingleTapDelay = 0.05f;
     public const int HeldUntilReset = 1;
     public const int HeldUntilReleased = 2;
+    public const string ExportsFolderName = "Exports";
+    public const string AudioInputsJson = "AudioInputsJson";
 
     private static float? _frame;
     public static float? Frame {

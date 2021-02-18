@@ -51,15 +51,15 @@ public class PlayerPrefHelper : MonoBehaviour
                 PlayerPrefs.SetString($"{Constants.PpAudioInputs}[{i}]", Constants.PpAudioInputsDefault);
                 continue;
             }
-            var bo = audioInputs[i].ToAudioInputBo();
-            PlayerPrefs.SetString($"{Constants.PpAudioInputs}[{i}]", JsonUtility.ToJson(bo));
+            var json = audioInputs[i].ToAudioInputJson();
+            PlayerPrefs.SetString($"{Constants.PpAudioInputs}[{i}]", JsonUtility.ToJson(json));
         }
     }
 
     public static void SetAudioInput(AudioInput audioInput, int id)
     {
-        var bo = audioInput.ToAudioInputBo();
-        PlayerPrefs.SetString($"{Constants.PpAudioInputs}[{id}]", JsonUtility.ToJson(bo));
+        var json = audioInput.ToAudioInputJson();
+        PlayerPrefs.SetString($"{Constants.PpAudioInputs}[{id}]", JsonUtility.ToJson(json));
     }
 
     public static List<AudioInput> GetAudioInputs()
@@ -70,9 +70,9 @@ public class PlayerPrefHelper : MonoBehaviour
             var key = $"{Constants.PpAudioInputs}[{i}]";
             if (!PlayerPrefs.HasKey(key))
                 continue;
-            var bo = JsonUtility.FromJson<AudioInputBo>(PlayerPrefs.GetString(key, Constants.PpAudioInputsDefault));
-            if (bo != null)
-                audioInputs.Add(bo.ToAudioInput());
+            var json = JsonUtility.FromJson<AudioInputJson>(PlayerPrefs.GetString(key, Constants.PpAudioInputsDefault));
+            if (json != null)
+                audioInputs.Add(json.ToAudioInput());
         }        
         return audioInputs;
     }

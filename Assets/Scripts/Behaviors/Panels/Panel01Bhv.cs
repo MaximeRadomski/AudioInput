@@ -1,5 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using UnityEngine;
 
@@ -55,11 +58,7 @@ public class Panel01Bhv : PanelBhv
 
     private void SetFolders()
     {
-        var folderPath = $"{Application.dataPath}/../Exports";
-        if (!Directory.Exists(folderPath))
-            Directory.CreateDirectory(folderPath);
-
-        folderPath = $"{Application.dataPath}/../Imports";
+        var folderPath = $"{Application.dataPath}/../{Constants.ExportsFolderName}";
         if (!Directory.Exists(folderPath))
             Directory.CreateDirectory(folderPath);
     }
@@ -137,6 +136,11 @@ public class Panel01Bhv : PanelBhv
     public void OnDelete(int id)
     {
         AudioInputs.RemoveAt(id);
+        ActualizeList();
+    }
+
+    private void ActualizeList()
+    {
         PlayerPrefHelper.SetAudioInputs(AudioInputs);
         AudioInputs.Clear();
         AudioInputs = PlayerPrefHelper.GetAudioInputs();
@@ -147,7 +151,7 @@ public class Panel01Bhv : PanelBhv
         }
         else
         {
-            UpdateList();
+            SetCurrentPage(_currentPage);
         }
     }
 
@@ -212,7 +216,52 @@ public class Panel01Bhv : PanelBhv
 
     private void Import()
     {
+        SetFolders();
 
+        var folderPath = $"{Application.dataPath}/../{Constants.ExportsFolderName}";
+        var filesNames = Directory.GetFiles(folderPath);
+        if (filesNames == null || filesNames.Length == 0)
+        {
+            this.Instantiator.NewPopupYesNo(transform.position, "file missing", "there is no available file in your exports folder", null, "damn...", null);
+            return;
+        }
+
+        var listFilesNames = new List<string>();
+        foreach (var name in filesNames)
+            listFilesNames.Add(name.Substring(folderPath.Length).Replace("\\", string.Empty).Replace("/", string.Empty));
+
+        this.Instantiator.NewPopupList(transform.position, "import", -1, listFilesNames, OnImportSelected);
+
+        object OnImportSelected(int id)
+        {
+            if (id == -1)
+                return false;
+            var fileText = File.ReadAllText(filesNames[id]);
+
+            var tmpList = new List<AudioInput>();
+            for (int i = 0; i < Constants.MaxAudioInputs; ++i)
+            {
+                var bracketOpenId = fileText.IndexOf('{');
+                if (bracketOpenId == -1)
+                    break;
+                var bracketClosedId = fileText.Substring(bracketOpenId).IndexOf('}');
+                if (bracketClosedId == -1)
+                    break;
+                var isolatedStr = fileText.Substring(bracketOpenId, bracketClosedId + 1);
+                var tmpAudioInputJson = JsonUtility.FromJson<AudioInputJson>(isolatedStr);
+                tmpList.Add(tmpAudioInputJson.ToAudioInput());
+                var nextStartId = fileText.IndexOf("},");
+                if (nextStartId == -1)
+                    break;
+                fileText = fileText.Substring(nextStartId + 2);
+            }
+
+            AudioInputs.Clear();
+            AudioInputs = tmpList;
+            ActualizeList();
+
+            return true;
+        }
     }
 
     private void Export()
@@ -223,13 +272,15 @@ public class Panel01Bhv : PanelBhv
             return;
         }
 
+        SetFolders();
+
         string path = "";
         string fileName = "";
         int i = 1;
         while (i <= 100)
         {
             fileName = $"Export-{i.ToString("00")}.json";
-            path = $"{Application.dataPath}/../Exports/{fileName}";
+            path = $"{Application.dataPath}/../{Constants.ExportsFolderName}/{fileName}";
             if (!File.Exists(path))
             {
                 File.WriteAllText(path, string.Empty);
@@ -238,19 +289,38 @@ public class Panel01Bhv : PanelBhv
             ++i;
         }
 
-        string content = "[\n";
-
-
+        string content = $"\"{Constants.AudioInputsJson}\": [\n";
         for (int id = 0; id < AudioInputs.Count; ++id)
         {
             if (id != 0)
                 content += ",\n";
-            content += $"{JsonUtility.ToJson(AudioInputs[id])}";
+            var json = AudioInputs[id].ToAudioInputJson();
+            content += $"{JsonUtility.ToJson(json)}";
         }
-
-        content += "\n]";
+        content += "]";
 
         File.AppendAllText(path, content);
-        this.Instantiator.PopText(fileName.ToLower(), _exportButton.transform.position + new Vector3(0.0f, 2.0f, 0.0f), distance: 2.0f, startFadingDistancePercent: 0.50f);
+        this.Instantiator.PopText(fileName.ToLower(), _exportButton.transform.position + new Vector3(6.0f, 0.0f, 0.0f), distance: 2.0f, startFadingDistancePercent: 0.50f);
+        //openInExplorer();
+    }
+
+    private void openInExplorer()
+    {
+        var upperFolder = $"{Application.dataPath}/../".Replace("Assets/../", string.Empty);
+        if (Directory.Exists(upperFolder))
+        {
+            var folders = Directory.GetDirectories(upperFolder);
+            foreach (var folder in folders)
+            {
+                if (folder.Contains("Exports"))
+                {
+                    string cmd = "explorer.exe";
+                    string arg = "/select, " + folder;
+                    Process.Start(cmd, $"\"{arg}\"");
+                    return;
+                }
+            }
+        }
+        
     }
 }

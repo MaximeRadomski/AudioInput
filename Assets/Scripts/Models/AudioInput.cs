@@ -44,14 +44,13 @@ public class AudioInput
     }
 }
 
-public class AudioInputBo
+public class AudioInputJson
 {
-    public int IdInScene;
     public bool Enabled;
-    public float Hz;
+    public string Hz;
     public int Peaks;
     public int MouseInputId;
-    public int KeyId;
+    public int KeyboardInputId;
     public int InputTypeId;
     public float Param;
 }

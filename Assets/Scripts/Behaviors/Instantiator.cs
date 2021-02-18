@@ -52,6 +52,15 @@ public class Instantiator : MonoBehaviour
         return tmpPopupInstance;
     }
 
+    public GameObject NewPopupList(Vector3 position, string title, int currentId, List<string> list, System.Func<int, object> resultAction)
+    {
+        var tmpPopupObject = Resources.Load<GameObject>("Prefabs/PopupList");
+        var tmpPopupInstance = Instantiate(tmpPopupObject, position, tmpPopupObject.transform.rotation);
+        Constants.IncreaseInputLayer(tmpPopupInstance.name);
+        tmpPopupInstance.GetComponent<PopupListBhv>().Init(title, currentId, list, resultAction);
+        return tmpPopupInstance;
+    }
+
     public GameObject NewAudioInput(Transform listSource, Vector3 offset, AudioInput audioInput, int id, Panel01Bhv panelBhv)
     {
         var tmpAudioInputObject = Resources.Load<GameObject>("Prefabs/AudioInput");
