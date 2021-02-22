@@ -8,13 +8,15 @@ public class Panel03Bhv : PanelBhv
     private Language _language;
     private int _maximumTickrate;
     public float CustomTapDelay;
-    public float MouseSensitivity;
+    public int MouseSensitivity;
+    private OnOffHeld _onOffShortcut;
 
     private TMPro.TextMeshPro _resolutionData;
     private TMPro.TextMeshPro _languageData;
     private TMPro.TextMeshPro _maximumTickrateData;
     private TMPro.TextMeshPro _customTapDelayData;
     private TMPro.TextMeshPro _mouseSensitivityData;
+    private TMPro.TextMeshPro _onOffShortcutData;
 
     void Start()
     {
@@ -31,12 +33,14 @@ public class Panel03Bhv : PanelBhv
         _maximumTickrate = PlayerPrefHelper.GetMaximumTickrate();
         CustomTapDelay = PlayerPrefHelper.GetCustomTapDelay();
         MouseSensitivity = PlayerPrefHelper.GetMouseSensitivity();
+        _onOffShortcut = PlayerPrefHelper.GetOnOffShortcut();
 
         _resolutionData = Helper.GetFieldData("Resolution");
         _languageData = Helper.GetFieldData("Language");
         _maximumTickrateData = Helper.GetFieldData("MaximumTickrate");
         _customTapDelayData = Helper.GetFieldData("CustomTapDelay");
         _mouseSensitivityData = Helper.GetFieldData("MouseSensitivity");
+        _onOffShortcutData = Helper.GetFieldData("OnOffShortcut");
     }
 
     private void SetButtons()
@@ -46,6 +50,7 @@ public class Panel03Bhv : PanelBhv
         Helper.GetFieldButton("MaximumTickrate").EndActionDelegate = SetMaximumTickratePopup;
         Helper.GetFieldButton("CustomTapDelay").EndActionDelegate = SetCustomTapDelayPopup;
         Helper.GetFieldButton("MouseSensitivity").EndActionDelegate = SetMouseSensitivityPopup;
+        Helper.GetFieldButton("OnOffShortcut").EndActionDelegate = SetOnOffShortcutPopup;
 
         Helper.GetFieldButton("ResetCalibration").EndActionDelegate = ResetCalibrationPopup;
     }
@@ -57,6 +62,7 @@ public class Panel03Bhv : PanelBhv
         SetMaximumTickrate(_maximumTickrate);
         SetCustomTapDelay(CustomTapDelay);
         SetMouseSensitivity(MouseSensitivity);
+        SetOnOffShortcut(_onOffShortcut.GetHashCode());
     }
 
     private object SetResolution(int id)
@@ -106,9 +112,19 @@ public class Panel03Bhv : PanelBhv
         var intValue = (int)value;
         if (intValue < 0)
             return false;
+        MouseSensitivity = intValue;
         PlayerPrefHelper.SetMouseSensitivity(intValue);
-        Constants.SetMouseSensitivity();
         _mouseSensitivityData.text = intValue.ToString();
+        return true;
+    }
+
+    private object SetOnOffShortcut(int keyCodeId)
+    {
+        OnOffHeld keyCode = (OnOffHeld)keyCodeId;
+        _onOffShortcut = keyCode;
+        Constants.OnOffShortcut = _onOffShortcut;
+        PlayerPrefHelper.SetOnOffShortcut(keyCode);
+        _onOffShortcutData.text = keyCode.ToString().ToLower();
         return true;
     }
 
@@ -144,6 +160,11 @@ public class Panel03Bhv : PanelBhv
     private void SetMouseSensitivityPopup()
     {
         Instantiator.NewPopupNumber(transform.position, "mouse sensitivity", "1 = 1 pixel", MouseSensitivity, 3, SetMouseSensitivity);
+    }
+
+    private void SetOnOffShortcutPopup()
+    {
+        this.Instantiator.NewPopupEnum<OnOffHeld>(transform.position, "on off shortcut", _onOffShortcut.GetHashCode(), SetOnOffShortcut);
     }
 
     private void ResetCalibrationPopup()

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityRawInput;
 
 public class InputControlerBhv : MonoBehaviour
 {
@@ -11,6 +12,8 @@ public class InputControlerBhv : MonoBehaviour
     private Camera _mainCamera;
     private bool _hasInit;
     private GameObject _hoverWindow;
+
+    private AbjectAudioInputs _abjectAudioInputs;
 
     private void Start()
     {
@@ -23,6 +26,16 @@ public class InputControlerBhv : MonoBehaviour
         _mainCamera = Helper.GetMainCamera();
         _hoverWindow = GameObject.Find("HoverWindow");
         _hasInit = true;
+        _abjectAudioInputs = GameObject.Find(Constants.AbjectAudioInputs).GetComponent<AbjectAudioInputs>();
+        
+        RawKeyInput.Start(workInBackround: true);
+        RawKeyInput.OnKeyDown += HandleKeyDown;
+    }
+
+    private void HandleKeyDown(RawKey key)
+    {
+        if (key.GetHashCode() == RawKey.F1.GetHashCode() + Constants.OnOffShortcut.GetHashCode() - 1)
+            _abjectAudioInputs.OnOff();
     }
 
     void Update()
@@ -161,5 +174,11 @@ public class InputControlerBhv : MonoBehaviour
                 return true;
         }
         return false;
+    }
+
+    private void OnDestroy()
+    {
+        RawKeyInput.OnKeyDown -= HandleKeyDown;
+        RawKeyInput.Stop();
     }
 }

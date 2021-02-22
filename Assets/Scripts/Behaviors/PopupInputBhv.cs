@@ -8,24 +8,30 @@ using WindowsInput.Native;
 
 public class PopupInputBhv : PopupBhv
 {
-    private System.Func<VirtualKeyCode, object> _resultAction;
+    private System.Func<int, object> _resultAction;
     private TMPro.TextMeshPro _recordedText;
     private TMPro.TextMeshPro _sendableText;
 
     private string _currentString;
     private VirtualKeyCode _currentKeyCode;
     private VirtualKeyCode _newKeyCode = VirtualKeyCode.NONAME;
+    private KeyCode _currentTypedKeyCode;
+    private KeyCode _newTypedKeyCode = KeyCode.None;
+    private bool _returnVirtualKeyCode;
 
     //For Test Mapping
     //private InputSimulator _inputSimulator;
 
-    public void Init(VirtualKeyCode current, System.Func<VirtualKeyCode, object> resultAction)
+    public void Init(int currentId, System.Func<int, object> resultAction, bool returnVirtualKeyCode)
     {
+        //For Test Mapping
         //_inputSimulator = new InputSimulator();
 
         Constants.EscapeOrEnterLocked = true;
         _resultAction = resultAction;
-        _currentKeyCode = current;
+        _currentKeyCode = (VirtualKeyCode)currentId;
+        _currentTypedKeyCode = (KeyCode)currentId;
+        _returnVirtualKeyCode = returnVirtualKeyCode;
 
         var buttonPositive = transform.Find("ButtonPositive");
         buttonPositive.GetComponent<ButtonBhv>().EndActionDelegate = PositiveDelegate;
@@ -59,26 +65,14 @@ public class PopupInputBhv : PopupBhv
         Event e = Event.current;
         if (e.isKey && e.rawType == EventType.KeyDown && e.keyCode != KeyCode.None)
         {
-            //for test mapping
+            //For Test Mapping
             //_debugMapping = $"{e.keyCode} -> {_debugMapping}";
             //Debug.Log(_debugMapping);
             _currentString = e.keyCode.ToString().ToLower();
+            _newTypedKeyCode = e.keyCode;
             _newKeyCode = MapKeyCodeToVirtualKeyCode(e.keyCode);
             UpdateText();
         }
-        //else if (e.isMouse && e.rawType == EventType.MouseDown)
-        //{
-        //    if (e.button == 0 && _currentString.Length > 0)
-        //    {
-        //        return;
-        //    }
-        //    else
-        //    {
-        //        _currentString = $"mouse{e.button}";
-        //        _newKeyCode = MapMouseToVirtualKeyCode(e.button);
-        //        UpdateText();
-        //    }
-        //}
     }
 
     private void UpdateText()
@@ -99,7 +93,10 @@ public class PopupInputBhv : PopupBhv
     {
         Constants.EscapeOrEnterLocked = false;
         Constants.DecreaseInputLayer();
-        _resultAction?.Invoke(_newKeyCode);
+        if (_returnVirtualKeyCode)
+            _resultAction?.Invoke(_newKeyCode.GetHashCode());
+        else
+            _resultAction?.Invoke(_newTypedKeyCode.GetHashCode());
         Destroy(gameObject);
     }
 
@@ -107,7 +104,10 @@ public class PopupInputBhv : PopupBhv
     {
         Constants.EscapeOrEnterLocked = false;
         Constants.DecreaseInputLayer();
-        _resultAction?.Invoke(_currentKeyCode);
+        if (_returnVirtualKeyCode)
+            _resultAction?.Invoke(_currentKeyCode.GetHashCode());
+        else
+            _resultAction?.Invoke(_currentTypedKeyCode.GetHashCode());
         Destroy(gameObject);
     }
 
@@ -115,7 +115,10 @@ public class PopupInputBhv : PopupBhv
     {
         Constants.EscapeOrEnterLocked = false;
         Constants.DecreaseInputLayer();
-        _resultAction?.Invoke(_currentKeyCode);
+        if (_returnVirtualKeyCode)
+            _resultAction?.Invoke(_currentKeyCode.GetHashCode());
+        else
+            _resultAction?.Invoke(_currentTypedKeyCode.GetHashCode());
         Destroy(gameObject);
     }
 
@@ -243,16 +246,4 @@ public class PopupInputBhv : PopupBhv
         }
         return vkc;
     }
-
-    //private VirtualKeyCode MapMouseToVirtualKeyCode(int id)
-    //{
-    //    var vkc = VirtualKeyCode.NONAME;
-    //    switch (id)
-    //    {
-    //        case 0: vkc = VirtualKeyCode.LBUTTON; break;
-    //        case 1: vkc = VirtualKeyCode.RBUTTON; break;
-    //        case 2: vkc = VirtualKeyCode.SCROLL; break;
-    //    }
-    //    return vkc;
-    //}
 }

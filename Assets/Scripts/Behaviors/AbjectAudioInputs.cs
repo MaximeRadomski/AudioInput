@@ -430,7 +430,7 @@ public class AbjectAudioInputs : MonoBehaviour
             else if (Helper.IsMouseDirection(mouseInput))
             {
                 if (cursorOffset == null)
-                    cursorOffset = Constants.MouseSensitivity ?? Constants.PpMouseSensitivityDefault;
+                    cursorOffset = _panel03.MouseSensitivity;
                 MoveCursor(mouseInput, cursorOffset);
             }
         }
@@ -468,7 +468,7 @@ public class AbjectAudioInputs : MonoBehaviour
         var x = 0;
         var y = 0;
         if (cursorOffset == null)
-            cursorOffset = Constants.MouseSensitivity ?? Constants.PpMouseSensitivityDefault;
+            cursorOffset = _panel03.MouseSensitivity;
         if (input == MouseInput.Up)
             y = -cursorOffset.Value;
         else if (input == MouseInput.Down)
@@ -561,7 +561,7 @@ public class AbjectAudioInputs : MonoBehaviour
         }
     }
 
-    private void OnOff(bool? isOnParam = null)
+    public void OnOff(bool? isOnParam = null)
     {
         if (isOnParam != null)
             Constants.IsOn = isOnParam.Value;

@@ -11,6 +11,7 @@ public static class Constants
     public const int HeldUntilReleased = 2;
     public const string ExportsFolderName = "Exports";
     public const string AudioInputsJson = "AudioInputsJson";
+    public static OnOffHeld OnOffShortcut;
 
     private static float? _frame;
     public static float? Frame {
@@ -24,21 +25,6 @@ public static class Constants
     {
         _frame = 1.0f / (PlayerPrefHelper.GetMaximumTickrate() + 1);
         LastFrame = Time.time;
-    }
-
-    private static int? _mouseSensitivity;
-    public static int? MouseSensitivity
-    {
-        get
-        {
-            if (_mouseSensitivity == null)
-                SetMouseSensitivity();
-            return _mouseSensitivity;
-        }
-    }
-    public static void SetMouseSensitivity()
-    {
-        _mouseSensitivity = PlayerPrefHelper.GetMouseSensitivity();
     }
 
     public static bool HasInit = false;
@@ -78,7 +64,7 @@ public static class Constants
     public const string PpAudioInputsDefault = null;
     //Panel03
     public const string PpResolution = "Resolution";
-    public const int PpResolutionDefault = 2;
+    public const int PpResolutionDefault = (int)Resolution.R1280x720;
     public const string PpLanguage = "Language";
     public const int PpLanguageDefault = 0;
     public const string PpMaximumTickrate = "MaximumTickrate";
@@ -87,6 +73,8 @@ public static class Constants
     public const float PpCustomTapDelayDefault = 0.5f;
     public const string PpMouseSensitivity = "MouseSensitivity";
     public const int PpMouseSensitivityDefault = 10;
+    public const string PpOnOffShortcut = "OnOffShortcut";
+    public const int PpOnOffShortcutDefault = (int)OnOffHeld.F5;
 
 
     public static Color ColorBlackTransparent = new Color(0.0f, 0.0f, 0.0f, 0.0f);

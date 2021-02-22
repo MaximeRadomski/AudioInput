@@ -52,6 +52,7 @@ public class Panel02Bhv : PanelBhv
         transform.Find("Page02").transform.Find("KeijiroTakahashi").GetComponent<ButtonBhv>().EndActionDelegate = () => { Application.OpenURL("https://github.com/keijiro/Lasp"); };
         transform.Find("Page02").transform.Find("Devs").GetComponent<ButtonBhv>().EndActionDelegate = () => { Application.OpenURL("https://forum.unity.com/threads/detecting-musical-notes-from-vocal-input.316698/"); };
         transform.Find("Page02").transform.Find("MichaelNoonan").GetComponent<ButtonBhv>().EndActionDelegate = () => { Application.OpenURL("https://github.com/michaelnoonan/inputsimulator"); };
+        transform.Find("Page02").transform.Find("Elringus").GetComponent<ButtonBhv>().EndActionDelegate = () => { Application.OpenURL("https://github.com/Elringus/UnityRawInput"); };
         transform.Find("Page02").transform.Find("GrafxKid").GetComponent<ButtonBhv>().EndActionDelegate = () => { Application.OpenURL("https://lospec.com/palette-list/oil-6"); };
     }
 

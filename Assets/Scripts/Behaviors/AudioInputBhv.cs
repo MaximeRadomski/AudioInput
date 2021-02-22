@@ -55,7 +55,7 @@ public class AudioInputBhv : FrameRateBehavior
         SetHz(_audioInput.Hz);
         SetPeaks(_audioInput.Peaks);
         if (_audioInput.MouseInput == MouseInput.None)
-            SetKeyboardInput(_audioInput.Key);
+            SetKeyboardInput(_audioInput.Key.GetHashCode());
         else
             SetMouseInput(_audioInput.MouseInput.GetHashCode());
         SetType(_audioInput.InputType.GetHashCode());
@@ -98,8 +98,9 @@ public class AudioInputBhv : FrameRateBehavior
         return UpdateAudioInput();
     }
 
-    private object SetKeyboardInput(VirtualKeyCode keyCode)
+    private object SetKeyboardInput(int keyCodeId)
     {
+        VirtualKeyCode keyCode = (VirtualKeyCode)keyCodeId;
         _audioInput.MouseInput = MouseInput.None;
         _audioInput.Key = keyCode;
         _inputData.text = keyCode == VirtualKeyCode.NONAME ? "none" : keyCode.ToString().ToLower();
@@ -176,7 +177,7 @@ public class AudioInputBhv : FrameRateBehavior
         if (isMouse)
             _panelBhv.Instantiator.NewPopupEnum<MouseInput>(_panelBhv.transform.position, "mouse input", _audioInput.MouseInput.GetHashCode(), SetMouseInput);
         else
-            _panelBhv.Instantiator.NewPopupInput(_panelBhv.transform.position, _audioInput.Key, SetKeyboardInput);
+            _panelBhv.Instantiator.NewPopupInput(_panelBhv.transform.position, _audioInput.Key.GetHashCode(), SetKeyboardInput);
         return true;
     }
 

@@ -34,12 +34,12 @@ public class Instantiator : MonoBehaviour
         return tmpPopupInstance;
     }
 
-    public GameObject NewPopupInput(Vector3 position, VirtualKeyCode current, System.Func<VirtualKeyCode, object> resultAction)
+    public GameObject NewPopupInput(Vector3 position, int currentId, System.Func<int, object> resultAction, bool returnVirtualKeyCode = true)
     {
         var tmpPopupObject = Resources.Load<GameObject>("Prefabs/PopupInput");
         var tmpPopupInstance = Instantiate(tmpPopupObject, position, tmpPopupObject.transform.rotation);
         Constants.IncreaseInputLayer(tmpPopupInstance.name);
-        tmpPopupInstance.GetComponent<PopupInputBhv>().Init(current, resultAction);
+        tmpPopupInstance.GetComponent<PopupInputBhv>().Init(currentId, resultAction, returnVirtualKeyCode);
         return tmpPopupInstance;
     }
 
