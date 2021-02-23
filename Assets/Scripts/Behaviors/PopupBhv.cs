@@ -4,6 +4,11 @@ using UnityEngine;
 
 public abstract class PopupBhv : MonoBehaviour
 {
+    void Start()
+    {
+        transform.Find("ExitButton").GetComponent<ButtonBhv>().EndActionDelegate = ExitPopup;
+    }
+
     public virtual void ExitPopup()
     {
         Constants.DecreaseInputLayer();

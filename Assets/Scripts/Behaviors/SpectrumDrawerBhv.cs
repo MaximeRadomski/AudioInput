@@ -6,6 +6,8 @@ public class SpectrumDrawerBhv : MonoBehaviour
     public GameObject Spec;
 
     private List<SpecBhv> _specs;
+    private Transform _threshold;
+    private List<SpecBhv> _peaks;
 
     private bool _hasInit;
 
@@ -24,24 +26,40 @@ public class SpectrumDrawerBhv : MonoBehaviour
             tmpSpec.transform.SetParent(transform);
             _specs.Add(tmpSpec.GetComponent<SpecBhv>());
         }
+        _threshold = transform.Find("Threshold");
+        _peaks = new List<SpecBhv>();
+        for (int i = 0; i < 5; ++i)
+            _peaks.Add(transform.Find($"Peak{i}").GetComponent<SpecBhv>());
         _hasInit = true;
     }
 
-    public void Draw(float[] spectrum)
+    public void Draw(float[] spectrum, float threshold, List<Peak> peaks)
     {
+        var width = 49.0f;
+        _threshold.localPosition = new Vector3(threshold * width * Constants.Pixel, _threshold.localPosition.y, 0.0f);
+        for (int i = 0; i < 5; ++i)
+        {
+            if (i < peaks.Count)
+            {
+                _peaks[i].transform.localPosition = new Vector3(peaks[i].amplitude * width * Constants.Pixel, ((int)((float)peaks[i].index / spectrum.Length * 100.0f) + 1) * Constants.Pixel, 0.0f);
+                _peaks[i].UpdateBack(peaks[i].amplitude * 49.0f);
+            }
+            else
+                _peaks[i].transform.localPosition = new Vector3(30.0f, -30.0f, 0.0f);
+        }
         if (spectrum == null || spectrum.Length <= 0)
             return;
         if (!_hasInit)
             Init();
         int increment = spectrum.Length / 100;
-        int iS = 0;
-        for (int i = 0; iS < spectrum.Length; ++i)
+        int idSpectrum = 0;
+        for (int i = 0; idSpectrum < spectrum.Length; ++i)
         {
             if (i >= _specs.Count)
                 return;
-            _specs[i].transform.localPosition = new Vector3(spectrum[iS] * 49.0f * Constants.Pixel, _specs[i].transform.localPosition.y, 0.0f);
-            _specs[i].UpdateBack(spectrum[iS] * 49.0f);
-            iS += increment;
+            _specs[i].transform.localPosition = new Vector3(spectrum[idSpectrum] * width * Constants.Pixel, _specs[i].transform.localPosition.y, 0.0f);
+            _specs[i].UpdateBack(spectrum[idSpectrum] * 49.0f);
+            idSpectrum += increment;
         }
     }
 }
