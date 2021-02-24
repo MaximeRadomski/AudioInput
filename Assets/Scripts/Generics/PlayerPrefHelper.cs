@@ -41,6 +41,9 @@ public class PlayerPrefHelper : MonoBehaviour
     public static void SetSpectrumGain(int spectrumGain) { PlayerPrefs.SetInt(Constants.PpSpectrumGain, spectrumGain); }
     public static int GetSpectrumGain() { return PlayerPrefs.GetInt(Constants.PpSpectrumGain, Constants.PpSpectrumGainDefault); }
 
+    public static void SetSpectrumThreshold(float spectrumThreshold) { PlayerPrefs.SetFloat(Constants.PpSpectrumThreshold, spectrumThreshold); }
+    public static float GetSpectrumThreshold() { return PlayerPrefs.GetFloat(Constants.PpSpectrumThreshold, Constants.PpSpectrumThresholdDefault); }
+
     //Panel01
     public static void SetAudioInputs(List<AudioInput> audioInputs)
     {

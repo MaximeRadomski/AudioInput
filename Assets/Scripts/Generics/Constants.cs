@@ -59,6 +59,8 @@ public static class Constants
     public const int PpSpectrumDynamicRangeDefault = 30;
     public const string PpSpectrumGain = "SpectrumGain";
     public const int PpSpectrumGainDefault = 0;
+    public const string PpSpectrumThreshold = "SpectrumThreshold";
+    public const float PpSpectrumThresholdDefault = 0.05f;
     //Panel01
     public const string PpAudioInputs = "AudioInputs";
     public const string PpAudioInputsDefault = null;

@@ -33,6 +33,7 @@ public class Panel00Bhv : PanelBhv
     private int _levelGain;
     private int _spectrumDynamicRange;
     private int _spectrumGain;
+    public float SpectrumThreshold;
 
 
     private TMPro.TextMeshPro _idData;
@@ -46,6 +47,7 @@ public class Panel00Bhv : PanelBhv
     private TMPro.TextMeshPro _levelGainData;
     private TMPro.TextMeshPro _spectrumDynamicRangeData;
     private TMPro.TextMeshPro _spectrumGainData;
+    private TMPro.TextMeshPro _spectrumThresholdData;
 
     void Start()
     {
@@ -79,6 +81,7 @@ public class Panel00Bhv : PanelBhv
         _levelGain = PlayerPrefHelper.GetLevelGain();
         _spectrumDynamicRange = PlayerPrefHelper.GetSpectrumDynamicRange();
         _spectrumGain = PlayerPrefHelper.GetSpectrumGain();
+        SpectrumThreshold = PlayerPrefHelper.GetSpectrumThreshold();
 
         //FieldsData
         _idData = Helper.GetFieldData("Id");
@@ -92,6 +95,7 @@ public class Panel00Bhv : PanelBhv
         _levelGainData = Helper.GetFieldData("LevelGain");
         _spectrumDynamicRangeData = Helper.GetFieldData("SpectrumDynamicRange");
         _spectrumGainData = Helper.GetFieldData("SpectrumGain");
+        _spectrumThresholdData = Helper.GetFieldData("SpectrumThreshold");
 
         Devices = AudioSystem.InputDevices;        
         _hasInit = true;
@@ -110,6 +114,7 @@ public class Panel00Bhv : PanelBhv
         Helper.GetFieldButton("LevelGain").EndActionDelegate = SetLevelGainPopup;
         Helper.GetFieldButton("SpectrumDynamicRange").EndActionDelegate = SetSpectrumDynamicRangePopup;
         Helper.GetFieldButton("SpectrumGain").EndActionDelegate = SetSpectrumGainPopup;
+        Helper.GetFieldButton("SpectrumThreshold").EndActionDelegate = SetSpectrumThresholdPopup;
 
         GameObject.Find("LevelDynamicRange-").GetComponent<ButtonBhv>().EndActionDelegate = () => { SetLevelDynamicRange(Helper.RoundToClosestTable(_levelDynamicRange - 5, 5)); };
         GameObject.Find("LevelDynamicRange+").GetComponent<ButtonBhv>().EndActionDelegate = () => { SetLevelDynamicRange(Helper.RoundToClosestTable(_levelDynamicRange + 5, 5)); };
@@ -119,6 +124,8 @@ public class Panel00Bhv : PanelBhv
         GameObject.Find("SpectrumDynamicRange+").GetComponent<ButtonBhv>().EndActionDelegate = () => { SetSpectrumDynamicRange(Helper.RoundToClosestTable(_spectrumDynamicRange + 10, 10)); };
         GameObject.Find("SpectrumGain-").GetComponent<ButtonBhv>().EndActionDelegate = () => { SetSpectrumGain(Helper.RoundToClosestTable(_spectrumGain - 10, 10)); };
         GameObject.Find("SpectrumGain+").GetComponent<ButtonBhv>().EndActionDelegate = () => { SetSpectrumGain(Helper.RoundToClosestTable(_spectrumGain + 10, 10)); };
+        GameObject.Find("SpectrumThreshold-").GetComponent<ButtonBhv>().EndActionDelegate = () => { SetSpectrumThreshold(Helper.RoundToClosestTable((int)(SpectrumThreshold * 100) - 5, 5)); };
+        GameObject.Find("SpectrumThreshold+").GetComponent<ButtonBhv>().EndActionDelegate = () => { SetSpectrumThreshold(Helper.RoundToClosestTable((int)(SpectrumThreshold * 100) + 5, 5)); };
     }
 
     private void LoadData()
@@ -162,6 +169,7 @@ public class Panel00Bhv : PanelBhv
         SetLevelGain(_levelGain);
         SetSpectrumDynamicRange(_spectrumDynamicRange);
         SetSpectrumGain(_spectrumGain);
+        SetSpectrumThreshold(SpectrumThreshold * 100);
     }
 
     private object SetDeviceId(DeviceDescriptor device)
@@ -216,6 +224,7 @@ public class Panel00Bhv : PanelBhv
         SetLevelGain(Constants.PpLevelGainDefault);
         SetSpectrumDynamicRange(Constants.PpSpectrumDynamicRangeDefault);
         SetSpectrumGain(Constants.PpSpectrumGainDefault);
+        SetSpectrumThreshold(Constants.PpSpectrumThresholdDefault * 100);
     }
 
     private object SetHzOffset(float offset)
@@ -329,6 +338,19 @@ public class Panel00Bhv : PanelBhv
         return true;
     }
 
+    private object SetSpectrumThreshold(float value)
+    {
+        if (value < 0.0f)
+            value = 0.0f;
+        else if (value > 100.0f)
+            value = 100.0f;
+        value = value / 100;
+        SpectrumThreshold = value;
+        PlayerPrefHelper.SetSpectrumThreshold(value);
+        _spectrumThresholdData.text = ((int)(value * 100)).ToString();
+        return true;
+    }
+
     private void SetDeviceIdPopup()
     {
         Instantiator.NewPopupDeviceId(transform.position, _currentDevice, SetDeviceId);
@@ -393,6 +415,12 @@ public class Panel00Bhv : PanelBhv
     {
         var content = $"from -10 to 120";
         Instantiator.NewPopupNumber(transform.position, "Spectrum Gain", content, _spectrumGain, 3, SetSpectrumGain);
+    }
+
+    private void SetSpectrumThresholdPopup()
+    {
+        var content = $"from 0 to 100";
+        Instantiator.NewPopupNumber(transform.position, "Spectrum Threshold", content, SpectrumThreshold, 3, SetSpectrumThreshold);
     }
 
     //Icon and PoppingTexr

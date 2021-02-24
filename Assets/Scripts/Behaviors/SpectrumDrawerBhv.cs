@@ -9,6 +9,8 @@ public class SpectrumDrawerBhv : MonoBehaviour
     private Transform _threshold;
     private List<SpecBhv> _peaks;
 
+    private int nbSpecs = 200;
+
     private bool _hasInit;
 
     void Start()
@@ -19,9 +21,9 @@ public class SpectrumDrawerBhv : MonoBehaviour
     private void Init()
     {
         _specs = new List<SpecBhv>();
-        for (int i = 0; i < 100; ++i)
+        for (int i = 0; i < nbSpecs; ++i)
         {
-            var tmpSpec = Instantiate(Spec, new Vector3(transform.position.x, transform.position.y + (i * Constants.Pixel), 0.0f), Spec.transform.rotation);
+            var tmpSpec = Instantiate(Spec, new Vector3(transform.position.x, transform.position.y + (i * Constants.Pixel * (100.0f / nbSpecs)), 0.0f), Spec.transform.rotation);
             tmpSpec.name = $"Spec{i}";
             tmpSpec.transform.SetParent(transform);
             _specs.Add(tmpSpec.GetComponent<SpecBhv>());
@@ -41,7 +43,7 @@ public class SpectrumDrawerBhv : MonoBehaviour
         {
             if (i < peaks.Count)
             {
-                _peaks[i].transform.localPosition = new Vector3(peaks[i].amplitude * width * Constants.Pixel, ((int)((float)peaks[i].index / spectrum.Length * 100.0f) + 1) * Constants.Pixel, 0.0f);
+                _peaks[i].transform.localPosition = new Vector3(peaks[i].amplitude * width * Constants.Pixel, ((int)((float)peaks[i].index / spectrum.Length * (float)100.0f) + 1) * Constants.Pixel, 0.0f);
                 _peaks[i].UpdateBack(peaks[i].amplitude * 49.0f);
             }
             else
@@ -51,7 +53,7 @@ public class SpectrumDrawerBhv : MonoBehaviour
             return;
         if (!_hasInit)
             Init();
-        int increment = spectrum.Length / 100;
+        int increment = spectrum.Length / nbSpecs;
         int idSpectrum = 0;
         for (int i = 0; idSpectrum < spectrum.Length; ++i)
         {

@@ -16,7 +16,6 @@ public class AbjectAudioInputs : MonoBehaviour
 
     private float _pitchValue;
     private int _binSize = 2048;
-    private float _threshold = 0.05f;
     private int _maxPeak = 5;
     private int _maxPeakCheck = 1;
 
@@ -25,7 +24,7 @@ public class AbjectAudioInputs : MonoBehaviour
     private InputSimulator _inputSimulator;
 
     private List<Peak> _peaks = new List<Peak>();
-    private int _peaksCount;
+    //private int _peaksCount;
     private float[] _spectrum;
     private int _samplerate;
     private int _currentPanel = -1;
@@ -152,9 +151,9 @@ public class AbjectAudioInputs : MonoBehaviour
         AnalyzeSound();
         _dbData.text = DynRangeDB.ToString("0");
         _hzData.text = DynRangeDB > 0 ? _pitchValue.ToString("F2") : "0.00";
-        _peaksData.text = DynRangeDB > 0 ? _peaksCount.ToString() : "0";
+        _peaksData.text = DynRangeDB > 0 ? _peaks.Count.ToString() : "0";
         var isUnderHeldReset = _levelDrawer.Draw(_audioLevelTracker, _panel00.HeldReset, (int)_currentSingleFrameReset);
-        _spectrumDrawer.Draw(_spectrum, _threshold, _peaks);
+        _spectrumDrawer.Draw(_spectrum, _panel00.SpectrumThreshold, _peaks);
 
         if (DynRangeDB > 0)
             AnalyseAudioInputs();
@@ -189,7 +188,7 @@ public class AbjectAudioInputs : MonoBehaviour
 
     private void SingleTapReset()
     {
-        var limitOverDynRangeDB = DynRangeDB + (DynRangeDB + 10);
+        var limitOverDynRangeDB = DynRangeDB + Mathf.Abs(_panel00.SingleTapReset);
         if (_currentSingleFrameReset > limitOverDynRangeDB)
         {
             _currentSingleFrameReset = limitOverDynRangeDB;
@@ -286,7 +285,7 @@ public class AbjectAudioInputs : MonoBehaviour
             var lowestId = -1;
             for (int i = 0; i < validFrequencies.Count; ++i)
             {
-                var difference = Mathf.Abs(validFrequencies[i].Peaks - _peaksCount);
+                var difference = Mathf.Abs(validFrequencies[i].Peaks - _peaks.Count);
                 if (difference < lowestPeakDifference)
                 {
                     lowestPeakDifference = difference;
@@ -309,7 +308,7 @@ public class AbjectAudioInputs : MonoBehaviour
     private void SendAudioInput(AudioInput audioInput)
     {
         var inputStr = audioInput.MouseInput == MouseInput.None ? audioInput.Key.ToString() : audioInput.MouseInput.ToString();
-        if (audioInput.InputType == InputType.SingleTap && !_hasToWaitResetBeforeNewSingle)
+        if (audioInput.InputType == InputType.SingleTap && !_hasToWaitResetBeforeNewSingle && DynRangeDB > _currentSingleFrameReset)
         {
             if (Constants.IsOn)
             {
@@ -340,12 +339,12 @@ public class AbjectAudioInputs : MonoBehaviour
             }
             _currentValidAudioInput = audioInput.Clone();
         }
-        else if (audioInput.InputType == InputType.CustomTap && !_hasToWaitResetBeforeNewSingle)
+        else if (audioInput.InputType == InputType.CustomTap && !_hasToWaitResetBeforeNewSingle && DynRangeDB > _currentSingleFrameReset)
         {
             StartCoroutine(CustomTapSend(audioInput.Key, audioInput.MouseInput, (int)audioInput.Param, audioInput.Id));
             _hasToWaitResetBeforeNewSingle = true;
         }
-        else if (audioInput.InputType == InputType.TimeHeld && !_hasToWaitResetBeforeNewSingle)
+        else if (audioInput.InputType == InputType.TimeHeld && !_hasToWaitResetBeforeNewSingle && DynRangeDB > _currentSingleFrameReset)
         {
             if (_timeHeldInputs == null)
                 _timeHeldInputs = new List<AudioInput>();
@@ -497,7 +496,7 @@ public class AbjectAudioInputs : MonoBehaviour
     void AnalyzeSound()
     {
         _spectrum = _spectrumAnalyzer.logSpectrumArray.ToArray();
-        _peaksCount = 0;
+        //_peaksCount = 0;
         _peaks.Clear();
         if (_spectrum != null && _spectrum.Count() > 0)
         {
@@ -507,7 +506,7 @@ public class AbjectAudioInputs : MonoBehaviour
             var twoHundredth = _spectrum.Length / 200;
             for (int i = 0; i < _binSize; i += 1)
             {
-                if (_spectrum[i] > currentPeakMax && _spectrum[i] > _threshold)
+                if (_spectrum[i] > currentPeakMax && _spectrum[i] > _panel00.SpectrumThreshold)
                 {
                     currentPeakMax = _spectrum[i];
                     if (_peaks.Count < currentNbPeak + 1)
@@ -518,7 +517,7 @@ public class AbjectAudioInputs : MonoBehaviour
                         _peaks[currentNbPeak].index = i;
                     }
                 }
-                if (i > 0 && _spectrum[i - 1] > _threshold && _spectrum[i] <= _threshold)
+                if (i > 0 && _spectrum[i - 1] > _panel00.SpectrumThreshold && _spectrum[i] <= _panel00.SpectrumThreshold)
                 {
                     ++currentNbPeak;
                     currentPeakMax = 0.0f;
@@ -526,8 +525,8 @@ public class AbjectAudioInputs : MonoBehaviour
                     if (_peaks.Count > _maxPeak)
                         _peaks.RemoveAt(_maxPeak);
                 }
-                if (i > 0 && i % hundredth == 0 && _spectrum[i - hundredth] > _threshold && _spectrum[i] < _threshold)
-                    ++_peaksCount;
+                //if (i >= hundredth && Helper.FloatEqualsPrecision(i % (float)hundredth, 0.0f, 0.2f) && _spectrum[i - hundredth] > _panel00.SpectrumThreshold && _spectrum[i] < _panel00.SpectrumThreshold)
+                //    ++_peaksCount;
             }
             _peaks.Sort(new AmpComparer());
         }
