@@ -44,7 +44,7 @@ public static class Constants
     public const string PpHzOffset = "HzOffset";
     public const float PpHzOffsetDefault = 0.5f;
     public const string PpRequiredFrames = "RequiredFrames";
-    public const int PpRequiredFramesDefault = 2;
+    public const int PpRequiredFramesDefault = 4;
     public const string PpPeaksPriority = "PeaksPriority";
     public const int PpPeaksPriorityDefault = 0;
     public const string PpHeldReset = "HeldReset";

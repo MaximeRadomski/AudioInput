@@ -13,17 +13,16 @@ public class AbjectAudioInputs : MonoBehaviour
     public Sprite TabBigOff;
     public Sprite TabSmallOn;
     public Sprite TabSmallOff;
+    public System.Func<List<float>, object> OnRecordingFrequencies;
 
-    private float _pitchValue;
     private int _binSize = 2048;
-    private int _maxPeak = 5;
-    private int _maxPeakCheck = 1;
 
     private SpectrumAnalyzer _spectrumAnalyzer;
     private AudioLevelTracker _audioLevelTracker;
     private InputSimulator _inputSimulator;
 
     private List<Peak> _peaks = new List<Peak>();
+    public List<float> CurrentFrequencies = new List<float>();
     //private int _peaksCount;
     private float[] _spectrum;
     private int _samplerate;
@@ -150,7 +149,7 @@ public class AbjectAudioInputs : MonoBehaviour
         Constants.LastFrame = Time.time;
         AnalyzeSound();
         _dbData.text = DynRangeDB.ToString("0");
-        _hzData.text = DynRangeDB > 0 ? _pitchValue.ToString("F2") : "0.00";
+        _hzData.text = DynRangeDB > 0 && CurrentFrequencies != null && CurrentFrequencies.Count > 0 ? CurrentFrequencies[0].ToString("F2") : "0.00";
         _peaksData.text = DynRangeDB > 0 ? _peaks.Count.ToString() : "0";
         var isUnderHeldReset = _levelDrawer.Draw(_audioLevelTracker, _panel00.HeldReset, (int)_currentSingleFrameReset);
         _spectrumDrawer.Draw(_spectrum, _panel00.SpectrumThreshold, _peaks);
@@ -207,7 +206,7 @@ public class AbjectAudioInputs : MonoBehaviour
         {
             if (_currentValidAudioInput != null && _heldInputs[i] != null
                 && (int)_heldInputs[i].Param == Constants.HeldUntilReleased
-                && !(_heldInputs[i].Key == _currentValidAudioInput.Key && _heldInputs[i].MouseInput == _currentValidAudioInput.MouseInput && _heldInputs[i].Hz == _currentValidAudioInput.Hz))
+                && !(_heldInputs[i].Key == _currentValidAudioInput.Key && _heldInputs[i].MouseInput == _currentValidAudioInput.MouseInput && _heldInputs[i].Frequencies[0] == _currentValidAudioInput.Frequencies[0]))
             {
                 if (_heldInputs[i].MouseInput == MouseInput.None)
                     _inputSimulator.Keyboard.KeyUp(_heldInputs[i].Key);
@@ -252,17 +251,20 @@ public class AbjectAudioInputs : MonoBehaviour
 
     void AnalyseAudioInputs()
     {
-        if (Helper.FloatEqualsPrecision(_pitchValue, _lastFrameFrequency, _panel00.HzOffset))
+        if (CurrentFrequencies == null || CurrentFrequencies.Count <= 0)
+            return;
+        if (Helper.FloatEqualsPrecision(CurrentFrequencies[0], _lastFrameFrequency, _panel00.HzOffset))
         {
             if (_nbConsecutiveFrames >= _panel00.RequiredFrames)
             {
-                PrepareAudioInputsFromFrequency(_pitchValue);
+                PrepareAudioInputsFromFrequency(CurrentFrequencies[0]);
+                OnRecordingFrequencies?.Invoke(CurrentFrequencies);
             }
             ++_nbConsecutiveFrames;
         }
         else
             _nbConsecutiveFrames = _nbConsecutiveFramesDefault;
-        _lastFrameFrequency = _pitchValue;
+        _lastFrameFrequency = CurrentFrequencies[0];
     }
 
     private void PrepareAudioInputsFromFrequency(float frequency)
@@ -271,8 +273,8 @@ public class AbjectAudioInputs : MonoBehaviour
         for (int i = 0; i < _panel01.AudioInputs.Count; ++i)
         {
             //var isSet = (_panel01.AudioInputs[i].InputType != InputType.Mouse && _panel01.AudioInputs[i].Key != VirtualKeyCode.NONAME) || (_panel01.AudioInputs[i].InputType == InputType.Mouse && _panel01.AudioInputs[i].MouseInput != MouseInput.None);
-            var isSet = _panel01.AudioInputs[i].Hz > 0.0f;
-            if (_panel01.AudioInputs[i].Enabled && isSet && Helper.FloatEqualsPrecision(_pitchValue, _panel01.AudioInputs[i].Hz, _panel00.HzOffset))
+            var isSet = _panel01.AudioInputs[i].Frequencies[0] > 0.0f;
+            if (_panel01.AudioInputs[i].Enabled && isSet && Helper.FloatEqualsPrecision(CurrentFrequencies[0], _panel01.AudioInputs[i].Frequencies[0], _panel00.HzOffset))
             {
                 validFrequencies.Add(_panel01.AudioInputs[i]);
             }
@@ -325,7 +327,7 @@ public class AbjectAudioInputs : MonoBehaviour
         {
             if (_heldInputs == null)
                 _heldInputs = new List<AudioInput>();
-            if (_heldInputs.Find(a => a.Key == audioInput.Key && a.MouseInput == audioInput.MouseInput && a.Hz == audioInput.Hz) == null)
+            if (_heldInputs.Find(a => a.Key == audioInput.Key && a.MouseInput == audioInput.MouseInput && a.Frequencies[0] == audioInput.Frequencies[0]) == null)
             {
                 if (Constants.IsOn)
                 {
@@ -348,7 +350,7 @@ public class AbjectAudioInputs : MonoBehaviour
         {
             if (_timeHeldInputs == null)
                 _timeHeldInputs = new List<AudioInput>();
-            var alreadyContained = _timeHeldInputs.Find(a => a.Key == audioInput.Key && a.Hz == audioInput.Hz);
+            var alreadyContained = _timeHeldInputs.Find(a => a.Key == audioInput.Key && a.Frequencies[0] == audioInput.Frequencies[0]);
             if (alreadyContained == null)
             {
                 if (Constants.IsOn)
@@ -367,7 +369,7 @@ public class AbjectAudioInputs : MonoBehaviour
             {
                 for (int i = 0; i < _timeHeldInputs.Count; ++i)
                 {
-                    if (_timeHeldInputs[i].Key == audioInput.Key && _timeHeldInputs[i].Hz == audioInput.Hz)
+                    if (_timeHeldInputs[i].Key == audioInput.Key && _timeHeldInputs[i].Frequencies[0] == audioInput.Frequencies[0])
                     {
                         _timeHeldInputs[i].HiddenParam = Time.time + _timeHeldInputs[i].Param;
                         break;
@@ -498,6 +500,7 @@ public class AbjectAudioInputs : MonoBehaviour
         _spectrum = _spectrumAnalyzer.logSpectrumArray.ToArray();
         //_peaksCount = 0;
         _peaks.Clear();
+        CurrentFrequencies.Clear();
         if (_spectrum != null && _spectrum.Count() > 0)
         {
             int currentNbPeak = 0;
@@ -522,38 +525,24 @@ public class AbjectAudioInputs : MonoBehaviour
                     ++currentNbPeak;
                     currentPeakMax = 0.0f;
                     _peaks.Sort(new AmpComparer());
-                    if (_peaks.Count > _maxPeak)
-                        _peaks.RemoveAt(_maxPeak);
+                    if (_peaks.Count > 5)
+                        _peaks.RemoveAt(5);
                 }
                 //if (i >= hundredth && Helper.FloatEqualsPrecision(i % (float)hundredth, 0.0f, 0.2f) && _spectrum[i - hundredth] > _panel00.SpectrumThreshold && _spectrum[i] < _panel00.SpectrumThreshold)
                 //    ++_peaksCount;
             }
             _peaks.Sort(new AmpComparer());
         }
-        float freqN = 0f;
-        var total = 0.0f;
         if (_peaks.Count > 0)
         {
-            int maxN = _peaks[0].index;
-            freqN = maxN;
-
-            int i = 0;
-            while (i < _peaks.Count && i < _maxPeakCheck)
+            for (int i = 0; i < 5; ++i)
             {
-                total += _peaks[i].index;
-                ++i;
+                if (i < _peaks.Count)
+                    CurrentFrequencies.Add((_peaks[i].index * (_samplerate / 2f) / _binSize) / 100);
+                else
+                    CurrentFrequencies.Add(0.0f);
             }
-            total = total / i;
-            //var _freqNMultiplier = 0.5f;
-            //if (maxN > 0 && maxN < _binSize - 1)
-            //{
-            //    var dL = _spectrum[maxN - 1] / _spectrum[maxN];
-            //    var dR = _spectrum[maxN + 1] / _spectrum[maxN];
-            //    freqN += _freqNMultiplier * (dR * dR - dL * dL);
-            //}
         }
-        _pitchValue = total * (_samplerate / 2f) / _binSize;
-        _pitchValue /= 100.0f;
 
         if (DynRangeDB > _lastMaxBeforeNewInput)
         {

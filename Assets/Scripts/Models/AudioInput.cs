@@ -8,7 +8,7 @@ public class AudioInput
 {
     public int Id;
     public bool Enabled;
-    public float Hz;
+    public List<float> Frequencies;
     public int Peaks;
     public MouseInput MouseInput;
     public VirtualKeyCode Key;
@@ -19,8 +19,12 @@ public class AudioInput
     public AudioInput()
     {
         Enabled = true;
-        Hz = 0.00f;
-        Peaks = 0;
+        Frequencies = new List<float>();
+        for (int i = 0; i < 5; ++i)
+        {
+            Frequencies.Add(0.0f);
+        }
+        Peaks = 1;
         MouseInput = MouseInput.None;
         Key = VirtualKeyCode.NONAME;
         InputType = InputType.SingleTap;
@@ -33,7 +37,11 @@ public class AudioInput
 
         clone.Id = Id;
         clone.Enabled = Enabled;
-        clone.Hz = Hz;
+        clone.Frequencies = new List<float>();
+        for (int i = 0; i < 5; ++i)
+        {
+            Frequencies.Add(Frequencies[i]);
+        }
         clone.Peaks = Peaks;
         clone.MouseInput = MouseInput;
         clone.Key = Key;
@@ -47,7 +55,11 @@ public class AudioInput
 public class AudioInputJson
 {
     public bool Enabled;
-    public string Hz;
+    public string Hz0;
+    public string Hz1;
+    public string Hz2;
+    public string Hz3;
+    public string Hz4;
     public int Peaks;
     public int MouseInputId;
     public int KeyboardInputId;

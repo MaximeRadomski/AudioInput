@@ -105,7 +105,11 @@ public static class Helper
     {
         var json = new AudioInputJson();
         json.Enabled = audioInput.Enabled;
-        json.Hz = audioInput.Hz.ToString("F2");
+        json.Hz0 = audioInput.Frequencies[0].ToString("F2");
+        json.Hz1 = audioInput.Frequencies[1].ToString("F2");
+        json.Hz2 = audioInput.Frequencies[2].ToString("F2");
+        json.Hz3 = audioInput.Frequencies[3].ToString("F2");
+        json.Hz4 = audioInput.Frequencies[4].ToString("F2");
         json.Peaks = audioInput.Peaks;
         json.MouseInputId = audioInput.MouseInput.GetHashCode();
         json.KeyboardInputId = audioInput.Key.GetHashCode();
@@ -122,22 +126,32 @@ public static class Helper
             _nfi = cultureInfo.NumberFormat;
         }
 
-        json.Hz = json.Hz.Replace(".", _nfi.CurrencyDecimalSeparator);
-        json.Hz = json.Hz.Replace(",", _nfi.CurrencyDecimalSeparator);
-        if (json.Hz[json.Hz.Length - 1] == _nfi.CurrencyDecimalSeparator[0])
-            json.Hz += "0";
-        float hzCast = float.Parse(json.Hz);
-
         var audioInput = new AudioInput();
         audioInput.Id = -1;
         audioInput.Enabled = json.Enabled;
-        audioInput.Hz = hzCast;
+        audioInput.Frequencies = new List<float>();
+        audioInput.Frequencies.Add(CustomFloatParse(json.Hz0));
+        audioInput.Frequencies.Add(CustomFloatParse(json.Hz1));
+        audioInput.Frequencies.Add(CustomFloatParse(json.Hz2));
+        audioInput.Frequencies.Add(CustomFloatParse(json.Hz3));
+        audioInput.Frequencies.Add(CustomFloatParse(json.Hz4));
         audioInput.Peaks = json.Peaks;
         audioInput.MouseInput = (MouseInput)json.MouseInputId;
         audioInput.Key = (VirtualKeyCode)json.KeyboardInputId;
         audioInput.InputType = (InputType)json.InputTypeId;
         audioInput.Param = json.Param;
         return audioInput;
+    }
+
+    private static float CustomFloatParse(string str)
+    {
+        if (string.IsNullOrEmpty(str))
+            return 0.0f;
+        str = str.Replace(".", _nfi.CurrencyDecimalSeparator);
+        str = str.Replace(",", _nfi.CurrencyDecimalSeparator);
+        if (str[str.Length - 1] == _nfi.CurrencyDecimalSeparator[0])
+            str += "0";
+        return float.Parse(str);
     }
 
     public static bool FloatEqualsPrecision(float float1, float float2, float precision)

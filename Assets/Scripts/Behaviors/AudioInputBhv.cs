@@ -6,8 +6,9 @@ using WindowsInput.Native;
 public class AudioInputBhv : FrameRateBehavior
 {
     private CheckBoxBhv _enabled;
-    private TMPro.TextMeshPro _hzData;
-    private TMPro.TextMeshPro _peaksData;
+    //private TMPro.TextMeshPro _hzData;
+    //private TMPro.TextMeshPro _peaksData;
+    private TMPro.TextMeshPro _frequenciesData;
     private TMPro.TextMeshPro _inputData;
     private TMPro.TextMeshPro _typeData;
     private TMPro.TextMeshPro _paramData;
@@ -25,8 +26,9 @@ public class AudioInputBhv : FrameRateBehavior
         _panelBhv = panelBhv;
         _id = id;
         _enabled = transform.Find("AudioInputEnable").GetComponent<CheckBoxBhv>();
-        _hzData = transform.Find("AudioInputHz").transform.GetChild(0).GetComponent<TMPro.TextMeshPro>();
-        _peaksData = transform.Find("AudioInputPeaks").transform.GetChild(0).GetComponent<TMPro.TextMeshPro>();
+        //_hzData = transform.Find("AudioInputHz").transform.GetChild(0).GetComponent<TMPro.TextMeshPro>();
+        //_peaksData = transform.Find("AudioInputPeaks").transform.GetChild(0).GetComponent<TMPro.TextMeshPro>();
+        _frequenciesData = transform.Find("AudioInputFrequencies").transform.GetChild(0).GetComponent<TMPro.TextMeshPro>();
         _inputData = transform.Find("AudioInputInput").transform.GetChild(0).GetComponent<TMPro.TextMeshPro>();
         _typeData = transform.Find("AudioInputType").transform.GetChild(0).GetComponent<TMPro.TextMeshPro>();
         _paramData = transform.Find("AudioInputParam").transform.GetChild(0).GetComponent<TMPro.TextMeshPro>();
@@ -41,8 +43,9 @@ public class AudioInputBhv : FrameRateBehavior
     private void SetButtons()
     {
         transform.Find("AudioInputEnable").GetComponent<ButtonBhv>().EndActionDelegate = () => { SetEnabled(!_audioInput.Enabled); };
-        transform.Find("AudioInputHz").GetComponent<ButtonBhv>().EndActionDelegate = SetHzPopup;
-        transform.Find("AudioInputPeaks").GetComponent<ButtonBhv>().EndActionDelegate = SetPeaksPopup;
+        //transform.Find("AudioInputHz").GetComponent<ButtonBhv>().EndActionDelegate = SetHzPopup;
+        //transform.Find("AudioInputPeaks").GetComponent<ButtonBhv>().EndActionDelegate = SetPeaksPopup;
+        transform.Find("AudioInputFrequencies").GetComponent<ButtonBhv>().EndActionDelegate = SetFrequenciesPopup;
         transform.Find("AudioInputInput").GetComponent<ButtonBhv>().EndActionDelegate = SetInputPopup;
         transform.Find("AudioInputType").GetComponent<ButtonBhv>().EndActionDelegate = SetTypePopup;
         transform.Find("AudioInputParam").GetComponent<ButtonBhv>().EndActionDelegate = SetParamPopup;
@@ -52,8 +55,9 @@ public class AudioInputBhv : FrameRateBehavior
     private void LoadData()
     {
         SetEnabled(_audioInput.Enabled);
-        SetHz(_audioInput.Hz);
-        SetPeaks(_audioInput.Peaks);
+        //SetHz(_audioInput.Hz0);
+        //SetPeaks(_audioInput.Peaks);
+        SetFrequencies(_audioInput.Frequencies, _audioInput.Peaks);
         if (_audioInput.MouseInput == MouseInput.None)
             SetKeyboardInput(_audioInput.Key.GetHashCode());
         else
@@ -79,22 +83,33 @@ public class AudioInputBhv : FrameRateBehavior
         _panelBhv.UpdateAllEnabled();
     }
 
-    private object SetHz(float value)
-    {
-        if (value < 0.0f)
-            value = 0.0f;
-        _audioInput.Hz = value;
-        _hzData.text = value.ToString("F2");
-        return UpdateAudioInput();
-    }
+    //private object SetHz(float value)
+    //{
+    //    if (value < 0.0f)
+    //        value = 0.0f;
+    //    _audioInput.Hz0 = value;
+    //    _hzData.text = value.ToString("F2");
+    //    return UpdateAudioInput();
+    //}
 
-    private object SetPeaks(float value)
+    //private object SetPeaks(float value)
+    //{
+    //    var intValue = (int)value;
+    //    if (intValue < 0)
+    //        intValue = 0;
+    //    _audioInput.Peaks = intValue;
+    //    _peaksData.text = intValue.ToString();
+    //    return UpdateAudioInput();
+    //}
+
+    private object SetFrequencies(List<float> frequencies, int peaksNumber)
     {
-        var intValue = (int)value;
-        if (intValue < 0)
-            intValue = 0;
-        _audioInput.Peaks = intValue;
-        _peaksData.text = intValue.ToString();
+        for (int i = 0; i < 5; ++i)
+        {
+            _audioInput.Frequencies[i] = frequencies[i];
+        }
+        _audioInput.Peaks = peaksNumber;
+        _frequenciesData.text = $"       {_audioInput.Peaks}      |       {_audioInput.Frequencies[0].ToString("F2")}";
         return UpdateAudioInput();
     }
 
@@ -155,16 +170,21 @@ public class AudioInputBhv : FrameRateBehavior
         return UpdateAudioInput();
     }
 
-    private void SetHzPopup()
-    {
-        var content = $"pick a stable one";
-        _panelBhv.Instantiator.NewPopupNumber(_panelBhv.transform.position, "Frequency in Hz", content, _audioInput.Hz, 4, SetHz);
-    }
+    //private void SetHzPopup()
+    //{
+    //    var content = $"pick a stable one";
+    //    _panelBhv.Instantiator.NewPopupNumber(_panelBhv.transform.position, "Frequency in Hz", content, _audioInput.Hz0, 4, SetHz);
+    //}
 
-    private void SetPeaksPopup()
+    //private void SetPeaksPopup()
+    //{
+    //    var content = $"pick a stable one";
+    //    _panelBhv.Instantiator.NewPopupNumber(_panelBhv.transform.position, "peaks number", content, _audioInput.Peaks, 3, SetPeaks);
+    //}
+
+    private void SetFrequenciesPopup()
     {
-        var content = $"pick a stable one";
-        _panelBhv.Instantiator.NewPopupNumber(_panelBhv.transform.position, "peaks number", content, _audioInput.Peaks, 3, SetPeaks);
+        _panelBhv.Instantiator.NewPopupFrequencies(_panelBhv.transform.position, _audioInput.Frequencies, _audioInput.Peaks, SetFrequencies);
     }
 
     private void SetInputPopup()
