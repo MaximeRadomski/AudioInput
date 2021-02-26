@@ -5368,7 +5368,10 @@ MonoBehaviour:
   Layer: 0
   ForcedLayer: 0
   Sprite: {fileID: 0}
-  Content: the required frequencies for an input to be sent.
+  Content: 'the required frequencies for an input to be sent.
+
+    start with only
+    one peak, and select more if you need more precision.'
 --- !u!1 &568523025
 GameObject:
   m_ObjectHideFlags: 0
@@ -23429,6 +23432,7 @@ MonoBehaviour:
   TabBigOff: {fileID: -465877756999394448, guid: 27d19f93001db2f419f76e6766aade70, type: 3}
   TabSmallOn: {fileID: 1271722272082522542, guid: 27d19f93001db2f419f76e6766aade70, type: 3}
   TabSmallOff: {fileID: -8042527737740088811, guid: 27d19f93001db2f419f76e6766aade70, type: 3}
+  CurrentFrequencies: []
 --- !u!114 &1854409733
 MonoBehaviour:
   m_ObjectHideFlags: 0

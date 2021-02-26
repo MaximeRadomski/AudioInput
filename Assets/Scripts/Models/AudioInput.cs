@@ -40,7 +40,7 @@ public class AudioInput
         clone.Frequencies = new List<float>();
         for (int i = 0; i < 5; ++i)
         {
-            Frequencies.Add(Frequencies[i]);
+            clone.Frequencies.Add(Frequencies[i]);
         }
         clone.Peaks = Peaks;
         clone.MouseInput = MouseInput;

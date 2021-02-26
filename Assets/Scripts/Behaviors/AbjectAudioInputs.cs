@@ -257,7 +257,7 @@ public class AbjectAudioInputs : MonoBehaviour
         {
             if (_nbConsecutiveFrames >= _panel00.RequiredFrames)
             {
-                PrepareAudioInputsFromFrequency(CurrentFrequencies[0]);
+                PrepareAudioInputsFromFrequency();
                 OnRecordingFrequencies?.Invoke(CurrentFrequencies);
             }
             ++_nbConsecutiveFrames;
@@ -267,14 +267,12 @@ public class AbjectAudioInputs : MonoBehaviour
         _lastFrameFrequency = CurrentFrequencies[0];
     }
 
-    private void PrepareAudioInputsFromFrequency(float frequency)
+    private void PrepareAudioInputsFromFrequency()
     {
         var validFrequencies = new List<AudioInput>();
         for (int i = 0; i < _panel01.AudioInputs.Count; ++i)
         {
-            //var isSet = (_panel01.AudioInputs[i].InputType != InputType.Mouse && _panel01.AudioInputs[i].Key != VirtualKeyCode.NONAME) || (_panel01.AudioInputs[i].InputType == InputType.Mouse && _panel01.AudioInputs[i].MouseInput != MouseInput.None);
-            var isSet = _panel01.AudioInputs[i].Frequencies[0] > 0.0f;
-            if (_panel01.AudioInputs[i].Enabled && isSet && Helper.FloatEqualsPrecision(CurrentFrequencies[0], _panel01.AudioInputs[i].Frequencies[0], _panel00.HzOffset))
+            if (IsAudioInputValid(_panel01.AudioInputs[i]))
             {
                 validFrequencies.Add(_panel01.AudioInputs[i]);
             }
@@ -305,6 +303,22 @@ public class AbjectAudioInputs : MonoBehaviour
                 SendAudioInput(validFrequencies[lowestId]);
         }
 
+    }
+
+    private bool IsAudioInputValid(AudioInput audioInput)
+    {
+        var isSet = audioInput.Frequencies[0] > 0.0f;
+        if (!isSet || !audioInput.Enabled)
+            return false;
+        var nbValidFrequencies = 0;
+        for (int i = 0; i < audioInput.Peaks; ++i)
+        {
+            //pour chaque peak de audioinput, vérifier si un équivalent à peu près existe dans currentFrequencies
+            var validList = CurrentFrequencies.Where(f => Helper.FloatEqualsPrecision(f, audioInput.Frequencies[i], _panel00.HzOffset));
+            if (validList != null && validList.Count() > 0)
+                ++nbValidFrequencies;
+        }
+        return nbValidFrequencies >= audioInput.Peaks;
     }
 
     private void SendAudioInput(AudioInput audioInput)
