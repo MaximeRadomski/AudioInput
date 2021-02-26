@@ -157,8 +157,8 @@ public class AudioInputBhv : FrameRateBehavior
                || _audioInput.InputType == InputType.Held
                || _audioInput.InputType == InputType.CustomTap)
         {
-            if (_audioInput.InputType == InputType.Held && intValue > Constants.HeldUntilReleased)
-                intValue = Constants.HeldUntilReleased;
+            if (_audioInput.InputType == InputType.Held && intValue > Constants.HeldOnlyListened)
+                intValue = Constants.HeldOnlyListened;
             _audioInput.Param = intValue;
             _paramData.text = intValue.ToString();
         }
@@ -214,7 +214,7 @@ public class AudioInputBhv : FrameRateBehavior
         if (_audioInput.InputType == InputType.SingleTap && Helper.IsMouseDirection(_audioInput.MouseInput))
             content = "cursor offset\n1 = 1 pixel";
         else if (_audioInput.InputType == InputType.Held)
-            content = "1 = held until level reset\n2 = held only when listened";
+            content = $"{Constants.HeldUntilReset} = held until level reset\n{Constants.HeldUntilNext} = held until next note\n{Constants.HeldOnlyListened} = held only when listened";
         else if (_audioInput.InputType == InputType.CustomTap)
             content = "the number of times the input\nwill be sent";
         else if (_audioInput.InputType == InputType.TimeHeld)

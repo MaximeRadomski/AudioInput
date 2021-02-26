@@ -10,6 +10,7 @@ public class Panel03Bhv : PanelBhv
     public float CustomTapDelay;
     public int MouseSensitivity;
     private OnOffHeld _onOffShortcut;
+    private OnOffStatus _hoverHelpStatus;
 
     private TMPro.TextMeshPro _resolutionData;
     private TMPro.TextMeshPro _languageData;
@@ -17,6 +18,7 @@ public class Panel03Bhv : PanelBhv
     private TMPro.TextMeshPro _customTapDelayData;
     private TMPro.TextMeshPro _mouseSensitivityData;
     private TMPro.TextMeshPro _onOffShortcutData;
+    private TMPro.TextMeshPro _hoverHelpStatusData;
 
     void Start()
     {
@@ -34,6 +36,7 @@ public class Panel03Bhv : PanelBhv
         CustomTapDelay = PlayerPrefHelper.GetCustomTapDelay();
         MouseSensitivity = PlayerPrefHelper.GetMouseSensitivity();
         _onOffShortcut = PlayerPrefHelper.GetOnOffShortcut();
+        _hoverHelpStatus = PlayerPrefHelper.GetHoverHelpStatus();
 
         _resolutionData = Helper.GetFieldData("Resolution");
         _languageData = Helper.GetFieldData("Language");
@@ -41,6 +44,7 @@ public class Panel03Bhv : PanelBhv
         _customTapDelayData = Helper.GetFieldData("CustomTapDelay");
         _mouseSensitivityData = Helper.GetFieldData("MouseSensitivity");
         _onOffShortcutData = Helper.GetFieldData("OnOffShortcut");
+        _hoverHelpStatusData = Helper.GetFieldData("HoverHelpStatus");
     }
 
     private void SetButtons()
@@ -51,6 +55,7 @@ public class Panel03Bhv : PanelBhv
         Helper.GetFieldButton("CustomTapDelay").EndActionDelegate = SetCustomTapDelayPopup;
         Helper.GetFieldButton("MouseSensitivity").EndActionDelegate = SetMouseSensitivityPopup;
         Helper.GetFieldButton("OnOffShortcut").EndActionDelegate = SetOnOffShortcutPopup;
+        Helper.GetFieldButton("HoverHelpStatus").EndActionDelegate = SetHoverHelpStatusPopup;
 
         Helper.GetFieldButton("ResetCalibration").EndActionDelegate = ResetCalibrationPopup;
     }
@@ -63,6 +68,7 @@ public class Panel03Bhv : PanelBhv
         SetCustomTapDelay(CustomTapDelay);
         SetMouseSensitivity(MouseSensitivity);
         SetOnOffShortcut(_onOffShortcut.GetHashCode());
+        SetHoverHelpStatus(_hoverHelpStatus.GetHashCode());
     }
 
     private object SetResolution(int id)
@@ -128,6 +134,16 @@ public class Panel03Bhv : PanelBhv
         return true;
     }
 
+    private object SetHoverHelpStatus(int statusId)
+    {
+        OnOffStatus status = (OnOffStatus)statusId;
+        _hoverHelpStatus = status;
+        Constants.HoverHelpStatus = _hoverHelpStatus;
+        PlayerPrefHelper.SetHoverHelpStatus(status);
+        _hoverHelpStatusData.text = status.ToString().ToLower();
+        return true;
+    }
+
     private object ResetCalibration(bool result)
     {
         if (!result)
@@ -165,6 +181,11 @@ public class Panel03Bhv : PanelBhv
     private void SetOnOffShortcutPopup()
     {
         this.Instantiator.NewPopupEnum<OnOffHeld>(transform.position, "on off shortcut", _onOffShortcut.GetHashCode(), SetOnOffShortcut);
+    }
+
+    private void SetHoverHelpStatusPopup()
+    {
+        this.Instantiator.NewPopupEnum<OnOffStatus>(transform.position, "hover help status", _hoverHelpStatus.GetHashCode(), SetHoverHelpStatus);
     }
 
     private void ResetCalibrationPopup()

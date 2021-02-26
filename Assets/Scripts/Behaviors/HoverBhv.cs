@@ -8,6 +8,8 @@ public class HoverBhv : InputBhv
     [TextArea]
     public string Content;
     private GameObject _hoverWindow;
+    private GameObject _clickMeHoverWindow;
+    public bool ClickMe = false;
 
     void Start()
     {
@@ -18,6 +20,7 @@ public class HoverBhv : InputBhv
     {
         base.Init();
         _hoverWindow = GameObject.Find("HoverWindow");
+        _clickMeHoverWindow = GameObject.Find("ClickMeHoverWindow");
     }
 
     public override void BeginAction(Vector2 initialTouchPosition)
@@ -32,13 +35,15 @@ public class HoverBhv : InputBhv
 
     public override void DoAction(Vector2 touchPosition)
     {
+        if (Constants.HoverHelpStatus == OnOffStatus.Off)
+            return;
         var x = 11.3f;
         var y = -4;
         if (touchPosition.x > 0)
             x = -x + 0.3f;
         if (touchPosition.y < 0)
             y = -y;
-        if (_hoverWindow != null)
+        if (!ClickMe && _hoverWindow != null)
         {
             _hoverWindow.transform.position = new Vector3(touchPosition.x + x, touchPosition.y + y, 0.0f);
             if (Sprite != null)
@@ -52,7 +57,10 @@ public class HoverBhv : InputBhv
                 _hoverWindow.transform.Find("Content").GetComponent<TMPro.TextMeshPro>().text = Content.ToLower();
             }
         }
-
+        else if (ClickMe && _clickMeHoverWindow != null)
+        {
+            _clickMeHoverWindow.transform.position = new Vector3(touchPosition.x + 2.6f, touchPosition.y - 1.0f, 0.0f);
+        }
     }
 
     public override void EndAction(Vector2 lastTouchPosition)

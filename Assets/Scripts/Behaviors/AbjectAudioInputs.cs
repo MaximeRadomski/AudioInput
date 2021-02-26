@@ -100,7 +100,7 @@ public class AbjectAudioInputs : MonoBehaviour
         OnOff(Constants.IsOn);
         StartCoroutine(Helper.ExecuteAfterDelay(0.1f, () =>
         {
-            if (!Constants.HasInit)
+            if (!Constants.HasInit && Constants.HoverHelpStatus == OnOffStatus.On)
                 _instantiator.NewPopupYesNo(_panel00.transform.position, "hover help", "this tool use a hover system to explain its features. if you are not sure what a feature does, hover its label to get its description.", null, "understood", null);
             Constants.HasInit = true;
             return true;
@@ -126,7 +126,10 @@ public class AbjectAudioInputs : MonoBehaviour
                 tabSpriteRenderer.sprite = i < 3 ? TabBigOn : TabSmallOn;
                 tabSpriteRenderer.sortingOrder = 10;
                 if (textMesh != null)
+                {
                     textMesh.text = $"<material=\"3x5.1.2.3\">{textMesh.text}";
+                    textMesh.transform.position += new Vector3(0.0f, Constants.Pixel, 0.0f);
+                }
             }
             else
             {
@@ -135,7 +138,10 @@ public class AbjectAudioInputs : MonoBehaviour
                 tabSpriteRenderer.sprite = i < 3 ? TabBigOff : TabSmallOff;
                 tabSpriteRenderer.sortingOrder = 0;
                 if (textMesh != null && textMesh.text.Contains("material"))
+                {
                     textMesh.text = textMesh.text.Substring(22);
+                    textMesh.transform.position += new Vector3(0.0f, -Constants.Pixel, 0.0f);
+                }
             }
         }
     }
@@ -166,7 +172,7 @@ public class AbjectAudioInputs : MonoBehaviour
         if (_timeHeldInputs != null && _timeHeldInputs.Count > 0)
             HandleTimeHeld();
 
-        _currentValidAudioInput = null;
+        _tickHeldAudioInput = null;
     }    
 
     private void HeldReset()
@@ -204,9 +210,12 @@ public class AbjectAudioInputs : MonoBehaviour
     {
         for (int i = _heldInputs.Count - 1; i >= 0; --i)
         {
-            if (_currentValidAudioInput != null && _heldInputs[i] != null
-                && (int)_heldInputs[i].Param == Constants.HeldUntilReleased
-                && !(_heldInputs[i].Key == _currentValidAudioInput.Key && _heldInputs[i].MouseInput == _currentValidAudioInput.MouseInput && _heldInputs[i].Frequencies[0] == _currentValidAudioInput.Frequencies[0]))
+            var heldUntilNextReset = _tickHeldAudioInput != null && _heldInputs[i] != null
+                && (int)_heldInputs[i].Param == Constants.HeldUntilNext
+                && !(_heldInputs[i].Key == _tickHeldAudioInput.Key && _heldInputs[i].MouseInput == _tickHeldAudioInput.MouseInput && IsAudioInputValid(_heldInputs[i], _tickHeldAudioInput.Frequencies));
+            var heldOnlyListenedReset = _tickHeldAudioInput == null && _heldInputs[i] != null
+                && (int)_heldInputs[i].Param == Constants.HeldOnlyListened;
+            if (heldUntilNextReset || heldOnlyListenedReset)
             {
                 if (_heldInputs[i].MouseInput == MouseInput.None)
                     _inputSimulator.Keyboard.KeyUp(_heldInputs[i].Key);
@@ -244,7 +253,7 @@ public class AbjectAudioInputs : MonoBehaviour
     private int _nbConsecutiveFramesDefault = 1;
     private bool _hasToWaitResetBeforeNewSingle = false;
     private float _lastMaxBeforeNewInput = 0.0f;
-    private AudioInput _currentValidAudioInput;
+    private AudioInput _tickHeldAudioInput;
 
     private List<AudioInput> _heldInputs;
     private List<AudioInput> _timeHeldInputs;
@@ -281,32 +290,18 @@ public class AbjectAudioInputs : MonoBehaviour
             SendAudioInput(validFrequencies[0]);
         else if (validFrequencies.Count > 1)
         {
-            var lowestPeakDifference = 1080;
-            var lowestId = -1;
-            for (int i = 0; i < validFrequencies.Count; ++i)
-            {
-                var difference = Mathf.Abs(validFrequencies[i].Peaks - _peaks.Count);
-                if (difference < lowestPeakDifference)
-                {
-                    lowestPeakDifference = difference;
-                    lowestId = i;
-                }
-                else if (difference == lowestPeakDifference
-                    && ((_panel00.PeaksPriority == PeaksPriority.Higher && validFrequencies[i].Peaks > validFrequencies[lowestId].Peaks)
-                    || (_panel00.PeaksPriority == PeaksPriority.Lower && validFrequencies[i].Peaks < validFrequencies[lowestId].Peaks)))
-                {
-                    lowestPeakDifference = difference;
-                    lowestId = i;
-                }
-            }
-            if (lowestId != -1)
-                SendAudioInput(validFrequencies[lowestId]);
+            validFrequencies.Sort((ai1, ai2) => ai1.Peaks.CompareTo(ai2.Peaks)); //Croissant
+            if (_panel00.PeaksPriority == PeaksPriority.Higher)
+                SendAudioInput(validFrequencies[validFrequencies.Count - 1]);
+            else
+                SendAudioInput(validFrequencies[0]);
         }
-
     }
 
-    private bool IsAudioInputValid(AudioInput audioInput)
+    private bool IsAudioInputValid(AudioInput audioInput, List<float> currentFrequencies = null)
     {
+        if (currentFrequencies == null)
+            currentFrequencies = CurrentFrequencies;
         var isSet = audioInput.Frequencies[0] > 0.0f;
         if (!isSet || !audioInput.Enabled)
             return false;
@@ -314,7 +309,7 @@ public class AbjectAudioInputs : MonoBehaviour
         for (int i = 0; i < audioInput.Peaks; ++i)
         {
             //pour chaque peak de audioinput, vérifier si un équivalent à peu près existe dans currentFrequencies
-            var validList = CurrentFrequencies.Where(f => Helper.FloatEqualsPrecision(f, audioInput.Frequencies[i], _panel00.HzOffset));
+            var validList = currentFrequencies.GetRange(0, audioInput.Peaks).Where(f => Helper.FloatEqualsPrecision(f, audioInput.Frequencies[i], _panel00.HzOffset));
             if (validList != null && validList.Count() > 0)
                 ++nbValidFrequencies;
         }
@@ -353,7 +348,7 @@ public class AbjectAudioInputs : MonoBehaviour
                 UpdatePanelVisual(true, inputStr, InputType.Held, audioInput.Id);
                 _heldInputs.Add(audioInput);
             }
-            _currentValidAudioInput = audioInput.Clone();
+            _tickHeldAudioInput = audioInput.Clone();
         }
         else if (audioInput.InputType == InputType.CustomTap && !_hasToWaitResetBeforeNewSingle && DynRangeDB > _currentSingleFrameReset)
         {
@@ -542,8 +537,6 @@ public class AbjectAudioInputs : MonoBehaviour
                     if (_peaks.Count > 5)
                         _peaks.RemoveAt(5);
                 }
-                //if (i >= hundredth && Helper.FloatEqualsPrecision(i % (float)hundredth, 0.0f, 0.2f) && _spectrum[i - hundredth] > _panel00.SpectrumThreshold && _spectrum[i] < _panel00.SpectrumThreshold)
-                //    ++_peaksCount;
             }
             _peaks.Sort(new AmpComparer());
         }

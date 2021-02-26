@@ -12,6 +12,7 @@ public class InputControlerBhv : MonoBehaviour
     private Camera _mainCamera;
     private bool _hasInit;
     private GameObject _hoverWindow;
+    private GameObject _clickMeHoverWindow;
 
     private AbjectAudioInputs _abjectAudioInputs;
 
@@ -25,6 +26,7 @@ public class InputControlerBhv : MonoBehaviour
     {
         _mainCamera = Helper.GetMainCamera();
         _hoverWindow = GameObject.Find("HoverWindow");
+        _clickMeHoverWindow = GameObject.Find("ClickMeHoverWindow");
         _hasInit = true;
         _abjectAudioInputs = GameObject.Find(Constants.AbjectAudioInputs).GetComponent<AbjectAudioInputs>();
         
@@ -138,6 +140,7 @@ public class InputControlerBhv : MonoBehaviour
     private void ResetHoverWindow()
     {
         _hoverWindow.transform.position = new Vector3(-35.0f, 20.0f, 0.0f);
+        _clickMeHoverWindow.transform.position = new Vector3(-35.0f, 20.0f, 0.0f);
     }
 
     private void CancelCurrentObjectIfNewBeforeEnd(GameObject touchedGameObject = null)

@@ -90,7 +90,7 @@ public class PopupFrequencies : PopupBhv
                 _currentFrequencies[i].Add(new FrequencyCount(frequencies[i], 1));
             else
                 _currentFrequencies[i][alreadyId].Count += 1;
-            _currentFrequencies[i].Sort((fc1, fc2) => fc1.Count.CompareTo(fc2.Count));
+            _currentFrequencies[i].Sort((fc1, fc2) => fc1.Count.CompareTo(fc2.Count)); //Ascending
             _currentFrequencies[i].Reverse();
         }
 

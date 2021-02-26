@@ -468,6 +468,8 @@ public class Panel00Bhv : PanelBhv
             }
             else if (key != string.Empty)
             {
+                if (key.ToLower() == "noname")
+                    key = "none";
                 Instantiator.PopText(key.ToLower(), position + new Vector3(0.0f, 1.5f, 0.0f), distance: 2.0f, startFadingDistancePercent: 0.50f);
             }
         }

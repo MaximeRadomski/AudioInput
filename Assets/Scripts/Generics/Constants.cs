@@ -8,10 +8,12 @@ public static class Constants
     public const int MaxAudioInputs = 256;
     public const float SingleTapDelay = 0.05f;
     public const int HeldUntilReset = 1;
-    public const int HeldUntilReleased = 2;
+    public const int HeldUntilNext = 2;
+    public const int HeldOnlyListened = 3;
     public const string ExportsFolderName = "Exports";
     public const string AudioInputsJson = "AudioInputsJson";
     public static OnOffHeld OnOffShortcut;
+    public static OnOffStatus HoverHelpStatus;
 
     private static float? _frame;
     public static float? Frame {
@@ -44,7 +46,7 @@ public static class Constants
     public const string PpHzOffset = "HzOffset";
     public const float PpHzOffsetDefault = 0.5f;
     public const string PpRequiredFrames = "RequiredFrames";
-    public const int PpRequiredFramesDefault = 4;
+    public const int PpRequiredFramesDefault = 2;
     public const string PpPeaksPriority = "PeaksPriority";
     public const int PpPeaksPriorityDefault = 0;
     public const string PpHeldReset = "HeldReset";
@@ -75,6 +77,8 @@ public static class Constants
     public const float PpCustomTapDelayDefault = 0.5f;
     public const string PpMouseSensitivity = "MouseSensitivity";
     public const int PpMouseSensitivityDefault = 10;
+    public const string PpHoverHelpStatus = "HoverHelpStatus";
+    public const int PpHoverHelpStatusDefault = (int)OnOffStatus.On;
     public const string PpOnOffShortcut = "OnOffShortcut";
     public const int PpOnOffShortcutDefault = (int)OnOffHeld.F5;
 

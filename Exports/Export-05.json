@@ -1,7 +1,0 @@
-"AudioInputsJson": [
-{"Enabled":true,"Hz0":"78.87","Hz1":"93.98","Hz2":"103.59","Hz3":"111.91","Hz4":"55.55","Peaks":3,"MouseInputId":-1,"KeyboardInputId":90,"InputTypeId":2,"Param":1.0},
-{"Enabled":true,"Hz0":"66.91","Hz1":"82.27","Hz2":"43.83","Hz3":"91.76","Hz4":"99.14","Peaks":3,"MouseInputId":-1,"KeyboardInputId":81,"InputTypeId":2,"Param":2.0},
-{"Enabled":true,"Hz0":"69.26","Hz1":"43.83","Hz2":"83.79","Hz3":"93.98","Hz4":"101.95","Peaks":3,"MouseInputId":-1,"KeyboardInputId":83,"InputTypeId":2,"Param":1.0},
-{"Enabled":true,"Hz0":"71.37","Hz1":"48.05","Hz2":"85.20","Hz3":"103.59","Hz4":"0.00","Peaks":3,"MouseInputId":-1,"KeyboardInputId":68,"InputTypeId":2,"Param":2.0},
-{"Enabled":true,"Hz0":"77.23","Hz1":"91.76","Hz2":"101.95","Hz3":"52.03","Hz4":"109.80","Peaks":2,"MouseInputId":4,"KeyboardInputId":252,"InputTypeId":2,"Param":2.0},
-{"Enabled":true,"Hz0":"82.27","Hz1":"96.09","Hz2":"106.05","Hz3":"58.71","Hz4":"0.00","Peaks":2,"MouseInputId":5,"KeyboardInputId":252,"InputTypeId":2,"Param":2.0}]
