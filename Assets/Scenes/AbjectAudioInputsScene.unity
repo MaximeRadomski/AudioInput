@@ -2030,8 +2030,8 @@ MonoBehaviour:
   Content: '<material="3x5.1.2.3">light colored line on level analyser</material>
 
     the
-    volume level must fall below this line before another "single tap", "custom tap"
-    or "time held" input can be registered.'
+    volume level must fall below this line before another "tap", "custom tap" or
+    "time held" input can be registered.'
   ClickMe: 0
 --- !u!61 &176138202
 BoxCollider2D:

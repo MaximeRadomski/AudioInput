@@ -85,7 +85,6 @@ public class InputControlerBhv : MonoBehaviour
                         || IsTheLowestInput(_currentInput, hitsInformation)
                         || IsUnderSprite(_currentInput, hitsInformation))
                         continue;
-                    ResetHoverWindow();
                     if (_beginPhase)
                     {
                         _lastDownInput = _currentInput;

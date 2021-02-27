@@ -5,12 +5,12 @@ using UnityEngine;
 
 public enum InputType
 {
-    [Description("Single Tap")]
-    SingleTap,
+    [Description("Tap")]
+    Tap,
     [Description("Custom Tap")]
     CustomTap,
     [Description("Held")]
     Held,
-    [Description("Time Held")]
-    TimeHeld
+    [Description("Custom Held")]
+    CustomHeld
 }

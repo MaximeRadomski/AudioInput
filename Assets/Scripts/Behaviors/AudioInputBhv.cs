@@ -6,8 +6,6 @@ using WindowsInput.Native;
 public class AudioInputBhv : FrameRateBehavior
 {
     private CheckBoxBhv _enabled;
-    //private TMPro.TextMeshPro _hzData;
-    //private TMPro.TextMeshPro _peaksData;
     private TMPro.TextMeshPro _frequenciesData;
     private TMPro.TextMeshPro _inputData;
     private TMPro.TextMeshPro _typeData;
@@ -16,7 +14,6 @@ public class AudioInputBhv : FrameRateBehavior
 
     private AudioInput _audioInput;
     private Panel01Bhv _panelBhv;
-    //private bool _hasInit;
     private int _id;
     private bool _isTilting;
 
@@ -26,8 +23,6 @@ public class AudioInputBhv : FrameRateBehavior
         _panelBhv = panelBhv;
         _id = id;
         _enabled = transform.Find("AudioInputEnable").GetComponent<CheckBoxBhv>();
-        //_hzData = transform.Find("AudioInputHz").transform.GetChild(0).GetComponent<TMPro.TextMeshPro>();
-        //_peaksData = transform.Find("AudioInputPeaks").transform.GetChild(0).GetComponent<TMPro.TextMeshPro>();
         _frequenciesData = transform.Find("AudioInputFrequencies").transform.GetChild(0).GetComponent<TMPro.TextMeshPro>();
         _inputData = transform.Find("AudioInputInput").transform.GetChild(0).GetComponent<TMPro.TextMeshPro>();
         _typeData = transform.Find("AudioInputType").transform.GetChild(0).GetComponent<TMPro.TextMeshPro>();
@@ -43,8 +38,6 @@ public class AudioInputBhv : FrameRateBehavior
     private void SetButtons()
     {
         transform.Find("AudioInputEnable").GetComponent<ButtonBhv>().EndActionDelegate = () => { SetEnabled(!_audioInput.Enabled); };
-        //transform.Find("AudioInputHz").GetComponent<ButtonBhv>().EndActionDelegate = SetHzPopup;
-        //transform.Find("AudioInputPeaks").GetComponent<ButtonBhv>().EndActionDelegate = SetPeaksPopup;
         transform.Find("AudioInputFrequencies").GetComponent<ButtonBhv>().EndActionDelegate = SetFrequenciesPopup;
         transform.Find("AudioInputInput").GetComponent<ButtonBhv>().EndActionDelegate = SetInputPopup;
         transform.Find("AudioInputType").GetComponent<ButtonBhv>().EndActionDelegate = SetTypePopup;
@@ -55,8 +48,6 @@ public class AudioInputBhv : FrameRateBehavior
     private void LoadData()
     {
         SetEnabled(_audioInput.Enabled);
-        //SetHz(_audioInput.Hz0);
-        //SetPeaks(_audioInput.Peaks);
         SetFrequencies(_audioInput.Frequencies, _audioInput.Peaks);
         if (_audioInput.MouseInput == MouseInput.None)
             SetKeyboardInput(_audioInput.Key.GetHashCode());
@@ -82,25 +73,6 @@ public class AudioInputBhv : FrameRateBehavior
         UpdateAudioInput();
         _panelBhv.UpdateAllEnabled();
     }
-
-    //private object SetHz(float value)
-    //{
-    //    if (value < 0.0f)
-    //        value = 0.0f;
-    //    _audioInput.Hz0 = value;
-    //    _hzData.text = value.ToString("F2");
-    //    return UpdateAudioInput();
-    //}
-
-    //private object SetPeaks(float value)
-    //{
-    //    var intValue = (int)value;
-    //    if (intValue < 0)
-    //        intValue = 0;
-    //    _audioInput.Peaks = intValue;
-    //    _peaksData.text = intValue.ToString();
-    //    return UpdateAudioInput();
-    //}
 
     private object SetFrequencies(List<float> frequencies, int peaksNumber)
     {
@@ -147,13 +119,13 @@ public class AudioInputBhv : FrameRateBehavior
         var intValue = (int)value;
         if (intValue < 1)
             intValue = 1;
-        if (_audioInput.InputType == InputType.SingleTap && !Helper.IsMouseDirection(_audioInput.MouseInput))
+        if (_audioInput.InputType == InputType.Tap && !Helper.IsMouseDirection(_audioInput.MouseInput))
         {
             _audioInput.Param = value;
             _paramData.text = "/";
             return false;
         }
-        else if ((_audioInput.InputType == InputType.SingleTap && Helper.IsMouseDirection(_audioInput.MouseInput))
+        else if ((_audioInput.InputType == InputType.Tap && Helper.IsMouseDirection(_audioInput.MouseInput))
                || _audioInput.InputType == InputType.Held
                || _audioInput.InputType == InputType.CustomTap)
         {
@@ -162,25 +134,13 @@ public class AudioInputBhv : FrameRateBehavior
             _audioInput.Param = intValue;
             _paramData.text = intValue.ToString();
         }
-        else if (_audioInput.InputType == InputType.TimeHeld)
+        else if (_audioInput.InputType == InputType.CustomHeld)
         {
             _audioInput.Param = value;
             _paramData.text = value.ToString("F2");
         }
         return UpdateAudioInput();
     }
-
-    //private void SetHzPopup()
-    //{
-    //    var content = $"pick a stable one";
-    //    _panelBhv.Instantiator.NewPopupNumber(_panelBhv.transform.position, "Frequency in Hz", content, _audioInput.Hz0, 4, SetHz);
-    //}
-
-    //private void SetPeaksPopup()
-    //{
-    //    var content = $"pick a stable one";
-    //    _panelBhv.Instantiator.NewPopupNumber(_panelBhv.transform.position, "peaks number", content, _audioInput.Peaks, 3, SetPeaks);
-    //}
 
     private void SetFrequenciesPopup()
     {
@@ -207,18 +167,18 @@ public class AudioInputBhv : FrameRateBehavior
     }
     private void SetParamPopup()
     {
-        if (_audioInput.InputType == InputType.SingleTap && !Helper.IsMouseDirection(_audioInput.MouseInput))
+        if (_audioInput.InputType == InputType.Tap && !Helper.IsMouseDirection(_audioInput.MouseInput))
             return;
         var maxDigit = 2;
-        var content = $"linked to the input type";
-        if (_audioInput.InputType == InputType.SingleTap && Helper.IsMouseDirection(_audioInput.MouseInput))
-            content = "cursor offset\n1 = 1 pixel";
+        var content = $"linked to the input type.";
+        if (_audioInput.InputType == InputType.Tap && Helper.IsMouseDirection(_audioInput.MouseInput))
+            content = "cursor offset.\n1 = 1 pixel.";
         else if (_audioInput.InputType == InputType.Held)
-            content = $"{Constants.HeldUntilReset} = held until level reset\n{Constants.HeldUntilNext} = held until next note\n{Constants.HeldOnlyListened} = held only when listened";
+            content = $"{Constants.HeldUntilReset} = held until level reset.\n{Constants.HeldUntilNext} = held until next note.\n{Constants.HeldOnlyListened} = held only when listened.";
         else if (_audioInput.InputType == InputType.CustomTap)
-            content = "the number of times the input\nwill be sent";
-        else if (_audioInput.InputType == InputType.TimeHeld)
-            content = "the number of seconds the input\nwill be held";
+            content = "the number of times the input\nwill be sent.";
+        else if (_audioInput.InputType == InputType.CustomHeld)
+            content = $"{Constants.HeldUntilCalled} = held until called again.\n over {Constants.HeldUntilCalled} = number of seconds\nthe input will be held";
         _panelBhv.Instantiator.NewPopupNumber(_panelBhv.transform.position, "type param", content, _audioInput.Param, maxDigit, SetParam);
     }
 

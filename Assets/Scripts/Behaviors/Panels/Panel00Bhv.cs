@@ -429,7 +429,7 @@ public class Panel00Bhv : PanelBhv
     private int _minFramesDown = 4;
     private int _framesDown = 0;
 
-    public void UpdateIcon(bool down, string key = null, InputType type = InputType.SingleTap)
+    public void UpdateIcon(bool down, string key = null, InputType type = InputType.Tap)
     {
         if (!enabled)
             return;
@@ -459,7 +459,7 @@ public class Panel00Bhv : PanelBhv
                 position = _customTapSpawn.position;
             else if (type == InputType.Held)
                 position = _heldSpawn.position;
-            else if (type == InputType.TimeHeld)
+            else if (type == InputType.CustomHeld)
                 position = _timeHeldSpawn.position;
             if (key == "_")
             {

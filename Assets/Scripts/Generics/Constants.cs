@@ -7,6 +7,7 @@ public static class Constants
     public const float Pixel = 0.14285f;
     public const int MaxAudioInputs = 256;
     public const float SingleTapDelay = 0.05f;
+    public const int HeldUntilCalled = 0;
     public const int HeldUntilReset = 1;
     public const int HeldUntilNext = 2;
     public const int HeldOnlyListened = 3;

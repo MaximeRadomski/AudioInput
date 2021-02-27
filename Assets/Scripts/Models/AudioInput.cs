@@ -27,7 +27,7 @@ public class AudioInput
         Peaks = 1;
         MouseInput = MouseInput.None;
         Key = VirtualKeyCode.NONAME;
-        InputType = InputType.SingleTap;
+        InputType = InputType.Tap;
         Param = 0.0f;
     }
 
