@@ -99,4 +99,7 @@ public class PlayerPrefHelper : MonoBehaviour
 
     public static void SetHoverHelpStatus(OnOffStatus hoverHelpStatus) { PlayerPrefs.SetInt(Constants.PpHoverHelpStatus, hoverHelpStatus.GetHashCode()); }
     public static OnOffStatus GetHoverHelpStatus() { return (OnOffStatus)PlayerPrefs.GetInt(Constants.PpHoverHelpStatus, Constants.PpHoverHelpStatusDefault); }
+
+    public static void SetFont(string fontName) { PlayerPrefs.SetString(Constants.PpFont, fontName); }
+    public static string GetFont() { return PlayerPrefs.GetString(Constants.PpFont, Constants.PpFontDefault); }
 }

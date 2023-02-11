@@ -16,9 +16,11 @@ public class AudioInputBhv : FrameRateBehavior
     private Panel01Bhv _panelBhv;
     private int _id;
     private bool _isTilting;
+    private bool _hasInit;
 
     public void Init(AudioInput audioInput, Panel01Bhv panelBhv, int id)
     {
+        _hasInit = false;
         _audioInput = audioInput;
         _panelBhv = panelBhv;
         _id = id;
@@ -32,7 +34,7 @@ public class AudioInputBhv : FrameRateBehavior
 
         SetButtons();
         LoadData();
-        //_hasInit = true;
+        _hasInit = true;
     }
 
     private void SetButtons()
@@ -43,6 +45,7 @@ public class AudioInputBhv : FrameRateBehavior
         transform.Find("AudioInputType").GetComponent<ButtonBhv>().EndActionDelegate = SetTypePopup;
         transform.Find("AudioInputParam").GetComponent<ButtonBhv>().EndActionDelegate = SetParamPopup;
         transform.Find("AudioInputDelete").GetComponent<ButtonBhv>().EndActionDelegate = Delete;
+        transform.Find("RenameButton").GetComponent<ButtonBhv>().EndActionDelegate = Rename;
     }
 
     private void LoadData()
@@ -59,6 +62,8 @@ public class AudioInputBhv : FrameRateBehavior
 
     private bool UpdateAudioInput()
     {
+        if (!_hasInit)
+            return false;
         PlayerPrefHelper.SetAudioInput(_audioInput, _id);
         return true;
     }
@@ -81,8 +86,29 @@ public class AudioInputBhv : FrameRateBehavior
             _audioInput.Frequencies[i] = frequencies[i];
         }
         _audioInput.Peaks = peaksNumber;
-        _frequenciesData.text = $"       {_audioInput.Peaks}      |       {_audioInput.Frequencies[0].ToString("F2")}";
+        DisplayFrequenciesOfName();
         return UpdateAudioInput();
+    }
+
+    private object SetName(string name)
+    {
+        _audioInput.Name = name;
+        DisplayFrequenciesOfName();
+        return UpdateAudioInput();
+    }
+
+    private void DisplayFrequenciesOfName()
+    {
+        if (string.IsNullOrEmpty(_audioInput.Name))
+        {
+            _frequenciesData.alignment = TMPro.TextAlignmentOptions.Left;
+            _frequenciesData.text = $"  {_audioInput.Peaks}     |     {_audioInput.Frequencies[0].ToString("F2")}";
+        }
+        else
+        {
+            _frequenciesData.alignment = TMPro.TextAlignmentOptions.Center;
+            _frequenciesData.text = _audioInput.Name;
+        }
     }
 
     private object SetKeyboardInput(int keyCodeId)
@@ -180,6 +206,11 @@ public class AudioInputBhv : FrameRateBehavior
         else if (_audioInput.InputType == InputType.CustomHeld)
             content = $"{Constants.HeldUntilCalled} = held until called again.\n over {Constants.HeldUntilCalled} = number of seconds\nthe input will be held";
         _panelBhv.Instantiator.NewPopupNumber(_panelBhv.transform.position, "type param", content, _audioInput.Param, maxDigit, SetParam);
+    }
+
+    private void Rename()
+    {
+        _panelBhv.Instantiator.NewPopupText(_panelBhv.transform.position, "Rename", "Give it a name !", _audioInput.Name, 12, SetName);
     }
 
     private void Delete()

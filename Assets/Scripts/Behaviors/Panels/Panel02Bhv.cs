@@ -49,6 +49,7 @@ public class Panel02Bhv : PanelBhv
 
         transform.Find("Page02").transform.Find("DigitalSensei").GetComponent<ButtonBhv>().EndActionDelegate = () => { Application.OpenURL("https://www.twitch.tv/digitalsenseigaming"); };
         transform.Find("Page02").transform.Find("LobosJr").GetComponent<ButtonBhv>().EndActionDelegate = () => { Application.OpenURL("https://www.twitch.tv/lobosjr"); };
+        transform.Find("Page02").transform.Find("MissMikkaa").GetComponent<ButtonBhv>().EndActionDelegate = () => { Application.OpenURL("https://www.twitch.tv/missmikkaa"); };
         transform.Find("Page02").transform.Find("KeijiroTakahashi").GetComponent<ButtonBhv>().EndActionDelegate = () => { Application.OpenURL("https://github.com/keijiro/Lasp"); };
         transform.Find("Page02").transform.Find("Devs").GetComponent<ButtonBhv>().EndActionDelegate = () => { Application.OpenURL("https://forum.unity.com/threads/detecting-musical-notes-from-vocal-input.316698/"); };
         transform.Find("Page02").transform.Find("MichaelNoonan").GetComponent<ButtonBhv>().EndActionDelegate = () => { Application.OpenURL("https://github.com/michaelnoonan/inputsimulator"); };

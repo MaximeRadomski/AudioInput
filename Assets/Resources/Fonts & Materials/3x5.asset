@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 71c1514a6bd24e1e882cebbe1904ce04, type: 3}
-  m_Name: succubus3x5 SDF
+  m_Name: 3x5
   m_EditorClassIdentifier: 
   hashCode: -1076117192
   material: {fileID: 633388930247185914}

@@ -13,6 +13,8 @@ public static class Constants
     public const int HeldOnlyListened = 3;
     public const string ExportsFolderName = "Exports";
     public const string AudioInputsJson = "AudioInputsJson";
+    public const string Font3x5 = "3x5";
+    public const string FontAccessibility = "Accessible";
     public static OnOffHeld OnOffShortcut;
     public static OnOffStatus HoverHelpStatus;
 
@@ -40,6 +42,8 @@ public static class Constants
 
     //  PLAYER PREFS  //
     // Panel00
+    public const string PpFont = "Font";
+    public const string PpFontDefault = Font3x5;
     public const string PpLastSavedDevice = "LastSavedDevice";
     public const string PpLastSavedDeviceDefault = null;
     public const string PpCurrentChannel = "CurrentChannel";

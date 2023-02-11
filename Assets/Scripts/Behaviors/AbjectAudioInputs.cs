@@ -37,6 +37,7 @@ public class AbjectAudioInputs : MonoBehaviour
     private CheckBoxBhv _onOff;
     private ParticleSystem _notesThrower;
     private float _lastNoteThrow;
+    private float _mainPanelY = -0.06115063f;
 
     private List<PanelBhv> _panels;
     private Panel00Bhv _panel00;
@@ -127,7 +128,7 @@ public class AbjectAudioInputs : MonoBehaviour
                 tabSpriteRenderer.sortingOrder = 10;
                 if (textMesh != null)
                 {
-                    textMesh.text = $"<material=\"3x5.1.2.3\">{textMesh.text}";
+                    textMesh.fontMaterial = Resources.Load<Material>($"Fonts & Materials/{PlayerPrefHelper.GetFont()}.1.2.3");
                     textMesh.transform.position += new Vector3(0.0f, Constants.Pixel, 0.0f);
                 }
             }
@@ -137,10 +138,10 @@ public class AbjectAudioInputs : MonoBehaviour
                 _panels[i].enabled = false;
                 tabSpriteRenderer.sprite = i < 3 ? TabBigOff : TabSmallOff;
                 tabSpriteRenderer.sortingOrder = 0;
-                if (textMesh != null && textMesh.text.Contains("material"))
+                if (textMesh != null)
                 {
-                    textMesh.text = textMesh.text.Substring(22);
-                    textMesh.transform.position += new Vector3(0.0f, -Constants.Pixel, 0.0f);
+                    textMesh.fontMaterial = Resources.Load<Material>($"Fonts & Materials/{PlayerPrefHelper.GetFont()}.2.3.4");
+                    textMesh.transform.localPosition = new Vector3(textMesh.transform.localPosition.x, _mainPanelY, 0.0f);
                 }
             }
         }

@@ -104,6 +104,7 @@ public static class Helper
     public static AudioInputJson ToAudioInputJson(this AudioInput audioInput)
     {
         var json = new AudioInputJson();
+        json.Name = audioInput.Name;
         json.Enabled = audioInput.Enabled;
         json.Hz0 = audioInput.Frequencies[0].ToString("F2");
         json.Hz1 = audioInput.Frequencies[1].ToString("F2");
@@ -128,13 +129,16 @@ public static class Helper
 
         var audioInput = new AudioInput();
         audioInput.Id = -1;
+        audioInput.Name = json.Name;
         audioInput.Enabled = json.Enabled;
-        audioInput.Frequencies = new List<float>();
-        audioInput.Frequencies.Add(CustomFloatParse(json.Hz0));
-        audioInput.Frequencies.Add(CustomFloatParse(json.Hz1));
-        audioInput.Frequencies.Add(CustomFloatParse(json.Hz2));
-        audioInput.Frequencies.Add(CustomFloatParse(json.Hz3));
-        audioInput.Frequencies.Add(CustomFloatParse(json.Hz4));
+        audioInput.Frequencies = new List<float>
+        {
+            CustomFloatParse(json.Hz0),
+            CustomFloatParse(json.Hz1),
+            CustomFloatParse(json.Hz2),
+            CustomFloatParse(json.Hz3),
+            CustomFloatParse(json.Hz4)
+        };
         audioInput.Peaks = json.Peaks;
         audioInput.MouseInput = (MouseInput)json.MouseInputId;
         audioInput.Key = (VirtualKeyCode)json.KeyboardInputId;

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class Panel03Bhv : PanelBhv
@@ -11,6 +12,7 @@ public class Panel03Bhv : PanelBhv
     public int MouseSensitivity;
     private OnOffHeld _onOffShortcut;
     private OnOffStatus _hoverHelpStatus;
+    private OnOffStatus _accessibilityFont;
 
     private TMPro.TextMeshPro _resolutionData;
     private TMPro.TextMeshPro _languageData;
@@ -19,6 +21,7 @@ public class Panel03Bhv : PanelBhv
     private TMPro.TextMeshPro _mouseSensitivityData;
     private TMPro.TextMeshPro _onOffShortcutData;
     private TMPro.TextMeshPro _hoverHelpStatusData;
+    private TMPro.TextMeshPro _accessibilityData;
 
     void Start()
     {
@@ -37,6 +40,7 @@ public class Panel03Bhv : PanelBhv
         MouseSensitivity = PlayerPrefHelper.GetMouseSensitivity();
         _onOffShortcut = PlayerPrefHelper.GetOnOffShortcut();
         _hoverHelpStatus = PlayerPrefHelper.GetHoverHelpStatus();
+        _accessibilityFont = PlayerPrefHelper.GetFont() == Constants.FontAccessibility ? OnOffStatus.On : OnOffStatus.Off;
 
         _resolutionData = Helper.GetFieldData("Resolution");
         _languageData = Helper.GetFieldData("Language");
@@ -45,6 +49,7 @@ public class Panel03Bhv : PanelBhv
         _mouseSensitivityData = Helper.GetFieldData("MouseSensitivity");
         _onOffShortcutData = Helper.GetFieldData("OnOffShortcut");
         _hoverHelpStatusData = Helper.GetFieldData("HoverHelpStatus");
+        _accessibilityData = Helper.GetFieldData("AccessibilityFont");
     }
 
     private void SetButtons()
@@ -56,6 +61,7 @@ public class Panel03Bhv : PanelBhv
         Helper.GetFieldButton("MouseSensitivity").EndActionDelegate = SetMouseSensitivityPopup;
         Helper.GetFieldButton("OnOffShortcut").EndActionDelegate = SetOnOffShortcutPopup;
         Helper.GetFieldButton("HoverHelpStatus").EndActionDelegate = SetHoverHelpStatusPopup;
+        Helper.GetFieldButton("AccessibilityFont").EndActionDelegate = SetAccessibilityPopup;
 
         Helper.GetFieldButton("ResetCalibration").EndActionDelegate = ResetCalibrationPopup;
     }
@@ -69,6 +75,7 @@ public class Panel03Bhv : PanelBhv
         SetMouseSensitivity(MouseSensitivity);
         SetOnOffShortcut(_onOffShortcut.GetHashCode());
         SetHoverHelpStatus(_hoverHelpStatus.GetHashCode());
+        SetAccessibilityFont(_accessibilityFont.GetHashCode());
     }
 
     private object SetResolution(int id)
@@ -144,6 +151,23 @@ public class Panel03Bhv : PanelBhv
         return true;
     }
 
+    private object SetAccessibilityFont(int statusId)
+    {
+        OnOffStatus status = (OnOffStatus)statusId;
+        _accessibilityData.text = status.ToString().ToLower();
+        OnOffStatus current = PlayerPrefHelper.GetFont() == Constants.FontAccessibility ? OnOffStatus.On : OnOffStatus.Off;
+        if (current == status)
+            return false;
+        _accessibilityFont = status;
+        PlayerPrefHelper.SetFont(status == OnOffStatus.On ? Constants.FontAccessibility : Constants.Font3x5);
+        var allManagers = GameObject.FindObjectsOfType(typeof(FontManager));
+        foreach (FontManager fontManager in allManagers)
+        {
+            fontManager.AlterFont();
+        }
+        return true;
+    }
+
     private object ResetCalibration(bool result)
     {
         if (!result)
@@ -186,6 +210,11 @@ public class Panel03Bhv : PanelBhv
     private void SetHoverHelpStatusPopup()
     {
         this.Instantiator.NewPopupEnum<OnOffStatus>(transform.position, "hover help status", _hoverHelpStatus.GetHashCode(), SetHoverHelpStatus);
+    }
+
+    private void SetAccessibilityPopup()
+    {
+        this.Instantiator.NewPopupEnum<OnOffStatus>(transform.position, "accessibility font", _hoverHelpStatus.GetHashCode(), SetAccessibilityFont);
     }
 
     private void ResetCalibrationPopup()

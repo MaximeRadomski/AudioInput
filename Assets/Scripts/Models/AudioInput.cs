@@ -7,6 +7,7 @@ using WindowsInput;
 public class AudioInput
 {
     public int Id;
+    public string Name;
     public bool Enabled;
     public List<float> Frequencies;
     public int Peaks;
@@ -36,6 +37,7 @@ public class AudioInput
         var clone = new AudioInput();
 
         clone.Id = Id;
+        clone.Name = Name;
         clone.Enabled = Enabled;
         clone.Frequencies = new List<float>();
         for (int i = 0; i < 5; ++i)
@@ -54,6 +56,7 @@ public class AudioInput
 
 public class AudioInputJson
 {
+    public string Name;
     public bool Enabled;
     public string Hz0;
     public string Hz1;

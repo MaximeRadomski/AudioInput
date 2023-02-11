@@ -34,6 +34,15 @@ public class Instantiator : MonoBehaviour
         return tmpPopupInstance;
     }
 
+    public GameObject NewPopupText(Vector3 position, string title, string content, string current, int maxLength, System.Func<string, object> resultAction)
+    {
+        var tmpPopupObject = Resources.Load<GameObject>("Prefabs/PopupText");
+        var tmpPopupInstance = Instantiate(tmpPopupObject, position, tmpPopupObject.transform.rotation);
+        Constants.IncreaseInputLayer(tmpPopupInstance.name);
+        tmpPopupInstance.GetComponent<PopupTextBhv>().Init(title, content, current, maxLength, resultAction);
+        return tmpPopupInstance;
+    }
+
     public GameObject NewPopupFrequencies(Vector3 position, List<float> defaultFrequencies, int defaultPeaksNumber, System.Func<List<float>, int, object> resultAction)
     {
         var tmpPopupObject = Resources.Load<GameObject>("Prefabs/PopupFrequencies");
