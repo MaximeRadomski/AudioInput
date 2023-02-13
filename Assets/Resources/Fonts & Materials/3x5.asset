@@ -12,15 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 71c1514a6bd24e1e882cebbe1904ce04, type: 3}
   m_Name: 3x5
   m_EditorClassIdentifier: 
-  hashCode: -1076117192
+  hashCode: 58494
   material: {fileID: 633388930247185914}
-  materialHashCode: 1212427288
+  materialHashCode: 546037534
   m_Version: 1.1.0
   m_SourceFontFileGUID: f8c5a19b29dad5040aa4e40fe4abf929
   m_SourceFontFile_EditorRef: {fileID: 12800000, guid: f8c5a19b29dad5040aa4e40fe4abf929, type: 3}
   m_SourceFontFile: {fileID: 0}
   m_AtlasPopulationMode: 0
   m_FaceInfo:
+    m_FaceIndex: 0
     m_FamilyName: Succubus3x5
     m_StyleName: Regular
     m_PointSize: 27
@@ -2332,6 +2333,7 @@ MonoBehaviour:
   - {fileID: 3133762500553299482}
   m_AtlasTextureIndex: 0
   m_IsMultiAtlasTexturesEnabled: 0
+  m_ClearDynamicDataOnBuild: 0
   m_UsedGlyphRects:
   - m_X: 0
     m_Y: 0

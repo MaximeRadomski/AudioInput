@@ -8,7 +8,7 @@ using WindowsInput.Native;
 
 public class PopupInputBhv : PopupBhv
 {
-    private System.Func<int, object> _resultAction;
+    private Action<int, bool> _resultAction;
     private TMPro.TextMeshPro _recordedText;
     private TMPro.TextMeshPro _sendableText;
 
@@ -18,15 +18,18 @@ public class PopupInputBhv : PopupBhv
     private KeyCode _currentTypedKeyCode;
     private KeyCode _newTypedKeyCode = KeyCode.None;
     private bool _returnVirtualKeyCode;
+    private bool _isSecond;
 
     //For Test Mapping
     //private InputSimulator _inputSimulator;
 
-    public void Init(int currentId, System.Func<int, object> resultAction, bool returnVirtualKeyCode)
+    public void Init(int currentId, string title, Action<int, bool> resultAction, bool returnVirtualKeyCode)
     {
         //For Test Mapping
         //_inputSimulator = new InputSimulator();
 
+        transform.Find("Title").GetComponent<TMPro.TextMeshPro>().text = title;
+        _isSecond = title.Contains("2nd");
         Constants.EscapeOrEnterLocked = true;
         _resultAction = resultAction;
         _currentKeyCode = (VirtualKeyCode)currentId;
@@ -94,9 +97,9 @@ public class PopupInputBhv : PopupBhv
         Constants.EscapeOrEnterLocked = false;
         Constants.DecreaseInputLayer();
         if (_returnVirtualKeyCode)
-            _resultAction?.Invoke(_newKeyCode.GetHashCode());
+            _resultAction?.Invoke(_newKeyCode.GetHashCode(), _isSecond);
         else
-            _resultAction?.Invoke(_newTypedKeyCode.GetHashCode());
+            _resultAction?.Invoke(_newTypedKeyCode.GetHashCode(), _isSecond);
         Destroy(gameObject);
     }
 
@@ -105,9 +108,9 @@ public class PopupInputBhv : PopupBhv
         Constants.EscapeOrEnterLocked = false;
         Constants.DecreaseInputLayer();
         if (_returnVirtualKeyCode)
-            _resultAction?.Invoke(_currentKeyCode.GetHashCode());
+            _resultAction?.Invoke(_currentKeyCode.GetHashCode(), _isSecond);
         else
-            _resultAction?.Invoke(_currentTypedKeyCode.GetHashCode());
+            _resultAction?.Invoke(_currentTypedKeyCode.GetHashCode(), _isSecond);
         Destroy(gameObject);
     }
 
@@ -116,9 +119,9 @@ public class PopupInputBhv : PopupBhv
         Constants.EscapeOrEnterLocked = false;
         Constants.DecreaseInputLayer();
         if (_returnVirtualKeyCode)
-            _resultAction?.Invoke(_currentKeyCode.GetHashCode());
+            _resultAction?.Invoke(_currentKeyCode.GetHashCode(), _isSecond);
         else
-            _resultAction?.Invoke(_currentTypedKeyCode.GetHashCode());
+            _resultAction?.Invoke(_currentTypedKeyCode.GetHashCode(), _isSecond);
         Destroy(gameObject);
     }
 

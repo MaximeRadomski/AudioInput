@@ -52,12 +52,12 @@ public class Instantiator : MonoBehaviour
         return tmpPopupInstance;
     }
 
-    public GameObject NewPopupInput(Vector3 position, int currentId, System.Func<int, object> resultAction, bool returnVirtualKeyCode = true)
+    public GameObject NewPopupInput(Vector3 position, string title, int currentId, System.Action<int, bool> resultAction, bool returnVirtualKeyCode = true)
     {
         var tmpPopupObject = Resources.Load<GameObject>("Prefabs/PopupInput");
         var tmpPopupInstance = Instantiate(tmpPopupObject, position, tmpPopupObject.transform.rotation);
         Constants.IncreaseInputLayer(tmpPopupInstance.name);
-        tmpPopupInstance.GetComponent<PopupInputBhv>().Init(currentId, resultAction, returnVirtualKeyCode);
+        tmpPopupInstance.GetComponent<PopupInputBhv>().Init(currentId, title, resultAction, returnVirtualKeyCode);
         return tmpPopupInstance;
     }
 
@@ -79,6 +79,15 @@ public class Instantiator : MonoBehaviour
         return tmpPopupInstance;
     }
 
+    public GameObject NewPopupMultiInput(Vector3 position, System.Action<bool, bool?> resultAction)
+    {
+        var tmpPopupObject = Resources.Load<GameObject>("Prefabs/PopupMultiInput");
+        var tmpPopupInstance = Instantiate(tmpPopupObject, position, tmpPopupObject.transform.rotation);
+        Constants.IncreaseInputLayer(tmpPopupInstance.name);
+        tmpPopupInstance.GetComponent<PopupMultiInputBhv>().Init(resultAction);
+        return tmpPopupInstance;
+    }
+
     public GameObject NewAudioInput(Transform listSource, Vector3 offset, AudioInput audioInput, int id, Panel01Bhv panelBhv)
     {
         var tmpAudioInputObject = Resources.Load<GameObject>("Prefabs/AudioInput");
@@ -89,18 +98,18 @@ public class Instantiator : MonoBehaviour
         return tmpAudioInputInstance;
     }
 
-    public GameObject PopText(string text, Vector2 position, float floatingTime = 0.0f, float speed = 0.05f, float distance = 0.25f, float startFadingDistancePercent = 0.04f, float fadingSpeed = 0.1f)
+    public GameObject PopText(string text, Vector2 position, Transform parent, float floatingTime = 0.0f, float speed = 0.05f, float distance = 0.25f, float startFadingDistancePercent = 0.04f, float fadingSpeed = 0.1f)
     {
         var tmpPoppingTextObject = Resources.Load<GameObject>("Prefabs/PoppingText");
-        var tmpPoppingTextInstance = Instantiate(tmpPoppingTextObject, position, tmpPoppingTextObject.transform.rotation);
+        var tmpPoppingTextInstance = Instantiate(tmpPoppingTextObject, position, tmpPoppingTextObject.transform.rotation, parent);
         tmpPoppingTextInstance.GetComponent<PoppingTextBhv>().Init(text, position, floatingTime, speed, distance, startFadingDistancePercent, fadingSpeed);
         return tmpPoppingTextInstance;
     }
 
-    public GameObject PopNoShadowText(string text, Vector2 position, float floatingTime = 0.0f, float speed = 0.05f, float distance = 0.25f, float startFadingDistancePercent = 0.04f, float fadingSpeed = 0.1f)
+    public GameObject PopNoShadowText(string text, Vector2 position, Transform parent, float floatingTime = 0.0f, float speed = 0.05f, float distance = 0.25f, float startFadingDistancePercent = 0.04f, float fadingSpeed = 0.1f)
     {
         var tmpPoppingTextObject = Resources.Load<GameObject>("Prefabs/PoppingTextNoShadow");
-        var tmpPoppingTextInstance = Instantiate(tmpPoppingTextObject, position, tmpPoppingTextObject.transform.rotation);
+        var tmpPoppingTextInstance = Instantiate(tmpPoppingTextObject, position, tmpPoppingTextObject.transform.rotation, parent);
         tmpPoppingTextInstance.GetComponent<PoppingTextBhv>().Init(text, position, floatingTime, speed, distance, startFadingDistancePercent, fadingSpeed);
         return tmpPoppingTextInstance;
     }

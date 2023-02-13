@@ -9,7 +9,7 @@ public class FontManager : MonoBehaviour
 {
     private string _fontMaterial;
 
-    void Start()
+    void Awake()
     {
         _fontMaterial = null;
         AlterFont();
@@ -32,11 +32,9 @@ public class FontManager : MonoBehaviour
                 if (_fontMaterial != null)
                     textMeshPro.fontMaterial = Resources.Load<Material>($"Fonts & Materials/{Constants.FontAccessibility}{_fontMaterial}");
                 textMeshPro.fontStyle = FontStyles.Bold | FontStyles.UpperCase;
-                textMeshPro.margin += new Vector4(0f, 0.15f, 0f, 0f);
-                textMeshPro.characterSpacing = 7.50f;
-                textMeshPro.text = textMeshPro.text.Replace(Constants.Font3x5, Constants.FontAccessibility);
-                if (this.gameObject.TryGetComponent<HoverBhv>(out var hoverBhv))
-                    hoverBhv.Content = hoverBhv.Content.Replace(Constants.Font3x5, Constants.FontAccessibility);
+                textMeshPro.margin += new Vector4(0f, 0.12f, 0f, 0f);
+                textMeshPro.fontSize = 8.2f;
+                textMeshPro.text = textMeshPro.text.Replace(Constants.Font3x5, Constants.FontAccessibility);                    
             }
             else if (PlayerPrefHelper.GetFont() == Constants.Font3x5 && textMeshPro.font.name.Contains(Constants.FontAccessibility))
             {
@@ -44,12 +42,17 @@ public class FontManager : MonoBehaviour
                 if (_fontMaterial != null)
                     textMeshPro.fontMaterial = Resources.Load<Material>($"Fonts & Materials/{Constants.Font3x5}{_fontMaterial}");
                 textMeshPro.fontStyle = FontStyles.Normal;
-                textMeshPro.margin += new Vector4(0f, -0.15f, 0f, 0f);
-                textMeshPro.characterSpacing = 0.0f;
-                textMeshPro.text = textMeshPro.text.Replace(Constants.FontAccessibility, Constants.Font3x5);
-                if (this.gameObject.TryGetComponent<HoverBhv>(out var hoverBhv))
-                    hoverBhv.Content = hoverBhv.Content.Replace(Constants.FontAccessibility, Constants.Font3x5);
+                textMeshPro.margin += new Vector4(0f, -0.12f, 0f, 0f);
+                textMeshPro.fontSize = 7.3f;
+                textMeshPro.text = textMeshPro.text.Replace(Constants.FontAccessibility, Constants.Font3x5);                    
             }
+        }
+        if (this.gameObject.TryGetComponent<HoverBhv>(out var hoverBhv))
+        {
+            if (PlayerPrefHelper.GetFont() == Constants.FontAccessibility)
+                hoverBhv.Content = hoverBhv.Content.Replace(Constants.Font3x5, Constants.FontAccessibility);
+            else if (PlayerPrefHelper.GetFont() == Constants.Font3x5)
+                hoverBhv.Content = hoverBhv.Content.Replace(Constants.FontAccessibility, Constants.Font3x5);
         }
     }
 }

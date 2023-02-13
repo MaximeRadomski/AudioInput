@@ -10,6 +10,7 @@ public class PopupEnumBhv : PopupBhv
     private int _startId;
     private int _currentPageFirst;
     private int _enumLength;
+    private bool _isSecond;
 
     private ButtonBhv _pageUp;
     private ButtonBhv _pageDown;
@@ -20,6 +21,7 @@ public class PopupEnumBhv : PopupBhv
         _resultAction = resultAction;
 
         transform.Find("Title").GetComponent<TMPro.TextMeshPro>().text = title;
+        _isSecond = title.Contains("2nd");
 
         var buttonNegative = transform.Find("ButtonNegative");
         buttonNegative.GetComponent<ButtonBhv>().EndActionDelegate = NegativeDelegate;
@@ -38,6 +40,8 @@ public class PopupEnumBhv : PopupBhv
         var subString = Constants.LastEndActionClickedName.Substring(10);
         int id = int.Parse(subString);
         Constants.DecreaseInputLayer();
+        if (_isSecond)
+            id += 100;
         _resultAction?.Invoke(id);
         Destroy(gameObject);
     }
@@ -45,6 +49,8 @@ public class PopupEnumBhv : PopupBhv
     private void NegativeDelegate()
     {
         Constants.DecreaseInputLayer();
+        if (_isSecond)
+            _currentId += 100;
         _resultAction?.Invoke(_currentId);
         Destroy(gameObject);
     }
@@ -52,6 +58,8 @@ public class PopupEnumBhv : PopupBhv
     public override void ExitPopup()
     {
         Constants.DecreaseInputLayer();
+        if (_isSecond)
+            _currentId += 100;
         _resultAction?.Invoke(_currentId);
         Destroy(gameObject);
     }

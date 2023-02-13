@@ -250,6 +250,7 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_renderer: {fileID: 3996562394140539663}
   m_maskType: 0
+  _SortingLayer: 0
   _SortingLayerID: -1455142755
   _SortingOrder: 0
 --- !u!114 &8011821804963055265

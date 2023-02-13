@@ -271,7 +271,7 @@ public class Panel01Bhv : PanelBhv
     {
         if (AudioInputs == null || AudioInputs.Count == 0)
         {
-            this.Instantiator.PopText("no inputs", _folderExportsButton.transform.position + new Vector3(5.5f, 0.0f, 0.0f), fadingSpeed: 0.05f);
+            this.Instantiator.PopText("no inputs", _folderExportsButton.transform.position + new Vector3(5.5f, 0.0f, 0.0f), transform , fadingSpeed: 0.05f);
             return;
         }
 
@@ -303,7 +303,7 @@ public class Panel01Bhv : PanelBhv
         content += "]";
 
         File.AppendAllText(path, content);
-        this.Instantiator.PopText(fileName.ToLower(), _folderExportsButton.transform.position + new Vector3(5.5f, 0.0f, 0.0f), fadingSpeed: 0.05f);
+        this.Instantiator.PopText(fileName.ToLower(), _folderExportsButton.transform.position + new Vector3(5.5f, 0.0f, 0.0f), transform, fadingSpeed: 0.05f);
     }
 
     private void OpenExportsFolder()

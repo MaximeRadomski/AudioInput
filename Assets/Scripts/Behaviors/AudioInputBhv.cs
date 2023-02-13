@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using WindowsInput.Native;
+using static System.Runtime.CompilerServices.RuntimeHelpers;
 
 public class AudioInputBhv : FrameRateBehavior
 {
@@ -52,10 +53,14 @@ public class AudioInputBhv : FrameRateBehavior
     {
         SetEnabled(_audioInput.Enabled);
         SetFrequencies(_audioInput.Frequencies, _audioInput.Peaks);
-        if (_audioInput.MouseInput == MouseInput.None)
-            SetKeyboardInput(_audioInput.Key.GetHashCode());
+        if (_audioInput.GetMainDevice() == DeviceType.Keyboard)
+            SetKeyboardInput(_audioInput.Key.GetHashCode(), isSecond: false);
         else
-            SetMouseInput(_audioInput.MouseInput.GetHashCode());
+            SetMouseInput(_audioInput.Mouse.GetHashCode());
+        if (_audioInput.GetSecondDevice() == DeviceType.Keyboard)
+            SetKeyboardInput(_audioInput.Key2.GetHashCode(), isSecond: true);
+        else if (_audioInput.GetSecondDevice() == DeviceType.Mouse)
+            SetMouseInput(_audioInput.Mouse2.GetHashCode() + 100);
         SetType(_audioInput.InputType.GetHashCode());
         SetParam(_audioInput.Param);
     }
@@ -111,23 +116,59 @@ public class AudioInputBhv : FrameRateBehavior
         }
     }
 
-    private object SetKeyboardInput(int keyCodeId)
+    private void SetKeyboardInput(int keyCodeId, bool isSecond)
     {
         VirtualKeyCode keyCode = (VirtualKeyCode)keyCodeId;
-        _audioInput.MouseInput = MouseInput.None;
-        _audioInput.Key = keyCode;
-        _inputData.text = keyCode == VirtualKeyCode.NONAME ? "none" : keyCode.ToString().ToLower();
+        if (isSecond)
+        {
+            _audioInput.Mouse2 = MouseInput.None;
+            _audioInput.Key2 = keyCode;
+            if (keyCode != VirtualKeyCode.NONAME)
+                _audioInput.HasSecond = true;
+        }
+        else
+        {
+            _audioInput.Mouse = MouseInput.None;
+            _audioInput.Key = keyCode;
+        }
+        UpdateInputDataText();
         SetParam(_audioInput.Param);
-        return UpdateAudioInput();
+        UpdateAudioInput();
     }
 
     private object SetMouseInput(int id)
     {
-        _audioInput.Key = VirtualKeyCode.NONAME;
-        _audioInput.MouseInput = (MouseInput)id;
-        _inputData.text = _audioInput.MouseInput.GetDescription().ToLower();
+        bool isSecond = id >= 100;
+        if (isSecond)
+        {
+            id -= 100;
+            _audioInput.Key2 = VirtualKeyCode.NONAME;
+            _audioInput.Mouse2 = (MouseInput)id;
+            if ((MouseInput)id != MouseInput.None)
+                _audioInput.HasSecond = true;
+        }
+        else
+        {
+            _audioInput.Key = VirtualKeyCode.NONAME;
+            _audioInput.Mouse = (MouseInput)id;
+        }
+        UpdateInputDataText();
         SetParam(_audioInput.Param);
         return UpdateAudioInput();
+    }
+
+    private void DeleteSecondInput()
+    {
+        _audioInput.Key2 = VirtualKeyCode.NONAME;
+        _audioInput.Mouse2 = MouseInput.None;
+        _audioInput.HasSecond = false;
+        UpdateInputDataText();
+        UpdateAudioInput();
+    }
+
+    private void UpdateInputDataText()
+    {
+        _inputData.text = _audioInput.KeyToString();
     }
 
     private object SetType(int id)
@@ -145,13 +186,13 @@ public class AudioInputBhv : FrameRateBehavior
         var intValue = (int)value;
         if (intValue < 1)
             intValue = 1;
-        if (_audioInput.InputType == InputType.Tap && !Helper.IsMouseDirection(_audioInput.MouseInput))
+        if (_audioInput.InputType == InputType.Tap && !Helper.IsMouseDirection(_audioInput.Mouse))
         {
             _audioInput.Param = value;
             _paramData.text = "/";
             return false;
         }
-        else if ((_audioInput.InputType == InputType.Tap && Helper.IsMouseDirection(_audioInput.MouseInput))
+        else if ((_audioInput.InputType == InputType.Tap && Helper.IsMouseDirection(_audioInput.Mouse))
                || _audioInput.InputType == InputType.Held
                || _audioInput.InputType == InputType.CustomTap)
         {
@@ -175,16 +216,23 @@ public class AudioInputBhv : FrameRateBehavior
 
     private void SetInputPopup()
     {
-        _panelBhv.Instantiator.NewPopupYesNo(_panelBhv.transform.position, "input", string.Empty, "keyboard", "mouse", OnSetInputPopup);
+        _panelBhv.Instantiator.NewPopupMultiInput(_panelBhv.transform.position, OnSetInputPopup);
     }
 
-    private object OnSetInputPopup(bool isMouse)
+    private void OnSetInputPopup(bool isMouse, bool? isSecond)
     {
-        if (isMouse)
-            _panelBhv.Instantiator.NewPopupEnum<MouseInput>(_panelBhv.transform.position, "mouse input", _audioInput.MouseInput.GetHashCode(), SetMouseInput);
+        if (isSecond == null)
+        {
+            DeleteSecondInput();
+        }
         else
-            _panelBhv.Instantiator.NewPopupInput(_panelBhv.transform.position, _audioInput.Key.GetHashCode(), SetKeyboardInput);
-        return true;
+        {
+            bool isSecondBool = isSecond ?? false;
+            if (isMouse)
+                _panelBhv.Instantiator.NewPopupEnum<MouseInput>(_panelBhv.transform.position, $"{(isSecondBool ? "2nd" : "main")} mouse input", _audioInput.Mouse.GetHashCode(), SetMouseInput);
+            else
+                _panelBhv.Instantiator.NewPopupInput(_panelBhv.transform.position, $"{(isSecondBool ? "2nd" : "main")} keyboard input", _audioInput.Key.GetHashCode(), SetKeyboardInput);
+        }
     }
 
     private void SetTypePopup()
@@ -193,18 +241,18 @@ public class AudioInputBhv : FrameRateBehavior
     }
     private void SetParamPopup()
     {
-        if (_audioInput.InputType == InputType.Tap && !Helper.IsMouseDirection(_audioInput.MouseInput))
+        if (_audioInput.InputType == InputType.Tap && !Helper.IsMouseDirection(_audioInput.Mouse))
             return;
         var maxDigit = 2;
         var content = $"linked to the input type.";
-        if (_audioInput.InputType == InputType.Tap && Helper.IsMouseDirection(_audioInput.MouseInput))
+        if (_audioInput.InputType == InputType.Tap && Helper.IsMouseDirection(_audioInput.Mouse))
             content = "cursor offset.\n1 = 1 pixel.";
         else if (_audioInput.InputType == InputType.Held)
             content = $"{Constants.HeldUntilReset} = held until level reset.\n{Constants.HeldUntilNext} = held until next note.\n{Constants.HeldOnlyListened} = held only when listened.";
         else if (_audioInput.InputType == InputType.CustomTap)
             content = "the number of times the input\nwill be sent.";
         else if (_audioInput.InputType == InputType.CustomHeld)
-            content = $"{Constants.HeldUntilCalled} = held until called again.\n over {Constants.HeldUntilCalled} = number of seconds\nthe input will be held";
+            content = $"{Constants.HeldUntilCalled} = held until called again.\n over {Constants.HeldUntilCalled} = number of seconds\nthe input will be held.";
         _panelBhv.Instantiator.NewPopupNumber(_panelBhv.transform.position, "type param", content, _audioInput.Param, maxDigit, SetParam);
     }
 

@@ -11,11 +11,14 @@ public class AudioInput
     public bool Enabled;
     public List<float> Frequencies;
     public int Peaks;
-    public MouseInput MouseInput;
+    public MouseInput Mouse;
     public VirtualKeyCode Key;
+    public MouseInput Mouse2;
+    public bool HasSecond;
+    public VirtualKeyCode Key2;
     public InputType InputType;
     public float Param;
-    public float HiddenParam;
+    public float TimeHeldParam;
 
     public AudioInput()
     {
@@ -26,46 +29,93 @@ public class AudioInput
             Frequencies.Add(0.0f);
         }
         Peaks = 1;
-        MouseInput = MouseInput.None;
         Key = VirtualKeyCode.NONAME;
+        Mouse = MouseInput.None;
+        HasSecond = false;
+        Key2 = VirtualKeyCode.NONAME;
+        Mouse2 = MouseInput.None;
         InputType = InputType.Tap;
         Param = 0.0f;
     }
 
-    public AudioInput Clone()
+    public DeviceType GetMainDevice()
+    {
+        if (Key != VirtualKeyCode.NONAME)
+            return DeviceType.Keyboard;
+        else if (Mouse != MouseInput.None)
+            return DeviceType.Mouse;
+        return DeviceType.None;
+    }
+
+    public DeviceType GetSecondDevice()
+    {
+        if (HasSecond)
+        {
+            if (Key2 != VirtualKeyCode.NONAME)
+                return DeviceType.Keyboard;
+            else if (Mouse2 != MouseInput.None)
+                return DeviceType.Mouse;
+            return DeviceType.None;
+        }
+        return DeviceType.None;
+    }
+
+    public AudioInput CloneKeys()
     {
         var clone = new AudioInput();
 
         clone.Id = Id;
-        clone.Name = Name;
-        clone.Enabled = Enabled;
+        clone.Mouse = Mouse;
+        clone.Key = Key;
+        clone.HasSecond = HasSecond;
+        clone.Mouse2 = Mouse2;
+        clone.Key2 = Key2;
+
+        return clone;
+    }
+
+    public AudioInput CloneFrequenciesParam()
+    {
+        var clone = CloneKeys();
         clone.Frequencies = new List<float>();
         for (int i = 0; i < 5; ++i)
         {
             clone.Frequencies.Add(Frequencies[i]);
         }
-        clone.Peaks = Peaks;
-        clone.MouseInput = MouseInput;
-        clone.Key = Key;
-        clone.InputType = InputType;
         clone.Param = Param;
+        return clone;
+    }
+
+    public AudioInput CloneAll()
+    {
+        var clone = CloneFrequenciesParam();
+
+        clone.Name = Name;
+        clone.Enabled = Enabled;
+        clone.Peaks = Peaks;
+        clone.InputType = InputType;
 
         return clone;
     }
-}
 
-public class AudioInputJson
-{
-    public string Name;
-    public bool Enabled;
-    public string Hz0;
-    public string Hz1;
-    public string Hz2;
-    public string Hz3;
-    public string Hz4;
-    public int Peaks;
-    public int MouseInputId;
-    public int KeyboardInputId;
-    public int InputTypeId;
-    public float Param;
+    public string KeyToString()
+    {
+        string str;
+        var mainDevice = GetMainDevice();
+        var secondDevice = GetSecondDevice();
+        if (mainDevice == DeviceType.Keyboard)
+            str = Key.ToString().ShortInput();
+        else if (mainDevice == DeviceType.Mouse)
+            str = Mouse.GetDescription().ShortInput();
+        else
+            str = "none";
+        if (HasSecond)
+        {
+            if (secondDevice == DeviceType.Keyboard)
+                str += $" + {Key2.ToString().ShortInput()}";
+            else if (secondDevice == DeviceType.Mouse)
+                str += $" + {Mouse2.ToString().ShortInput()}";
+        }
+        return str;
+    }
 }

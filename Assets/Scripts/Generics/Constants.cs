@@ -5,6 +5,7 @@ using UnityEngine;
 public static class Constants
 {
     public const float Pixel = 0.14285f;
+    public const int MaxFps = 60;
     public const int MaxAudioInputs = 256;
     public const float SingleTapDelay = 0.05f;
     public const int HeldUntilCalled = 0;

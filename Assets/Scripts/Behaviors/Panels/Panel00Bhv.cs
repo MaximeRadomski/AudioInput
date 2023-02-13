@@ -272,7 +272,9 @@ public class Panel00Bhv : PanelBhv
     private object SetSingleTapReset(float value)
     {
         var intValue = (int)value;
-        if (intValue > 0)
+        if (intValue == 0)
+            intValue = -1;
+        else if (intValue > 0)
             intValue = -intValue;
         if (intValue < -100)
             intValue = -100;
@@ -389,7 +391,7 @@ public class Panel00Bhv : PanelBhv
 
     private void SetSingleTapResetPopup()
     {
-        var content = $"unfixed value\nfrom 0 to -100";
+        var content = $"unfixed value\nfrom -1 to -100";
         Instantiator.NewPopupNumber(transform.position, "tap reset", content, SingleTapReset, 3, SetSingleTapReset);
     }
 
@@ -464,13 +466,13 @@ public class Panel00Bhv : PanelBhv
             if (key == "_")
             {
                 position += new Vector3(0.0f, -0.25f, 0.0f);
-                Instantiator.PopNoShadowText(key.ToLower(), position + new Vector3(0.0f, 1.5f, 0.0f), distance: 2.0f, startFadingDistancePercent: 0.50f);
+                Instantiator.PopNoShadowText(key.ToLower(), position + new Vector3(0.0f, 1.5f, 0.0f), transform, distance: 2.0f, startFadingDistancePercent: 0.50f);
             }
             else if (key != string.Empty)
             {
                 if (key.ToLower() == "noname")
                     key = "none";
-                Instantiator.PopText(key.ToLower(), position + new Vector3(0.0f, 1.5f, 0.0f), distance: 2.0f, startFadingDistancePercent: 0.50f);
+                Instantiator.PopText(key.ToLower(), position + new Vector3(0.0f, 1.5f, 0.0f), this.transform, distance: 2.0f, startFadingDistancePercent: 0.50f);
             }
         }
     }

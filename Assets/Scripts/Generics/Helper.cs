@@ -112,8 +112,11 @@ public static class Helper
         json.Hz3 = audioInput.Frequencies[3].ToString("F2");
         json.Hz4 = audioInput.Frequencies[4].ToString("F2");
         json.Peaks = audioInput.Peaks;
-        json.MouseInputId = audioInput.MouseInput.GetHashCode();
+        json.MouseInputId = audioInput.Mouse.GetHashCode();
         json.KeyboardInputId = audioInput.Key.GetHashCode();
+        json.HasSecond = audioInput.HasSecond;
+        json.MouseInput2Id = audioInput.Mouse2.GetHashCode();
+        json.KeyboardInput2Id = audioInput.Key2.GetHashCode();
         json.InputTypeId = audioInput.InputType.GetHashCode();
         json.Param = audioInput.Param;
         return json;
@@ -140,8 +143,11 @@ public static class Helper
             CustomFloatParse(json.Hz4)
         };
         audioInput.Peaks = json.Peaks;
-        audioInput.MouseInput = (MouseInput)json.MouseInputId;
+        audioInput.Mouse = (MouseInput)json.MouseInputId;
         audioInput.Key = (VirtualKeyCode)json.KeyboardInputId;
+        audioInput.HasSecond = json.HasSecond;
+        audioInput.Mouse2 = (MouseInput)json.MouseInput2Id;
+        audioInput.Key2 = (VirtualKeyCode)json.KeyboardInput2Id;
         audioInput.InputType = (InputType)json.InputTypeId;
         audioInput.Param = json.Param;
         return audioInput;
@@ -176,5 +182,16 @@ public static class Helper
     public static bool IsMouseDirection(MouseInput mouseInput)
     {
         return mouseInput.GetHashCode() >= MouseInput.Up.GetHashCode() && mouseInput.GetHashCode() <= MouseInput.Right.GetHashCode();
+    }
+
+    public static string ShortInput(this string inputName)
+    {
+        var smol = inputName.ToLower();
+        smol = smol.Replace("vk_", "");
+        smol = smol.Replace("numpad", "n");
+        smol = smol.Replace("mouse", "#");
+        smol = smol.Replace("mbutton", "#");
+        smol = smol.Replace("oem_", "o");
+        return smol;
     }
 }
