@@ -33,6 +33,7 @@ public class FontManager : MonoBehaviour
                     textMeshPro.fontMaterial = Resources.Load<Material>($"Fonts & Materials/{Constants.FontAccessibility}{_fontMaterial}");
                 textMeshPro.fontStyle = FontStyles.Bold | FontStyles.UpperCase;
                 textMeshPro.margin += new Vector4(0f, 0.12f, 0f, 0f);
+                textMeshPro.wordSpacing = -4.0f;
                 textMeshPro.fontSize = 8.2f;
                 textMeshPro.text = textMeshPro.text.Replace(Constants.Font3x5, Constants.FontAccessibility);                    
             }
@@ -43,6 +44,7 @@ public class FontManager : MonoBehaviour
                     textMeshPro.fontMaterial = Resources.Load<Material>($"Fonts & Materials/{Constants.Font3x5}{_fontMaterial}");
                 textMeshPro.fontStyle = FontStyles.Normal;
                 textMeshPro.margin += new Vector4(0f, -0.12f, 0f, 0f);
+                textMeshPro.wordSpacing = 0.0f;
                 textMeshPro.fontSize = 7.3f;
                 textMeshPro.text = textMeshPro.text.Replace(Constants.FontAccessibility, Constants.Font3x5);                    
             }

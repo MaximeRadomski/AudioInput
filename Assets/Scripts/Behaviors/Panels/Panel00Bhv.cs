@@ -346,10 +346,10 @@ public class Panel00Bhv : PanelBhv
             value = 0.0f;
         else if (value > 100.0f)
             value = 100.0f;
+        _spectrumThresholdData.text = ((int)value).ToString();
         value = value / 100;
         SpectrumThreshold = value;
         PlayerPrefHelper.SetSpectrumThreshold(value);
-        _spectrumThresholdData.text = ((int)(value * 100)).ToString();
         return true;
     }
 
@@ -422,7 +422,7 @@ public class Panel00Bhv : PanelBhv
     private void SetSpectrumThresholdPopup()
     {
         var content = $"from 0 to 100";
-        Instantiator.NewPopupNumber(transform.position, "Spectrum Threshold", content, SpectrumThreshold, 3, SetSpectrumThreshold);
+        Instantiator.NewPopupNumber(transform.position, "Spectrum Threshold", content, SpectrumThreshold * 100, 3, SetSpectrumThreshold);
     }
 
     //Icon and PoppingTexr

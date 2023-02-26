@@ -20,6 +20,18 @@ public class Panel02Bhv : PanelBhv
         LoadData();
     }
 
+    private void Update()
+    {
+        if (Constants.CurrentPanel == 2 && Constants.InputLayer <= 0)
+        {
+            float wheel = Input.GetAxis("Mouse ScrollWheel");
+            if (wheel < 0f)
+                PageDown();
+            else if (wheel > 0f)
+                PageUp();
+        }
+    }
+
     public override void Init()
     {
         base.Init();

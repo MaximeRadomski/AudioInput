@@ -26,7 +26,6 @@ public class AbjectAudioInputs : FrameRateBehavior
     //private int _peaksCount;
     private float[] _spectrum;
     private int _samplerate;
-    private int _currentPanel = -1;
 
     private Instantiator _instantiator;
     private TMPro.TextMeshPro _dbData;
@@ -71,11 +70,13 @@ public class AbjectAudioInputs : FrameRateBehavior
         _notesThrower = GameObject.Find("NotesThrower").GetComponent<ParticleSystem>();
         _lastNoteThrow = Time.time;
 
-        _panels = new List<PanelBhv>();
-        _panels.Add(GameObject.Find("Panel00").GetComponent<PanelBhv>());
-        _panels.Add(GameObject.Find("Panel01").GetComponent<PanelBhv>());
-        _panels.Add(GameObject.Find("Panel02").GetComponent<PanelBhv>());
-        _panels.Add(GameObject.Find("Panel03").GetComponent<PanelBhv>());
+        _panels = new List<PanelBhv>
+        {
+            GameObject.Find("Panel00").GetComponent<PanelBhv>(),
+            GameObject.Find("Panel01").GetComponent<PanelBhv>(),
+            GameObject.Find("Panel02").GetComponent<PanelBhv>(),
+            GameObject.Find("Panel03").GetComponent<PanelBhv>()
+        };
         _panel00 = GameObject.Find("Panel00").GetComponent<Panel00Bhv>();
         _panel01 = GameObject.Find("Panel01").GetComponent<Panel01Bhv>();
         _panel02 = GameObject.Find("Panel02").GetComponent<Panel02Bhv>();
@@ -110,9 +111,9 @@ public class AbjectAudioInputs : FrameRateBehavior
 
     private void SetPanel(int id)
     {
-        if (_currentPanel == id)
+        if (Constants.CurrentPanel == id)
             return;
-        _currentPanel = id;
+        Constants.CurrentPanel = id;
         var referencePosition = GameObject.Find("---------- Panels").transform.position;
         for (int i = 0; i < _panels.Count; ++i)
         {

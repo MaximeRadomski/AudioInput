@@ -4880,6 +4880,7 @@ GameObject:
   - component: {fileID: 460457148}
   - component: {fileID: 460457147}
   - component: {fileID: 460457150}
+  - component: {fileID: 460457151}
   m_Layer: 0
   m_Name: ImportButton
   m_TagString: Untagged
@@ -5014,6 +5015,18 @@ MonoBehaviour:
     from a json file. it has to be stored into the "exports" folder, where the executable
     is located. its name doesn''t matter, only its content has to remain in json.'
   ClickMe: 0
+--- !u!114 &460457151
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 460457145}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb1931364f60176469b4a2dc391b5764, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &482737954
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -14350,6 +14363,7 @@ GameObject:
   - component: {fileID: 1380748373}
   - component: {fileID: 1380748372}
   - component: {fileID: 1380748371}
+  - component: {fileID: 1380748375}
   m_Layer: 0
   m_Name: FolderExportsButton
   m_TagString: Untagged
@@ -14483,6 +14497,18 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &1380748375
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1380748369}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb1931364f60176469b4a2dc391b5764, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1381868728
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -21887,6 +21913,7 @@ GameObject:
   - component: {fileID: 1571477524}
   - component: {fileID: 1571477523}
   - component: {fileID: 1571477526}
+  - component: {fileID: 1571477527}
   m_Layer: 0
   m_Name: ExportButton
   m_TagString: Untagged
@@ -22021,6 +22048,18 @@ MonoBehaviour:
     preset as a json file into the "exports" folder, where the executable is located.
     you can rename it afterwards.'
   ClickMe: 0
+--- !u!114 &1571477527
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1571477521}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb1931364f60176469b4a2dc391b5764, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1582478876
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -26584,7 +26623,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1434189542567186884, guid: 3fb12a3faf94681489b86db6490e132f, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 35.3272
+      value: 34.8876
       objectReference: {fileID: 0}
     - target: {fileID: 1434189542567186884, guid: 3fb12a3faf94681489b86db6490e132f, type: 3}
       propertyPath: m_SizeDelta.y
@@ -26620,7 +26659,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1434189542567186884, guid: 3fb12a3faf94681489b86db6490e132f, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0.1636
+      value: -0.0562
       objectReference: {fileID: 0}
     - target: {fileID: 1434189542567186884, guid: 3fb12a3faf94681489b86db6490e132f, type: 3}
       propertyPath: m_AnchoredPosition.y

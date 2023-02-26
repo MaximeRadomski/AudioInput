@@ -11,6 +11,8 @@ public class PopupTextBhv : PopupBhv
     private string _currentText;
     private string _currentString;
 
+    private string _forbiddenCharacters = "\t\f\n\0";
+
     private NumberFormatInfo _nfi;
 
     public void Init(string title, string content, string current, int maxLength, System.Func<string, object> resultAction)
@@ -48,36 +50,10 @@ public class PopupTextBhv : PopupBhv
                 _currentString = _currentString.Remove(_currentString.Length - 1, 1);
                 UpdateText();
             }
-            else if (_currentString.Length < _maxLength)
+            else if (_currentString.Length < _maxLength && !_forbiddenCharacters.Contains(e.character.ToString()))
             {
-                if (e.keyCode == KeyCode.Space && _currentString.Length > 0)
-                {
-                    _currentString = _currentString.Insert(_currentString.Length, " ");
-                    UpdateText();
-                }
-                else if ((e.keyCode >= KeyCode.Alpha0 && e.keyCode <= KeyCode.Alpha9)
-                      || (e.keyCode >= KeyCode.Keypad0 && e.keyCode <= KeyCode.Keypad9))
-                {
-                    int numberToAdd = int.Parse(e.keyCode.ToString().Substring(e.keyCode.ToString().Length - 1));
-                    _currentString = _currentString.Insert(_currentString.Length, numberToAdd.ToString());
-                    UpdateText();
-                }
-                else if ((e.keyCode >= KeyCode.A && e.keyCode <= KeyCode.Z))
-                {
-                    string characterToAdd = e.keyCode.ToString().Substring(e.keyCode.ToString().Length - 1);
-                    _currentString = _currentString.Insert(_currentString.Length, characterToAdd.ToLower());
-                    UpdateText();
-                }
-                else if (e.keyCode == KeyCode.KeypadPeriod || e.keyCode == KeyCode.Period)
-                {
-                    _currentString = _currentString.Insert(_currentString.Length, ".");
-                    UpdateText();
-                }
-                else if (e.keyCode == KeyCode.KeypadMinus || e.keyCode == KeyCode.Minus)
-                {
-                    _currentString = _currentString.Insert(_currentString.Length, "-");
-                    UpdateText();
-                }
+                _currentString += e.character.ToString().ToLower();
+                UpdateText();
             }
         }
     }

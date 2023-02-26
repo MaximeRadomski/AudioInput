@@ -32,6 +32,18 @@ public class Panel01Bhv : PanelBhv
         LoadData();
     }
 
+    private void Update()
+    {
+        if (Constants.CurrentPanel == 1 && Constants.InputLayer <= 0)
+        {
+            float wheel = Input.GetAxis("Mouse ScrollWheel");
+            if (wheel < 0f && !_pageNext.Disabled)
+                SetCurrentPage(_currentPage + 1);
+            else if (wheel > 0f && !_pagePrevious.Disabled)
+                SetCurrentPage(_currentPage - 1);
+        }
+    }
+
     public override void Init()
     {
         if (_hasInit)

@@ -35,6 +35,18 @@ public class PopupEnumBhv : PopupBhv
         LoadList<EnumType>(_currentPageFirst);
     }
 
+    private void Update()
+    {
+        if (Constants.InputLayer > 0 && Constants.InputTopLayerNames[Constants.InputTopLayerNames.Count - 1] == this.name)
+        {
+            float wheel = Input.GetAxis("Mouse ScrollWheel");
+            if (wheel < 0f && !_pageDown.Disabled)
+                _pageDown.EndActionDelegate?.Invoke();
+            else if (wheel > 0f && !_pageUp.Disabled)
+                _pageUp.EndActionDelegate?.Invoke();
+        }
+    }
+
     private void SelectEnum()
     {
         var subString = Constants.LastEndActionClickedName.Substring(10);

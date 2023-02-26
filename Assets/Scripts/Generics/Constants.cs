@@ -96,6 +96,7 @@ public static class Constants
     public static Color ColorPlainQuarterTransparent = new Color(1.0f, 1.0f, 1.0f, 0.25f);
     public static Color ColorBlack = new Color(0.0f, 0.0f, 0.0f, 1.0f);
 
+    public static int CurrentPanel = -1;
     public static int InputLayer = 0;
     public static bool DoubleClick = false;
     public static string ClickHistory = null;
